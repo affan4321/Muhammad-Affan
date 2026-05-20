@@ -135,7 +135,7 @@ dark-tunnel-portfolio/
 - [x] Created Zustand store for game state (`gameStore.ts`, `types.ts`)
 - [x] Implemented single spline curve utilities (`curves.ts`)
 - [x] Built handcar movement logic (`Handcar.tsx`)
-- [x] Implemented free-look camera riding with the handcar (`CameraController.tsx`)
+- [x] Implemented pointer-driven free-look camera riding with the handcar (`CameraController.tsx`)
 - [x] Added input handling (`useHandcarInput.ts`)
 - [x] Created debug UI with test button (`DebugUI.tsx`)
 - [x] Built main Canvas component with proper initialization (`Canvas.tsx`)
@@ -143,12 +143,12 @@ dark-tunnel-portfolio/
 - [x] Build validation passed ✓
 - [x] Dev server running on http://localhost:3000 ✓
 - [x] Live testing confirmed movement works ✓
-- [x] Camera stays attached to the handcar while allowing free look ✓
+- [x] Camera stays attached to the handcar while responding to mouse movement ✓
 
 **What's Working**:
 ✓ Zustand state management for game state
 ✓ Handcar movement along spline curves (tested)
-✓ Camera attached to the handcar with free-look rotation
+✓ Camera attached to the handcar with pointer-driven free look
 ✓ Progress tracking (0-100%)
 ✓ Debug UI showing real-time state
 ✓ Test move button increments progress
@@ -183,7 +183,7 @@ dark-tunnel-portfolio/
 **Working Features**:
 - Full 3D canvas rendering with React Three Fiber
 - Handcar positioned and moving along curves
-- Camera system attached to handcar with free-look controls
+- Camera system attached to handcar with pointer-driven free-look controls
 - Grid environment visualization
 - Two-button path branching system
 - State management persisting across interaction
@@ -229,7 +229,7 @@ dark-tunnel-portfolio/
 │   ├── components/
 │   │   ├── Canvas.tsx ✓ (main R3F canvas)
 │   │   ├── Handcar.tsx ✓ (movement logic)
-│   │   ├── CameraController.tsx ✓ (free-look camera)
+│   │   ├── CameraController.tsx ✓ (pointer-driven free-look camera)
 │   │   ├── PathSelector.tsx ✓ (path UI)
 │   │   ├── DebugUI.tsx ✓ (debug overlay)
 │   │   └── index.ts ✓
@@ -257,7 +257,7 @@ dark-tunnel-portfolio/
 4. `src/lib/curves.ts` - Spline curve utilities and demo track generation
 5. `src/components/Canvas.tsx` - R3F canvas with scene setup
 6. `src/components/Handcar.tsx` - Handcar movement component
-7. `src/components/CameraController.tsx` - Free-look camera system
+7. `src/components/CameraController.tsx` - Pointer-driven free-look camera system
 8. `src/components/DebugUI.tsx` - Debug overlay UI
 9. `src/components/PathSelector.tsx` - Path selection UI
 10. `src/components/index.ts` - Component exports
