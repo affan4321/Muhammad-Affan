@@ -14,6 +14,7 @@ export interface GameStoreState {
   currentTrack: Curve<Vector3> | null;
   progress: number;
   speed: number;
+  currentPosition: Vector3;
 
   // State
   gameState: GameState;
@@ -27,6 +28,7 @@ export interface GameStoreState {
   // Actions
   setCurrentTrack: (curve: Curve<Vector3>) => void;
   setProgress: (progress: number) => void;
+  setCurrentPosition: (pos: Vector3) => void;
   setGameState: (state: GameState) => void;
   setAvailablePaths: (paths: PathOption[]) => void;
   selectPath: (pathId: string) => void;

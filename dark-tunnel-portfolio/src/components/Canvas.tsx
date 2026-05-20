@@ -6,6 +6,8 @@ import { PerspectiveCamera, Grid } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import LightingTransition from "./LightingTransition";
 import Cave from "./Cave";
+import AudioManager from "./AudioManager";
+import CaveTrigger from "./CaveTrigger";
 import { Handcar } from "./Handcar";
 import { CameraController } from "./CameraController";
 import { useGameStore } from "@/store/gameStore";
@@ -40,6 +42,8 @@ const Scene = () => {
       {/* Game Objects */}
       <Handcar />
       <Cave />
+      <CaveTrigger />
+      <AudioManager />
     </>
   );
 };

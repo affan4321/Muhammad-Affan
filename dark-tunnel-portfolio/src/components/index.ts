@@ -7,3 +7,5 @@ export { StonePillar } from "./StonePillar";
 export { Hologram } from "./Hologram";
 export { LightingTransition } from "./LightingTransition";
 export { Cave } from "./Cave";
+export { AudioManager } from "./AudioManager";
+export { CaveTrigger } from "./CaveTrigger";

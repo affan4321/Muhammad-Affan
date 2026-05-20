@@ -1,11 +1,13 @@
 import { create } from "zustand";
 import { GameStoreState } from "./types";
+import { Vector3 } from "three";
 
 export const useGameStore = create<GameStoreState>((set) => ({
   // Initial state
   currentTrack: null,
   progress: 0,
   speed: 0.002, // Adjust for handcar movement speed
+  currentPosition: new Vector3(0, 0, 0),
   gameState: "IDLE",
   availablePaths: [],
   selectedPath: null,
@@ -19,6 +21,7 @@ export const useGameStore = create<GameStoreState>((set) => ({
     set({
       progress: Math.max(0, Math.min(1, progress)), // Clamp between 0-1
     }),
+  setCurrentPosition: (pos) => set({ currentPosition: pos }),
 
   setGameState: (state) => set({ gameState: state }),
 

@@ -54,6 +54,9 @@ export const Handcar = () => {
       );
     }
 
+    // Publish current position to the global store for triggers
+    useGameStore.setState({ currentPosition: position.clone() });
+
     // Check if we've reached the end - trigger path selection
     if (newProgress >= 0.99 && gameState === "RIDING") {
       useGameStore.setState({ gameState: "CHOOSING_PATH" });
