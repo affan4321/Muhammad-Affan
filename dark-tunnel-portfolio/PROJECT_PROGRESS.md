@@ -71,7 +71,7 @@ A cinematic portfolio experience where users travel through a dark tunnel on a h
 - [ ] Add progress 0→1 tracking
 - [ ] Display debug UI (current progress, position)
 
-**Status**: NOT STARTED
+**Status**: COMPLETED
 **Estimated Effort**: 4–6 hours
 
 **Acceptance Criteria**:
@@ -93,7 +93,7 @@ A cinematic portfolio experience where users travel through a dark tunnel on a h
 - [ ] Swap curve + reset progress on selection
 - [ ] Resume movement
 
-**Status**: COMPLETED
+**Status**: NOT STARTED
 **Estimated Effort**: 3–4 hours
 
 **Acceptance Criteria**:
