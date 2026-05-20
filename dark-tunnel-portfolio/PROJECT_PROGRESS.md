@@ -343,7 +343,8 @@ dark-tunnel-portfolio/
 ### Priority 1: Model Scaling & Placement Tweaks
 - [ ] Adjust cart.glb scale to match handcar proportions
 - [ ] Fine-tune lamp spacing and heights
-- [ ] Position railway tracks to form cohesive visual path
+- [x] Position railway tracks to form cohesive visual path
+- [x] Make tunnel shell walls continuous along the spline
 - [ ] Verify door model fits cave entrance scale
 - [ ] Add remaining model wrappers (Arms, HorrorLight, RustyLamp)
 
@@ -388,6 +389,7 @@ export const ModelComponent = ({ scale = 0.01, position = [0, 0, 0], ...props }:
 - Uses useMemo to compute positions along spline on track change
 - Iterates from 0 to 1 with fixed step intervals
 - Calculates tangent-based offsets for perpendicular placement
+- Repeats rail sections and tunnel dressing along the entire path
 - Positions scale inversely to visibility distance
 
 **Key Settings (Tuned)**:

@@ -4,27 +4,43 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { useGameStore } from "@/store/gameStore";
 
+const getFlatYaw = (direction: THREE.Vector3) => {
+  const flatDirection = direction.clone();
+  flatDirection.y = 0;
+
+  if (flatDirection.lengthSq() === 0) {
+    flatDirection.set(0, 0, 1);
+  }
+
+  flatDirection.normalize();
+  return Math.atan2(flatDirection.x, flatDirection.z);
+};
+
 /**
- * TunnelShell: places simple stretched boxes alongside the track to imply walls/ceiling
+ * TunnelShell: places continuous stretched boxes alongside the track to imply walls and ceiling
  */
 const TunnelShell = () => {
   const currentTrack = useGameStore((s) => s.currentTrack);
 
   const segments = useMemo(() => {
     if (!currentTrack) return [];
-    const res: { pos: THREE.Vector3; right: THREE.Vector3; length: number }[] = [];
-    const samples = 30;
-    let prevPoint = currentTrack.getPointAt(0);
-    for (let i = 1; i <= samples; i++) {
-      const t = i / samples;
-      const pt = currentTrack.getPointAt(t);
-      const tangent = currentTrack.getTangentAt(t).normalize();
-      const up = new THREE.Vector3(0, 1, 0);
-      const right = new THREE.Vector3().crossVectors(tangent, up).normalize();
-      const length = pt.distanceTo(prevPoint) || 1;
-      res.push({ pos: pt.clone(), right, length });
-      prevPoint = pt;
+
+    const res: { pos: THREE.Vector3; yaw: number; length: number }[] = [];
+    const sampleCount = 60;
+    let previousPoint = currentTrack.getPointAt(0);
+
+    for (let i = 1; i <= sampleCount; i++) {
+      const t = i / sampleCount;
+      const point = currentTrack.getPointAt(t);
+      const midpoint = previousPoint.clone().lerp(point, 0.5);
+      const direction = point.clone().sub(previousPoint);
+      const yaw = getFlatYaw(direction);
+      const length = Math.max(direction.length() * 1.2, 0.75);
+
+      res.push({ pos: midpoint, yaw, length });
+      previousPoint = point;
     }
+
     return res;
   }, [currentTrack]);
 
@@ -32,28 +48,22 @@ const TunnelShell = () => {
 
   return (
     <group>
-      {segments.map((s, idx) => {
-        const leftPos = s.pos.clone().add(s.right.clone().multiplyScalar(-6));
-        const rightPos = s.pos.clone().add(s.right.clone().multiplyScalar(6));
-        const ceilingPos = s.pos.clone().add(new THREE.Vector3(0, 3.6, 0));
-
-        return (
-          <group key={idx}>
-            <mesh position={leftPos.toArray()} rotation={[0, 0, 0]}>
-              <boxGeometry args={[s.length * 1.05, 6, 6]} />
-              <meshStandardMaterial color="#0b0b0b" emissive="#020202" metalness={0.1} roughness={1} />
-            </mesh>
-            <mesh position={rightPos.toArray()} rotation={[0, 0, 0]}>
-              <boxGeometry args={[s.length * 1.05, 6, 6]} />
-              <meshStandardMaterial color="#0b0b0b" emissive="#020202" metalness={0.1} roughness={1} />
-            </mesh>
-            <mesh position={ceilingPos.toArray()} rotation={[0, 0, 0]}>
-              <boxGeometry args={[s.length * 1.05, 1.8, 12]} />
-              <meshStandardMaterial color="#030303" emissive="#010101" metalness={0} roughness={1} />
-            </mesh>
-          </group>
-        );
-      })}
+      {segments.map((segment, index) => (
+        <group key={index} position={[segment.pos.x, segment.pos.y, segment.pos.z]} rotation={[0, segment.yaw, 0]}>
+          <mesh position={[0, 0.4, -6]}>
+            <boxGeometry args={[segment.length, 6.5, 6.5]} />
+            <meshStandardMaterial color="#0b0b0b" emissive="#020202" metalness={0.1} roughness={1} />
+          </mesh>
+          <mesh position={[0, 0.4, 6]}>
+            <boxGeometry args={[segment.length, 6.5, 6.5]} />
+            <meshStandardMaterial color="#0b0b0b" emissive="#020202" metalness={0.1} roughness={1} />
+          </mesh>
+          <mesh position={[0, 3.7, 0]}>
+            <boxGeometry args={[segment.length, 1.8, 12]} />
+            <meshStandardMaterial color="#030303" emissive="#010101" metalness={0} roughness={1} />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 };
