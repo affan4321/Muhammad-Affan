@@ -1,7 +1,7 @@
 # Dark Tunnel Portfolio - Project Progress
 
 **Project**: Interactive 3D Dark Tunnel Portfolio Experience
-**Status**: 🟡 Phase 1 - Setup & Graybox
+**Status**: 🟡 Phase 3 - Asset Integration (In Progress)
 **Last Updated**: May 20, 2026
 **Repository**: `/Users/apple/Data/-----------GITHUB Repositories-----------/Muhammad-Affan`
 
@@ -214,6 +214,59 @@ These changes are implemented in `src/components/Atmospherics.tsx` and `src/comp
 
 ---
 
+## ✅ PHASE 2: ATMOSPHERE & GAME LOGIC - COMPLETED
+
+**All Tasks Completed**:
+- [x] Created Atmospherics component with fog and particles (`src/components/Atmospherics.tsx`)
+- [x] Created TunnelShell component for tunnel walls (`src/components/TunnelShell.tsx`)
+- [x] Prototype Cave, StonePillar, and Hologram components
+- [x] Integrated LightingTransition for cave entrance effects
+- [x] Created AudioManager with Howler.js setup
+- [x] Created CaveTrigger for distance-based cave entrance detection
+- [x] Exposed currentPosition in game store for trigger logic
+- [x] Added @types/howler for TypeScript support
+- [x] Fixed all TypeScript errors
+- [x] Build passes successfully ✓
+
+**What's Working**:
+✓ Fog creates implied tunnel boundaries
+✓ Particles add subtle depth and movement
+✓ Tunnel walls provide sense of enclosure
+✓ Ambient light reduced for dark atmosphere (0.02 intensity)
+✓ Audio system ready for music/ambience
+✓ Cave trigger detects when player approaches track end
+✓ State infrastructure ready for cave display logic
+
+---
+
+## ✅ PHASE 3: GLTF MODEL INTEGRATION - COMPLETED
+
+**All Tasks Completed**:
+- [x] Created model wrapper components using @react-three/drei's useGLTF
+  - CartModel (loads cart.glb for player vehicle)
+  - LampModel (loads lamp.glb for tunnel decoration)
+  - RailwayTrackModel (loads railway track.glb for path)
+  - DoorModel (loads door.glb for cave entrance)
+- [x] Created TunnelEnvironment component to distribute models along track
+- [x] Replaced red Handcar cube with real cart.glb model
+- [x] Added lamp placement at regular intervals (0.15 step) along tunnel
+- [x] Added railway track segments at intervals (0.2 step) along path
+- [x] Added cave entrance door placement at track end (0.95 position)
+- [x] Fixed GLTFLoader imports to use useGLTF from @react-three/drei
+- [x] Integrated TunnelEnvironment into main Canvas
+- [x] Build passes TypeScript checks successfully ✓
+- [x] Committed to git with all 7 GLB model files ✓
+
+**What's Working**:
+✓ Models load asynchronously without blocking render
+✓ CartModel displays as player vehicle
+✓ Environment models positioned along spline
+✓ Model positioning uses tangent-based offsets for natural placement
+✓ Scale parameters allow flexible sizing (0.3-0.5x)
+✓ Zero build errors, production-ready code
+
+---
+
 ## 🔧 KEY FIXES APPLIED
 
 1. **React Hooks Violation (PathSelector)**: 
@@ -285,29 +338,64 @@ dark-tunnel-portfolio/
 
 ---
 
-## 🎯 NEXT STEPS (Phase 2)
+## 🎯 NEXT STEPS (Phase 4: VISUAL REFINEMENT & REAL CONTENT)
 
-1. **Download 3D Assets**
-   - Tunnel segments from Sketchfab
-   - Handcar model
-   - Stone pillars
+### Priority 1: Model Scaling & Placement Tweaks
+- [ ] Adjust cart.glb scale to match handcar proportions
+- [ ] Fine-tune lamp spacing and heights
+- [ ] Position railway tracks to form cohesive visual path
+- [ ] Verify door model fits cave entrance scale
+- [ ] Add remaining model wrappers (Arms, HorrorLight, RustyLamp)
 
-2. **Integrate Models**
-   - Use gltfjsx for model optimization
-   - Replace debug cube with handcar model
-   - Add tunnel segments along curve
+### Priority 2: Real Project Content
+- [ ] Create project data structure (JSON with name, description, link)
+- [ ] Replace placeholder StonePillar with real model or shader-enhanced pillar
+- [ ] Implement dynamic hologram text display
+- [ ] Add project thumbnail images
+- [ ] Create logic to populate cave content from project data
 
-3. **Refine Movement**
-   - Camera bobbing animation when moving
-   - Handcar tilt on curves
-   - Smooth acceleration/deceleration
+### Priority 3: Polish & Interactivity  
+- [ ] Test model loading performance
+- [ ] Optimize GLB file sizes if needed
+- [ ] Add entrance door opening animation
+- [ ] Implement hologram glow effect
+- [ ] Add cave-specific ambience (sounds, lighting)
+- [ ] Test path transitions and branching behavior
 
-4. **Visual Polish**
-   - Better lighting
-   - Particle effects
-   - Trail/distortion effects
+### Priority 4: Audio Integration
+- [ ] Add background music
+- [ ] Implement ambient sound effects
+- [ ] Wire audio system to game state changes
+- [ ] Test audio sync with cave entrance
 
 ---
+
+## 📝 IMPLEMENTATION NOTES (AS OF PHASE 3)
+
+**Model Wrapper Pattern**:
+```typescript
+export const ModelComponent = ({ scale = 0.01, position = [0, 0, 0], ...props }: any) => {
+  const gltf = useGLTF("/models/model.glb");
+  return (
+    <group position={position as [number, number, number]} scale={scale} {...props}>
+      <primitive object={gltf.scene} />
+    </group>
+  );
+};
+```
+
+**TunnelEnvironment Pattern**:
+- Uses useMemo to compute positions along spline on track change
+- Iterates from 0 to 1 with fixed step intervals
+- Calculates tangent-based offsets for perpendicular placement
+- Positions scale inversely to visibility distance
+
+**Key Settings (Tuned)**:
+- Handcar speed: 0.001
+- Camera lerp: 0.08
+- Mouse sensitivity: 0.0025
+- Ambient light: 0.02
+- Fog near: 0, far: 40
 
 ## 🔗 IMPORTANT LINKS & NOTES
 
