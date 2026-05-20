@@ -3,3 +3,7 @@ export { Handcar } from "./Handcar";
 export { CameraController } from "./CameraController";
 export { DebugUI } from "./DebugUI";
 export { PathSelector } from "./PathSelector";
+export { StonePillar } from "./StonePillar";
+export { Hologram } from "./Hologram";
+export { LightingTransition } from "./LightingTransition";
+export { Cave } from "./Cave";

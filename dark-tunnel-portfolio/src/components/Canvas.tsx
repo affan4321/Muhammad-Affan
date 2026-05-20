@@ -3,6 +3,9 @@
 import { useEffect } from "react";
 import { Canvas as R3FCanvas } from "@react-three/fiber";
 import { PerspectiveCamera, Grid } from "@react-three/drei";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
+import LightingTransition from "./LightingTransition";
+import Cave from "./Cave";
 import { Handcar } from "./Handcar";
 import { CameraController } from "./CameraController";
 import { useGameStore } from "@/store/gameStore";
@@ -21,28 +24,22 @@ const Scene = () => {
       <PerspectiveCamera makeDefault position={[0, 2, -3]} fov={75} />
       <CameraController />
 
-      {/* Lighting */}
-      <ambientLight intensity={0.6} />
-      <directionalLight
-        position={[10, 20, 10]}
-        intensity={1}
-        castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-        shadow-camera-far={100}
-      />
+      {/* Lighting and transitions */}
+      <ambientLight intensity={0.1} />
+      {/* LightingTransition will animate directional light intensity */}
+      <LightingTransition />
 
       {/* Environment */}
-      <Grid
-        args={[100, 100]}
-        cellSize={5}
-        cellColor="#444"
-        sectionSize={20}
-        sectionColor="#888"
-      />
+      <Grid args={[100, 100]} cellSize={5} cellColor="#444" sectionSize={20} sectionColor="#888" />
+
+      {/* Postprocessing */}
+      <EffectComposer>
+        <Bloom intensity={0.8} luminanceThreshold={0.2} mipmapBlur />
+      </EffectComposer>
 
       {/* Game Objects */}
       <Handcar />
+      <Cave />
     </>
   );
 };
