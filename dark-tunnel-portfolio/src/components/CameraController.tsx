@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Euler, Quaternion, Vector3, MathUtils } from "three";
+import { Euler, Vector3, MathUtils } from "three";
 import { useGameStore } from "@/store/gameStore";
 
 /**
@@ -19,11 +19,7 @@ export const CameraController = () => {
   const currentPitch = useRef(0);
   const targetYaw = useRef(0);
   const targetPitch = useRef(0);
-  const baseForward = useRef(new Vector3(0, 0, -1));
   const baseUp = useRef(new Vector3(0, 1, 0));
-  const baseQuaternion = useRef(new Quaternion());
-  const lookQuaternion = useRef(new Quaternion());
-  const frameVector = useRef(new Vector3());
 
   useEffect(() => {
     hasTrackPosition.current = false;
@@ -52,40 +48,26 @@ export const CameraController = () => {
     if (!currentTrack) return;
 
     const trackPosition = currentTrack.getPointAt(progress);
-    const trackTangent = currentTrack.getTangentAt(progress).normalize();
     const seatPosition = trackPosition
       .clone()
-      .add(baseUp.current.clone().multiplyScalar(0.95))
-      .add(trackTangent.clone().multiplyScalar(-0.65));
+      .add(baseUp.current.clone().multiplyScalar(0.92));
 
     if (!hasTrackPosition.current) {
       camera.position.copy(seatPosition);
       lastTrackPosition.current.copy(trackPosition);
-      baseForward.current.copy(trackTangent);
       hasTrackPosition.current = true;
     } else {
       const delta = trackPosition.clone().sub(lastTrackPosition.current);
       camera.position.add(delta);
       lastTrackPosition.current.copy(trackPosition);
-      baseForward.current.copy(trackTangent);
     }
 
-    currentYaw.current = MathUtils.lerp(currentYaw.current, targetYaw.current, 0.14);
-    currentPitch.current = MathUtils.lerp(currentPitch.current, targetPitch.current, 0.14);
+    currentYaw.current = MathUtils.lerp(currentYaw.current, targetYaw.current, 0.08);
+    currentPitch.current = MathUtils.lerp(currentPitch.current, targetPitch.current, 0.08);
 
-    baseQuaternion.current.setFromUnitVectors(
-      new Vector3(0, 0, -1),
-      baseForward.current.clone().normalize()
-    );
-
-    lookQuaternion.current.setFromEuler(
+    camera.position.lerp(seatPosition, 0.12);
+    camera.quaternion.setFromEuler(
       new Euler(currentPitch.current, currentYaw.current, 0, "YXZ")
-    );
-
-    camera.position.lerp(seatPosition, 0.2);
-    camera.quaternion.slerp(
-      baseQuaternion.current.clone().multiply(lookQuaternion.current),
-      0.2
     );
     camera.up.copy(baseUp.current);
   });

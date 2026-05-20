@@ -6,7 +6,7 @@ export const useGameStore = create<GameStoreState>((set) => ({
   // Initial state
   currentTrack: null,
   progress: 0,
-  speed: 0.002, // Adjust for handcar movement speed
+  speed: 0.001, // Reduced for a more natural handcar pace
   currentPosition: new Vector3(0, 0, 0),
   gameState: "IDLE",
   availablePaths: [],
