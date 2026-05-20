@@ -12,6 +12,7 @@ import { Handcar } from "./Handcar";
 import { CameraController } from "./CameraController";
 import Atmospherics from "./Atmospherics";
 import TunnelShell from "./TunnelShell";
+import { TunnelEnvironment } from "./TunnelEnvironment";
 import { useGameStore } from "@/store/gameStore";
 import { useHandcarInput } from "@/hooks/useHandcarInput";
 import { generateDemoTracks } from "@/lib/curves";
@@ -32,6 +33,7 @@ const Scene = () => {
       <Atmospherics />
       <ambientLight intensity={0.02} />
       <TunnelShell />
+      <TunnelEnvironment />
       {/* LightingTransition will animate directional light intensity */}
       <LightingTransition />
 

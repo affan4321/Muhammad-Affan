@@ -1,16 +1,16 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGameStore } from "@/store/gameStore";
 import * as THREE from "three";
+import CartModel from "./models/CartModel";
 
 /**
- * Handcar component - renders a cube that moves along the track
- * Phase 1: Simple graybox implementation
+ * Handcar component - renders the cart model that moves along the track
  */
 export const Handcar = () => {
-  const meshRef = useRef<THREE.Mesh>(null!);
+  const groupRef = useRef<THREE.Group>(null!);
   const currentTrack = useGameStore((state) => state.currentTrack);
   const progress = useGameStore((state) => state.progress);
   const setProgress = useGameStore((state) => state.setProgress);
@@ -41,13 +41,13 @@ export const Handcar = () => {
     const position = currentTrack.getPointAt(newProgress);
     const tangent = currentTrack.getTangentAt(newProgress).normalize();
 
-    // Position the handcar
-    if (meshRef.current) {
-      meshRef.current.position.copy(position);
+    // Position the handcar group
+    if (groupRef.current) {
+      groupRef.current.position.copy(position);
 
       // Rotate to face direction of curve
       const direction = tangent;
-      meshRef.current.lookAt(
+      groupRef.current.lookAt(
         position.x + direction.x,
         position.y + direction.y,
         position.z + direction.z
@@ -64,9 +64,8 @@ export const Handcar = () => {
   });
 
   return (
-    <mesh ref={meshRef} position={[0, 0, 0]}>
-      <boxGeometry args={[1, 1, 2]} />
-      <meshPhongMaterial color="#ff0000" />
-    </mesh>
+    <group ref={groupRef} position={[0, 0, 0]}>
+      <CartModel scale={0.5} />
+    </group>
   );
 };
