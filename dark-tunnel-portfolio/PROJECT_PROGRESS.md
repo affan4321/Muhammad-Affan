@@ -201,6 +201,19 @@ dark-tunnel-portfolio/
 
 ---
 
+## 🎨 ATMOSPHERE PASS (APPLIED)
+
+Immediate visual improvements added to the prototype to remove the "infinite empty" feeling:
+
+- **Fog**: Exponential fog added to the scene to shorten visibility and hide distant geometry.
+- **Particles**: Low-opacity dust/fog motes to give depth and movement in the dark.
+- **Tunnel Shell**: Simple left/right/ceiling stretched boxes placed along the spline to imply tunnel walls and limit view.
+- **Ambient Lighting**: Global ambient light lowered to emphasize pillars and point lights.
+
+These changes are implemented in `src/components/Atmospherics.tsx` and `src/components/TunnelShell.tsx` and integrated into the main canvas.
+
+---
+
 ## 🔧 KEY FIXES APPLIED
 
 1. **React Hooks Violation (PathSelector)**: 

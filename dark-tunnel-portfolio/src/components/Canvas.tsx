@@ -10,6 +10,8 @@ import AudioManager from "./AudioManager";
 import CaveTrigger from "./CaveTrigger";
 import { Handcar } from "./Handcar";
 import { CameraController } from "./CameraController";
+import Atmospherics from "./Atmospherics";
+import TunnelShell from "./TunnelShell";
 import { useGameStore } from "@/store/gameStore";
 import { useHandcarInput } from "@/hooks/useHandcarInput";
 import { generateDemoTracks } from "@/lib/curves";
@@ -26,8 +28,10 @@ const Scene = () => {
       <PerspectiveCamera makeDefault position={[0, 2, -3]} fov={75} />
       <CameraController />
 
-      {/* Lighting and transitions */}
-      <ambientLight intensity={0.1} />
+      {/* Atmosphere and lighting */}
+      <Atmospherics />
+      <ambientLight intensity={0.02} />
+      <TunnelShell />
       {/* LightingTransition will animate directional light intensity */}
       <LightingTransition />
 
