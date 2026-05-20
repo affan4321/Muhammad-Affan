@@ -1,37 +1,57 @@
 "use client";
 
-import { useEffect } from "react";
-import { useThree } from "@react-three/fiber";
+import { useEffect, useRef } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+import { Vector3 } from "three";
 import { useGameStore } from "@/store/gameStore";
 
 /**
- * Camera controller that follows the handcar along the curve
- * Uses smooth interpolation for natural movement
+ * Camera controller that rides with the handcar but lets the user look around freely.
  */
 export const CameraController = () => {
   const camera = useThree((state) => state.camera);
   const currentTrack = useGameStore((state) => state.currentTrack);
   const progress = useGameStore((state) => state.progress);
+  const controlsRef = useRef<any>(null);
+  const lastTarget = useRef(new Vector3());
+  const hasTarget = useRef(false);
 
   useEffect(() => {
-    if (!currentTrack) return;
+    hasTarget.current = false;
+  }, [currentTrack]);
 
-    // Get current position and look-ahead position
-    const currentPos = currentTrack.getPointAt(progress);
-    const lookAheadDistance = 0.08;
-    const lookAheadPos = currentTrack.getPointAt(
-      Math.min(1, progress + lookAheadDistance)
-    );
+  useFrame(() => {
+    if (!currentTrack || !controlsRef.current) return;
 
-    // Smoothly update camera position
-    camera.position.lerp(
-      currentPos.clone().add({ x: 0, y: 0.5, z: -3 } as any),
-      0.15
-    );
+    const target = currentTrack.getPointAt(progress).clone().add(new Vector3(0, 1.1, 0));
 
-    // Look at the point ahead
-    camera.lookAt(lookAheadPos);
-  }, [progress, currentTrack, camera]);
+    if (!hasTarget.current) {
+      controlsRef.current.target.copy(target);
+      camera.position.copy(target).add(new Vector3(0, 0.4, -3.2));
+      lastTarget.current.copy(target);
+      hasTarget.current = true;
+    } else {
+      const delta = target.clone().sub(lastTarget.current);
+      camera.position.add(delta);
+      controlsRef.current.target.add(delta);
+      lastTarget.current.copy(target);
+    }
 
-  return null;
+    controlsRef.current.update();
+  });
+
+  return (
+    <OrbitControls
+      ref={controlsRef}
+      makeDefault
+      enablePan={false}
+      enableZoom={false}
+      enableDamping
+      dampingFactor={0.08}
+      rotateSpeed={0.35}
+      minPolarAngle={0.2}
+      maxPolarAngle={Math.PI - 0.2}
+    />
+  );
 };
