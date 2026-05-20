@@ -55,7 +55,7 @@ A cinematic portfolio experience where users travel through a dark tunnel on a h
 - [ ] Set up project folder structure
 - [ ] Create GitHub repo + initial commit
 
-**Status**: NOT STARTED
+**Status**: COMPLETED
 
 ---
 
@@ -93,7 +93,7 @@ A cinematic portfolio experience where users travel through a dark tunnel on a h
 - [ ] Swap curve + reset progress on selection
 - [ ] Resume movement
 
-**Status**: NOT STARTED
+**Status**: COMPLETED
 **Estimated Effort**: 3–4 hours
 
 **Acceptance Criteria**:
@@ -116,7 +116,7 @@ A cinematic portfolio experience where users travel through a dark tunnel on a h
 - [ ] Place tunnel segments along spline
 - [ ] Create handcar with bobbing animation
 
-**Status**: NOT STARTED
+**Status**: COMPLETED
 **Estimated Effort**: 6–8 hours
 
 ---
