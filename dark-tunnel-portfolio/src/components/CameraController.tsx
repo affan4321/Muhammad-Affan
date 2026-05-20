@@ -48,6 +48,7 @@ export const CameraController = () => {
     if (!currentTrack) return;
 
     const trackPosition = currentTrack.getPointAt(progress);
+    const trackTangent = currentTrack.getTangentAt(progress).normalize();
     const seatPosition = trackPosition
       .clone()
       .add(baseUp.current.clone().multiplyScalar(0.92));
@@ -55,6 +56,13 @@ export const CameraController = () => {
     if (!hasTrackPosition.current) {
       camera.position.copy(seatPosition);
       lastTrackPosition.current.copy(trackPosition);
+      const initialYaw = Math.atan2(trackTangent.x, -trackTangent.z);
+      const initialPitch = Math.asin(MathUtils.clamp(trackTangent.y, -1, 1));
+
+      currentYaw.current = initialYaw;
+      targetYaw.current = initialYaw;
+      currentPitch.current = initialPitch;
+      targetPitch.current = initialPitch;
       hasTrackPosition.current = true;
     } else {
       const delta = trackPosition.clone().sub(lastTrackPosition.current);

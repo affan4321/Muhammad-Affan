@@ -135,7 +135,7 @@ dark-tunnel-portfolio/
 - [x] Created Zustand store for game state (`gameStore.ts`, `types.ts`)
 - [x] Implemented single spline curve utilities (`curves.ts`)
 - [x] Built handcar movement logic (`Handcar.tsx`)
-- [x] Implemented pointer-driven free-look camera riding with the handcar, with reduced motion and smoother response (`CameraController.tsx`)
+- [x] Implemented pointer-driven free-look camera riding with the handcar, with reduced motion, smoother response, and correct initial forward-facing orientation (`CameraController.tsx`)
 - [x] Added input handling (`useHandcarInput.ts`)
 - [x] Created debug UI with test button (`DebugUI.tsx`)
 - [x] Built main Canvas component with proper initialization (`Canvas.tsx`)
@@ -149,6 +149,7 @@ dark-tunnel-portfolio/
 ✓ Zustand state management for game state
 ✓ Handcar movement along spline curves (tested)
 ✓ Camera attached to the handcar with pointer-driven free look
+✓ Camera starts facing the direction of travel on refresh
 ✓ Camera motion intentionally toned down to avoid rollercoaster-like swings
 ✓ Progress tracking (0-100%)
 ✓ Debug UI showing real-time state
@@ -184,7 +185,7 @@ dark-tunnel-portfolio/
 **Working Features**:
 - Full 3D canvas rendering with React Three Fiber
 - Handcar positioned and moving along curves
-- Camera system attached to handcar with pointer-driven free-look controls and reduced motion
+- Camera system attached to handcar with pointer-driven free-look controls, reduced motion, and correct initial facing
 - Grid environment visualization
 - Two-button path branching system
 - State management persisting across interaction
