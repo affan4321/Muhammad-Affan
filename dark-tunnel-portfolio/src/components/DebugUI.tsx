@@ -2,26 +2,32 @@
 
 import { useGameStore } from "@/store/gameStore";
 
-/**
- * Debug UI component to display game state and progress
- * Will be removed in later phases
- */
 export const DebugUI = () => {
-  const progress = useGameStore((state) => state.progress);
+  const segmentProgress = useGameStore((state) => state.segmentProgress);
+  const overallProgress = useGameStore((state) => state.overallProgress);
   const gameState = useGameStore((state) => state.gameState);
+  const trackContext = useGameStore((state) => state.trackContext);
   const isMovingForward = useGameStore((state) => state.isMovingForward);
   const isMovingBackward = useGameStore((state) => state.isMovingBackward);
   const availablePaths = useGameStore((state) => state.availablePaths);
-  const setProgress = useGameStore((state) => state.setProgress);
+  const setSegmentProgress = useGameStore((state) => state.setSegmentProgress);
   const currentTrack = useGameStore((state) => state.currentTrack);
-  const setGameState = useGameStore((state) => state.setGameState);
   const speed = useGameStore((state) => state.speed);
+  const mainSegmentIndex = useGameStore((state) => state.mainSegmentIndex);
+  const completedCaves = useGameStore((state) => state.completedCaves);
+  const totalCaves = useGameStore((state) => state.totalCaves);
+  const activeBranch = useGameStore((state) => state.activeBranch);
 
   const handleTestMove = () => {
     if (gameState === "RIDING" && currentTrack) {
-      setProgress(progress + speed * 10);
+      setSegmentProgress(segmentProgress + speed * 10);
     }
   };
+
+  const segmentLabel =
+    trackContext === "branch"
+      ? `Branch: ${activeBranch?.label ?? "?"}`
+      : `Main segment ${mainSegmentIndex + 1}/${totalCaves}`;
 
   return (
     <div
@@ -36,22 +42,29 @@ export const DebugUI = () => {
         fontSize: "12px",
         zIndex: 100,
         borderRadius: "4px",
-        maxWidth: "300px",
+        maxWidth: "320px",
       }}
     >
       <div>
         <strong>DEBUG INFO</strong>
       </div>
       <div>State: {gameState}</div>
-      <div>Progress: {(progress * 100).toFixed(1)}%</div>
+      <div>Track: {trackContext}</div>
+      <div>{segmentLabel}</div>
+      <div>Segment: {(segmentProgress * 100).toFixed(1)}%</div>
+      <div>Overall: {(overallProgress * 100).toFixed(1)}%</div>
+      <div>
+        Caves: {completedCaves}/{totalCaves}
+      </div>
       <div>Forward: {isMovingForward ? "✓" : "✗"}</div>
       <div>Backward: {isMovingBackward ? "✓" : "✗"}</div>
-      <div>Available Paths: {availablePaths.length}</div>
       {availablePaths.length > 0 && (
         <div style={{ marginTop: "10px" }}>
-          <strong>Path Options:</strong>
+          <strong>Fork options:</strong>
           {availablePaths.map((path) => (
-            <div key={path.id}>- {path.label}</div>
+            <div key={path.id}>
+              - {path.label} ({path.kind})
+            </div>
           ))}
         </div>
       )}
@@ -59,8 +72,10 @@ export const DebugUI = () => {
         <strong>Controls:</strong>
         <div>↑ / Left Click: Forward</div>
         <div>↓ / Right Click: Backward</div>
-        <div>Enter: Select Path</div>
+        <div>Mouse: Look around</div>
+        <div>Enter: Select / Igloo exit</div>
         <button
+          type="button"
           onClick={handleTestMove}
           style={{
             marginTop: "5px",

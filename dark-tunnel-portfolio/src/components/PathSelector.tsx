@@ -1,21 +1,73 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useGameStore } from "@/store/gameStore";
+import { PathOption } from "@/store/types";
+
+const PathButton = ({
+  path,
+  selected,
+  onSelect,
+  onConfirm,
+}: {
+  path: PathOption;
+  selected: boolean;
+  onSelect: () => void;
+  onConfirm: () => void;
+}) => (
+  <div
+    role="button"
+    tabIndex={0}
+    onClick={() => {
+      onSelect();
+      onConfirm();
+    }}
+    onKeyDown={(e) => e.key === "Enter" && onConfirm()}
+    style={{
+      padding: "15px 26px",
+      backgroundColor: selected ? "#0f0" : "#1a1a1a",
+      color: selected ? "#000" : "#0f0",
+      border: path.kind === "continue" ? "2px dashed #0f0" : "2px solid #0f0",
+      borderRadius: "4px",
+      cursor: "pointer",
+      fontWeight: "bold",
+      transition: "all 0.2s",
+      minWidth: "110px",
+      textAlign: "center",
+    }}
+  >
+    {path.label}
+    {path.kind === "branch" && (
+      <div style={{ fontSize: "10px", marginTop: "4px", opacity: 0.8 }}>
+        → Information Igloo
+      </div>
+    )}
+  </div>
+);
 
 /**
- * Path selector UI - shows branching path options when user reaches the end
- * Phase 1: Simple HTML overlay with keyboard control
+ * Fork selector — branches on sides, "Continue on Main" centered on the main path.
  */
 export const PathSelector = () => {
   const gameState = useGameStore((state) => state.gameState);
   const availablePaths = useGameStore((state) => state.availablePaths);
-  const selectPath = useGameStore((state) => state.selectPath);
-  const setGameState = useGameStore((state) => state.setGameState);
-  const setProgress = useGameStore((state) => state.setProgress);
-  const setCurrentTrack = useGameStore((state) => state.setCurrentTrack);
-  const setAvailablePaths = useGameStore((state) => state.setAvailablePaths);
-  const selectedPath = useGameStore((state) => state.selectedPath);
+  const selectPathAtFork = useGameStore((state) => state.selectPathAtFork);
+  const mainSegmentIndex = useGameStore((state) => state.mainSegmentIndex);
+  const journey = useGameStore((state) => state.journey);
+
+  const { leftPaths, centerPath, rightPaths, flatList } = useMemo(() => {
+    const branches = availablePaths.filter((p) => p.kind === "branch");
+    const cont = availablePaths.find((p) => p.kind === "continue") ?? null;
+    const left = branches.filter((p) => p.side !== "right");
+    const right = branches.filter((p) => p.side === "right");
+    const flat: PathOption[] = [...left, ...(cont ? [cont] : []), ...right];
+    return {
+      leftPaths: left,
+      centerPath: cont,
+      rightPaths: right,
+      flatList: flat,
+    };
+  }, [availablePaths]);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -23,36 +75,27 @@ export const PathSelector = () => {
     setSelectedIndex(0);
   }, [availablePaths]);
 
-  // Setup keyboard input
+  const confirmSelection = (index: number) => {
+    const path = flatList[index];
+    if (!path) return;
+    selectPathAtFork(path);
+    setSelectedIndex(0);
+  };
+
   useEffect(() => {
-    if (gameState !== "CHOOSING_PATH" || availablePaths.length === 0) {
-      return;
-    }
+    if (gameState !== "CHOOSING_PATH" || flatList.length === 0) return;
 
     const handleKeyPress = (e: KeyboardEvent) => {
       switch (e.key) {
         case "ArrowLeft":
-          setSelectedIndex((prev) =>
-            prev > 0 ? prev - 1 : availablePaths.length - 1
-          );
+          setSelectedIndex((prev) => (prev > 0 ? prev - 1 : flatList.length - 1));
           break;
         case "ArrowRight":
-          setSelectedIndex((prev) =>
-            prev < availablePaths.length - 1 ? prev + 1 : 0
-          );
+          setSelectedIndex((prev) => (prev < flatList.length - 1 ? prev + 1 : 0));
           break;
         case "Enter":
           e.preventDefault();
-          const path = availablePaths[selectedIndex];
-          selectPath(path.id);
-
-          if (path.curve) {
-            setCurrentTrack(path.curve);
-            setProgress(0);
-            setAvailablePaths(path.nextPaths || []);
-            setGameState("RIDING");
-            setSelectedIndex(0); // Reset selection
-          }
+          confirmSelection(selectedIndex);
           break;
         default:
           break;
@@ -61,20 +104,16 @@ export const PathSelector = () => {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [
-    gameState,
-    availablePaths,
-    selectedIndex,
-    selectPath,
-    setCurrentTrack,
-    setProgress,
-    setGameState,
-  ]);
+  }, [gameState, flatList, selectedIndex, selectPathAtFork]);
 
-  // Don't render if not in path selection mode
-  if (gameState !== "CHOOSING_PATH" || availablePaths.length === 0) {
+  if (gameState !== "CHOOSING_PATH" || flatList.length === 0) {
     return null;
   }
+
+  const forkLabel = journey[mainSegmentIndex]?.forkLabel ?? "Choose Your Path";
+  const isTerminalFork = journey[mainSegmentIndex]?.isTerminalFork;
+
+  const selectedId = flatList[selectedIndex]?.id;
 
   return (
     <div
@@ -83,58 +122,90 @@ export const PathSelector = () => {
         bottom: 40,
         left: "50%",
         transform: "translateX(-50%)",
-        backgroundColor: "rgba(0, 0, 0, 0.9)",
+        backgroundColor: "rgba(0, 0, 0, 0.92)",
         border: "2px solid #0f0",
         borderRadius: "8px",
-        padding: "30px",
+        padding: "28px 32px",
         zIndex: 50,
-        maxWidth: "600px",
+        width: "min(92vw, 820px)",
         textAlign: "center",
       }}
     >
-      <h3 style={{ color: "#0f0", margin: "0 0 20px 0" }}>Choose Your Path</h3>
+      <h3 style={{ color: "#0f0", margin: "0 0 8px 0" }}>{forkLabel}</h3>
+      <p style={{ color: "#888", margin: "0 0 20px 0", fontSize: "13px" }}>
+        {isTerminalFork
+          ? "Choose one of four paths ahead — all connect from where you arrived"
+          : `Main track · segment ${mainSegmentIndex + 1} of ${journey.length}`}
+      </p>
+
       <div
         style={{
-          display: "flex",
-          gap: "20px",
-          justifyContent: "center",
-          flexWrap: "wrap",
+          display: "grid",
+          gridTemplateColumns: "1fr auto 1fr",
+          alignItems: "center",
+          gap: "16px",
         }}
       >
-        {availablePaths.map((path, index) => (
-          <div
-            key={path.id}
-            onClick={() => {
-              setSelectedIndex(index);
-              selectPath(path.id);
-
-              if (path.curve) {
-                setCurrentTrack(path.curve);
-                setProgress(0);
-                setAvailablePaths(path.nextPaths || []);
-                setGameState("RIDING");
-                setSelectedIndex(0);
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "12px",
+            justifyContent: "flex-end",
+          }}
+        >
+          {leftPaths.map((path) => (
+            <PathButton
+              key={path.id}
+              path={path}
+              selected={selectedId === path.id}
+              onSelect={() => setSelectedIndex(flatList.findIndex((p) => p.id === path.id))}
+              onConfirm={() =>
+                confirmSelection(flatList.findIndex((p) => p.id === path.id))
               }
-            }}
-            style={{
-              padding: "15px 30px",
-              backgroundColor:
-                selectedIndex === index ? "#0f0" : "#1a1a1a",
-              color: selectedIndex === index ? "#000" : "#0f0",
-              border: "2px solid #0f0",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontWeight: "bold",
-              transition: "all 0.2s",
-              minWidth: "100px",
-            }}
-          >
-            {path.label}
-          </div>
-        ))}
+            />
+          ))}
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          {centerPath ? (
+            <PathButton
+              path={centerPath}
+              selected={selectedId === centerPath.id}
+              onSelect={() =>
+                setSelectedIndex(flatList.findIndex((p) => p.id === centerPath.id))
+              }
+              onConfirm={() =>
+                confirmSelection(flatList.findIndex((p) => p.id === centerPath.id))
+              }
+            />
+          ) : null}
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "12px",
+            justifyContent: "flex-start",
+          }}
+        >
+          {rightPaths.map((path) => (
+            <PathButton
+              key={path.id}
+              path={path}
+              selected={selectedId === path.id}
+              onSelect={() => setSelectedIndex(flatList.findIndex((p) => p.id === path.id))}
+              onConfirm={() =>
+                confirmSelection(flatList.findIndex((p) => p.id === path.id))
+              }
+            />
+          ))}
+        </div>
       </div>
+
       <p style={{ color: "#888", marginTop: "15px", fontSize: "12px" }}>
-        ← → Select | Enter Confirm
+        ← → Select (left · center main · right) | Enter Confirm
       </p>
     </div>
   );

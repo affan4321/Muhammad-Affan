@@ -12,42 +12,36 @@ import { Cart } from "./Cart";
 import Atmospherics from "./Atmospherics";
 import TunnelShell from "./TunnelShell";
 import { TunnelEnvironment } from "./TunnelEnvironment";
+import { IglooEntrances } from "./IglooEntrances";
 import { useGameStore } from "@/store/gameStore";
 import { useCartInput } from "@/hooks/useCartInput";
-import { generateDemoTracks } from "@/lib/curves";
+import { buildJourney } from "@/lib/journey";
 
-/**
- * Inner scene component
- */
 const Scene = () => {
   useCartInput();
 
   return (
     <>
-      <PerspectiveCamera makeDefault position={[0, 2, -3]} fov={75} />
-      {/* CameraController disabled to avoid fighting the cart-attached camera */}
+      {/* Position/rotation come from Cart + cartRig.ts — do not set position here */}
+      <PerspectiveCamera makeDefault fov={72} />
 
-      {/* Lighting */}
-      <hemisphereLight intensity={0.18} color="#5c4c3d" groundColor="#050505" />
-      <directionalLight position={[6, 8, 6]} intensity={0.7} color="#fff2db" castShadow={false} />
-      <pointLight position={[0, 2.5, 0]} intensity={0.35} distance={30} color="#ffe9c9" />
+      <hemisphereLight intensity={0.28} color="#5c4c3d" groundColor="#050505" />
+      <directionalLight position={[6, 8, 6]} intensity={0.55} color="#fff2db" castShadow={false} />
+      <pointLight position={[0, 2.5, 0]} intensity={0.45} distance={45} color="#ffe9c9" />
 
-      {/* Atmosphere and lighting */}
       <Atmospherics />
       <ambientLight intensity={0.05} />
       <TunnelShell />
       <TunnelEnvironment />
+      <IglooEntrances />
       <LightingTransition />
 
-      {/* Environment */}
       <Grid args={[100, 100]} cellSize={5} cellColor="#444" sectionSize={20} sectionColor="#888" />
 
-      {/* Postprocessing */}
       <EffectComposer>
         <Bloom intensity={0.75} luminanceThreshold={0.18} mipmapBlur />
       </EffectComposer>
 
-      {/* Game Objects */}
       <Cart />
       <Cave />
       <CaveTrigger />
@@ -56,22 +50,10 @@ const Scene = () => {
   );
 };
 
-/**
- * Initialization wrapper - initializes game state when component mounts
- */
-const GameInitializer = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+const GameInitializer = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
-    const { mainTrack, firstPaths } = generateDemoTracks();
-
-    useGameStore.setState({
-      currentTrack: mainTrack,
-      gameState: "RIDING",
-      availablePaths: firstPaths,
-    });
+    const graph = buildJourney();
+    useGameStore.getState().setJourneyGraph(graph);
   }, []);
 
   return <>{children}</>;

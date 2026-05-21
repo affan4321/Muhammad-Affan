@@ -1,11 +1,13 @@
 export { GameCanvas } from "./Canvas";
 export { Cart } from "./Cart";
+export { ArmsModel } from "./models/ArmsModel";
 export { CameraController } from "./CameraController";
 export { DebugUI } from "./DebugUI";
 export { PathSelector } from "./PathSelector";
-export { StonePillar } from "./StonePillar";
+export { IglooPanel } from "./IglooPanel";
 export { Hologram } from "./Hologram";
 export { LightingTransition } from "./LightingTransition";
 export { Cave } from "./Cave";
+export { IglooEntrances } from "./IglooEntrances";
 export { AudioManager } from "./AudioManager";
 export { CaveTrigger } from "./CaveTrigger";

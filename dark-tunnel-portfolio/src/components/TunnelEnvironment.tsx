@@ -4,122 +4,115 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { useGameStore } from "@/store/gameStore";
 import LampModel from "./models/LampModel";
-import DoorModel from "./models/DoorModel";
 import { Line, useGLTF } from "@react-three/drei";
+import {
+  BRANCH_RAIL_SKIP,
+  TERMINAL_BRANCH_RAIL_SKIP,
+  getRailSegmentCount,
+} from "@/lib/pathGeometry";
 
 const getFlatYaw = (direction: THREE.Vector3) => {
   const flatDirection = direction.clone();
   flatDirection.y = 0;
-
-  if (flatDirection.lengthSq() === 0) {
-    flatDirection.set(0, 0, 1);
-  }
-
+  if (flatDirection.lengthSq() === 0) flatDirection.set(0, 0, 1);
   flatDirection.normalize();
   return Math.atan2(flatDirection.x, flatDirection.z);
 };
 
-const TrackGuideForCurve = ({ curve }: { curve: THREE.Curve<THREE.Vector3> | null }) => {
-  const segments = useMemo(() => {
-    if (!curve) return [];
-
-    const sampleCount = 65;
-    const res: { pos: THREE.Vector3; yaw: number; length: number }[] = [];
-    let previousPoint = curve.getPointAt(0);
-
-    for (let i = 1; i <= sampleCount; i++) {
-      const t = i / sampleCount;
-      const point = curve.getPointAt(t);
-      const midpoint = previousPoint.clone().lerp(point, 0.5);
-      const direction = point.clone().sub(previousPoint);
-      const yaw = getFlatYaw(direction);
-      const length = Math.max(direction.length() * 1.2, 0.7);
-
-      res.push({ pos: midpoint, yaw, length });
-      previousPoint = point;
-    }
-
-    return res;
-  }, [curve]);
-
-  if (!curve) return null;
+const PathLine = ({
+  curve,
+  color,
+  opacity,
+  lineWidth,
+  sampleFrom = 0,
+}: {
+  curve: THREE.Curve<THREE.Vector3>;
+  color: string;
+  opacity: number;
+  lineWidth: number;
+  sampleFrom?: number;
+}) => {
+  const points = useMemo(() => {
+    const start = Math.max(0, Math.min(0.9, sampleFrom));
+    const sampleCount = 100;
+    return Array.from({ length: sampleCount + 1 }, (_, i) => {
+      const t = start + (i / sampleCount) * (1 - start);
+      return curve.getPointAt(t);
+    });
+  }, [curve, sampleFrom]);
 
   return (
-    <group>
-      {segments.map((segment, index) => (
-        <group key={`guide-${index}`} position={[segment.pos.x, 0.03, segment.pos.z]} rotation={[0, segment.yaw, 0]}>
-          <mesh position={[0, 0, -0.35]}>
-            <boxGeometry args={[segment.length, 0.08, 0.08]} />
-            <meshStandardMaterial color="#7b7360" roughness={1} metalness={0.05} />
-          </mesh>
-          <mesh position={[0, 0, 0.35]}>
-            <boxGeometry args={[segment.length, 0.08, 0.08]} />
-            <meshStandardMaterial color="#7b7360" roughness={1} metalness={0.05} />
-          </mesh>
-          <mesh position={[0, -0.06, 0]}>
-            <boxGeometry args={[segment.length, 0.05, 0.95]} />
-            <meshStandardMaterial color="#2a2118" roughness={1} metalness={0} />
-          </mesh>
-        </group>
-      ))}
-    </group>
+    <Line
+      points={points}
+      color={color}
+      lineWidth={lineWidth}
+      transparent
+      opacity={opacity}
+    />
   );
-};
-
-const DebugCurveLine = ({ curve }: { curve: THREE.Curve<THREE.Vector3> | null }) => {
-  const points = useMemo(() => {
-    if (!curve) return [];
-
-    const sampleCount = 120;
-    return Array.from({ length: sampleCount + 1 }, (_, index) => curve.getPointAt(index / sampleCount));
-  }, [curve]);
-
-  if (!curve || points.length === 0) return null;
-
-  return <Line points={points} color="#ff0000" lineWidth={2} transparent opacity={0.95} />;
 };
 
 const RailwayTracksForCurve = ({
   curve,
   idPrefix,
   modelScale = 1,
+  highlight = false,
+  skipStartFraction = 0,
+  tieSpacing = 0.72,
 }: {
-  curve: THREE.Curve<THREE.Vector3> | null;
+  curve: THREE.Curve<THREE.Vector3>;
   idPrefix: string;
   modelScale?: number;
+  highlight?: boolean;
+  skipStartFraction?: number;
+  tieSpacing?: number;
 }) => {
   const gltf = useGLTF("/models/railway track.glb");
 
-  const { segmentCount, modelLength, yawOffset } = useMemo(() => {
-    if (!curve || !gltf?.scene) {
-      return { segmentCount: 0, modelLength: 1, yawOffset: 0 };
+  const { segmentCount, yawOffset } = useMemo(() => {
+    if (!gltf?.scene) {
+      return { segmentCount: 0, yawOffset: 0 };
     }
 
     const size = new THREE.Box3().setFromObject(gltf.scene).getSize(new THREE.Vector3());
     const lengthAxis = size.z >= size.x ? "z" : "x";
     const baseLength = Math.max(size.x, size.z);
-    const length = Math.max(baseLength * modelScale, 0.02);
+    const pieceLength = Math.max(baseLength * modelScale, 0.02);
     const curveLength = curve.getLength();
-    const count = Math.max(1, Math.ceil(curveLength / length));
+    const count = getRailSegmentCount(curveLength, pieceLength, tieSpacing);
     const offset = lengthAxis === "x" ? Math.PI / 2 : 0;
 
-    return { segmentCount: count, modelLength: length, yawOffset: offset };
-  }, [curve, gltf, modelScale]);
+    return { segmentCount: count, yawOffset: offset };
+  }, [curve, gltf, modelScale, tieSpacing]);
 
-  if (!curve || !gltf?.scene || segmentCount === 0) return null;
+  if (!gltf?.scene || segmentCount === 0) return null;
+
+  const startIndex = Math.floor(segmentCount * skipStartFraction);
 
   return (
     <group>
       {Array.from({ length: segmentCount }).map((_, i) => {
-        const t = (i + 0.5) / segmentCount;
+        if (i < startIndex) return null;
+        const t =
+          i === segmentCount - 1
+            ? 1
+            : Math.min(1, (i + 0.5) / segmentCount);
         const point = curve.getPointAt(t);
-        const nextPoint = curve.getPointAt(Math.min(t + 1 / segmentCount, 1));
+        const nextT = Math.min(t + 1 / segmentCount, 1);
+        const nextPoint = curve.getPointAt(nextT);
         const direction = nextPoint.clone().sub(point);
         const yaw = getFlatYaw(direction) + yawOffset;
 
         return (
-          <group key={`${idPrefix}-rail-${i}`} position={[point.x, point.y - 0.45, point.z]} rotation={[0, yaw, 0]}>
-            <primitive object={gltf.scene.clone(true)} scale={modelScale} />
+          <group
+            key={`${idPrefix}-rail-${i}`}
+            position={[point.x, point.y - 0.45, point.z]}
+            rotation={[0, yaw, 0]}
+          >
+            <primitive
+              object={gltf.scene.clone(true)}
+              scale={modelScale * (highlight ? 1 : 0.95)}
+            />
           </group>
         );
       })}
@@ -127,101 +120,116 @@ const RailwayTracksForCurve = ({
   );
 };
 
-/**
- * TunnelEnvironment - Places decorative models along the track at intervals
- */
-export const TunnelEnvironment = () => {
-  const currentTrack = useGameStore((state) => state.currentTrack);
-  const availablePaths = useGameStore((state) => state.availablePaths);
-  const renderRailModels = true;
-  const renderTrackGuides = false;
-
-  const environmentModels = useMemo(() => {
-    if (!currentTrack) return [];
-
-    const models = [];
-    const railSegments = 65;
-    const lampSpacing = 0.14;
-
-    for (let t = 0; t <= 1; t += lampSpacing) {
-      const point = currentTrack.getPointAt(t);
-      const nextPoint = currentTrack.getPointAt(Math.min(t + lampSpacing, 1));
+const LampsAlongCurve = ({
+  curve,
+  idPrefix,
+  spacing = 0.1,
+  sampleFrom = 0,
+}: {
+  curve: THREE.Curve<THREE.Vector3>;
+  idPrefix: string;
+  spacing?: number;
+  sampleFrom?: number;
+}) => {
+  const lamps = useMemo(() => {
+    const items: React.ReactNode[] = [];
+    const start = Math.max(0, Math.min(0.9, sampleFrom));
+    for (let t = start; t <= 1; t += spacing) {
+      const point = curve.getPointAt(t);
+      const nextPoint = curve.getPointAt(Math.min(t + spacing, 1));
       const direction = nextPoint.clone().sub(point);
       const yaw = getFlatYaw(direction);
       const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
-      const lampPosition = point.clone().add(right.multiplyScalar(2.7));
+      const lampPosition = point.clone().add(right.multiplyScalar(2.5));
 
-      models.push(
+      items.push(
         <group
-          key={`lamp-${t.toFixed(2)}`}
+          key={`${idPrefix}-lamp-${t.toFixed(2)}`}
           position={[lampPosition.x, lampPosition.y + 1.5, lampPosition.z]}
           rotation={[0, yaw + Math.PI, 0]}
         >
-          <LampModel scale={0.3} />
+          <LampModel scale={0.28} />
         </group>
       );
     }
+    return items;
+  }, [curve, idPrefix, spacing, sampleFrom]);
 
-    const doorT = 0.96;
-    const doorPoint = currentTrack.getPointAt(doorT);
-    const doorNextPoint = currentTrack.getPointAt(1);
-    const doorYaw = getFlatYaw(doorNextPoint.clone().sub(doorPoint));
+  return <>{lamps}</>;
+};
 
-    models.push(
-      <group
-        key="cave-door"
-        position={[doorPoint.x, doorPoint.y, doorPoint.z]}
-        rotation={[0, doorYaw, 0]}
-      >
-        <DoorModel scale={0.4} />
-      </group>
-    );
+export const TunnelEnvironment = () => {
+  const mainSpine = useGameStore((state) => state.mainSpine);
+  const currentTrack = useGameStore((state) => state.currentTrack);
+  const journey = useGameStore((state) => state.journey);
+  const trackContext = useGameStore((state) => state.trackContext);
+  const mainSegmentIndex = useGameStore((state) => state.mainSegmentIndex);
 
-    return models;
-  }, [currentTrack]);
+  const branchPaths = useMemo(() => {
+    const list: {
+      id: string;
+      curve: THREE.Curve<THREE.Vector3>;
+      isTerminal: boolean;
+      showRails: boolean;
+      segmentIndex: number;
+    }[] = [];
+    journey.forEach((segment, segmentIndex) => {
+      const showRails = segmentIndex <= mainSegmentIndex;
+      for (const branch of segment.branches) {
+        if (branch.curve) {
+          list.push({
+            id: branch.id,
+            curve: branch.curve,
+            isTerminal: Boolean(segment.isTerminalFork),
+            showRails,
+            segmentIndex,
+          });
+        }
+      }
+    });
+    return list;
+  }, [journey, mainSegmentIndex]);
 
   return (
     <>
-      <DebugCurveLine curve={currentTrack} />
-      {availablePaths.map((p: any) => (
-        <DebugCurveLine key={`debug-line-${p.id}`} curve={p.curve} />
-      ))}
-      {renderRailModels && (
-        <RailwayTracksForCurve curve={currentTrack} idPrefix="main" modelScale={1} />
-      )}
-      {renderRailModels &&
-        availablePaths.map((p: any) => (
+      {mainSpine && (
+        <>
+          <PathLine curve={mainSpine} color="#3d5a48" opacity={0.55} lineWidth={2.5} />
           <RailwayTracksForCurve
-            key={`branch-${p.id}`}
-            curve={p.curve}
-            idPrefix={`branch-${p.id}`}
+            curve={mainSpine}
+            idPrefix="main-spine"
             modelScale={1}
+            highlight={trackContext === "main"}
           />
-        ))}
-      {renderTrackGuides && <TrackGuideForCurve curve={currentTrack} />}
-      {renderTrackGuides &&
-        availablePaths.map((p: any) => (
-          <TrackGuideForCurve key={`branch-guide-${p.id}`} curve={p.curve} />
-        ))}
-      {environmentModels}
-      {/* Doors for each available branch path (offset to the side of the path) */}
-      {availablePaths.map((p: any, idx: number) => {
-        const curve = p.curve as THREE.Curve<THREE.Vector3>;
-        if (!curve) return null;
-        const tDoor = 0.18;
-        const point = curve.getPointAt(tDoor);
-        const tangent = curve.getTangentAt(tDoor).clone();
-        tangent.y = 0;
-        tangent.normalize();
-        const side = new THREE.Vector3(-tangent.z, 0, tangent.x);
-        const sideOffset = 2.2 + idx * 0.1; // slight jitter per branch
-        const forwardOffset = 0.8;
-        const doorPos = point.clone().add(side.clone().multiplyScalar(sideOffset)).add(tangent.clone().multiplyScalar(forwardOffset));
-        const doorYaw = getFlatYaw(tangent.clone());
+          <LampsAlongCurve curve={mainSpine} idPrefix="main" spacing={0.09} />
+        </>
+      )}
 
+      {branchPaths.map(({ id, curve, isTerminal, showRails, segmentIndex }) => {
+        const isActive = trackContext === "branch" && currentTrack === curve;
+        const railSkip = isTerminal ? TERMINAL_BRANCH_RAIL_SKIP : BRANCH_RAIL_SKIP;
+        const isFuture = segmentIndex > mainSegmentIndex + 1;
         return (
-          <group key={`branch-door-${p.id}`} position={[doorPos.x, doorPos.y, doorPos.z]} rotation={[0, doorYaw, 0]}>
-            <DoorModel scale={0.35} />
+          <group key={`branch-env-${id}`}>
+            <PathLine
+              curve={curve}
+              color={isActive ? "#00ff88" : isFuture ? "#1a3028" : "#2a4a3a"}
+              opacity={isActive ? 0.9 : isFuture ? 0.22 : 0.5}
+              lineWidth={isActive ? 2 : 1.2}
+            />
+            {showRails && (
+              <>
+                <RailwayTracksForCurve
+                  curve={curve}
+                  idPrefix={`branch-${id}`}
+                  modelScale={0.92}
+                  highlight={isActive}
+                  skipStartFraction={railSkip}
+                  tieSpacing={0.78}
+                />
+                <LampsAlongCurve curve={curve} idPrefix={`branch-lamp-${id}`} spacing={0.12} />
+              </>
+            )}
           </group>
         );
       })}

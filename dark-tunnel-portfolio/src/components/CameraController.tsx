@@ -12,7 +12,7 @@ import { useGameStore } from "@/store/gameStore";
 export const CameraController = () => {
   const camera = useThree((state) => state.camera);
   const currentTrack = useGameStore((state) => state.currentTrack);
-  const progress = useGameStore((state) => state.progress);
+  const segmentProgress = useGameStore((state) => state.segmentProgress);
   const lastTrackPosition = useRef(new Vector3());
   const hasTrackPosition = useRef(false);
   const currentYaw = useRef(0);
@@ -47,8 +47,8 @@ export const CameraController = () => {
   useFrame(() => {
     if (!currentTrack) return;
 
-    const trackPosition = currentTrack.getPointAt(progress);
-    const trackTangent = currentTrack.getTangentAt(progress).normalize();
+    const trackPosition = currentTrack.getPointAt(segmentProgress);
+    const trackTangent = currentTrack.getTangentAt(segmentProgress).normalize();
     const seatPosition = trackPosition
       .clone()
       .add(baseUp.current.clone().multiplyScalar(1.15))

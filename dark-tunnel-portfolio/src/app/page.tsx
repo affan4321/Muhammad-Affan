@@ -3,6 +3,7 @@
 import { GameCanvas } from "@/components";
 import { DebugUI } from "@/components/DebugUI";
 import { PathSelector } from "@/components/PathSelector";
+import { IglooPanel } from "@/components/IglooPanel";
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       <GameCanvas />
       <DebugUI />
       <PathSelector />
+      <IglooPanel />
     </div>
   );
 }
