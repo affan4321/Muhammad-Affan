@@ -2,24 +2,39 @@
 
 import { useEffect } from "react";
 import { useGameStore } from "@/store/gameStore";
-import { Vector3 } from "three";
 
-export const CaveTrigger = ({ threshold = 3 }: { threshold?: number }) => {
+export const CaveTrigger = ({ threshold = 1 }: { threshold?: number }) => {
   const currentTrack = useGameStore((s) => s.currentTrack);
-  const currentPosition = useGameStore((s) => s.currentPosition);
+  const progress = useGameStore((s) => s.progress);
   const gameState = useGameStore((s) => s.gameState);
   const setGameState = useGameStore((s) => s.setGameState);
+  const incrementCompletedCaves = useGameStore((s) => s.incrementCompletedCaves);
+  const availablePaths = useGameStore((s) => s.availablePaths);
 
   useEffect(() => {
     if (!currentTrack) return;
 
-    const endPoint = currentTrack.getPointAt(1);
-
-    const dist = currentPosition ? currentPosition.distanceTo(endPoint) : Infinity;
-    if (dist <= threshold && gameState === "RIDING") {
-      setGameState("CHOOSING_PATH");
+    if (gameState === "RIDING") {
+      if (!availablePaths || availablePaths.length === 0) return;
+      if (progress >= threshold) {
+        incrementCompletedCaves();
+        setGameState("CHOOSING_PATH");
+      }
+      return;
     }
-  }, [currentPosition, currentTrack, gameState, setGameState, threshold]);
+
+    if (gameState === "CHOOSING_PATH" && progress < threshold) {
+      setGameState("RIDING");
+    }
+  }, [
+    progress,
+    currentTrack,
+    gameState,
+    setGameState,
+    threshold,
+    availablePaths,
+    incrementCompletedCaves,
+  ]);
 
   return null;
 };

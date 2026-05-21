@@ -4,9 +4,9 @@ import { useEffect } from "react";
 import { useGameStore } from "@/store/gameStore";
 
 /**
- * Hook to handle keyboard and mouse input for handcar movement
+ * Hook to handle keyboard and mouse input for cart movement
  */
-export const useHandcarInput = () => {
+export const useCartInput = () => {
   const setMovementInput = useGameStore((state) => state.setMovementInput);
 
   useEffect(() => {
@@ -16,9 +16,11 @@ export const useHandcarInput = () => {
 
       switch (e.key.toLowerCase()) {
         case "arrowup":
+        case "w":
           setMovementInput(true, backward);
           break;
         case "arrowdown":
+        case "s":
           setMovementInput(forward, true);
           break;
         default:
@@ -32,9 +34,11 @@ export const useHandcarInput = () => {
 
       switch (e.key.toLowerCase()) {
         case "arrowup":
+        case "w":
           setMovementInput(false, backward);
           break;
         case "arrowdown":
+        case "s":
           setMovementInput(forward, false);
           break;
         default:

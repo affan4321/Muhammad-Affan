@@ -1,12 +1,15 @@
 "use client";
 
-import { useGLTF } from "@react-three/drei";
+import { Center, useGLTF } from "@react-three/drei";
 
-export const RailwayTrackModel = ({ scale = 0.01, position = [0, 0, 0], ...props }: any) => {
+export const RailwayTrackModel = ({ scale = 0.18, position = [0, 0, 0], ...props }: any) => {
+  useGLTF.preload("/models/railway track.glb");
   const gltf = useGLTF("/models/railway track.glb");
   return (
     <group position={position as [number, number, number]} scale={scale} {...props}>
-      <primitive object={gltf.scene} />
+      <Center>
+        <primitive object={gltf.scene} dispose={null} />
+      </Center>
     </group>
   );
 };

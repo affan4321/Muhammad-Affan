@@ -6,7 +6,7 @@ import { Euler, Vector3, MathUtils } from "three";
 import { useGameStore } from "@/store/gameStore";
 
 /**
- * Camera controller that rides with the handcar and responds to mouse movement
+ * Camera controller that rides with the cart and responds to mouse movement
  * without requiring a click or drag gesture.
  */
 export const CameraController = () => {
@@ -32,8 +32,8 @@ export const CameraController = () => {
       targetYaw.current -= event.movementX * sensitivity;
       targetPitch.current = MathUtils.clamp(
         targetPitch.current - event.movementY * sensitivity,
-        -1.1,
-        1.1
+        -0.5,
+        0.5
       );
     };
 
@@ -51,18 +51,18 @@ export const CameraController = () => {
     const trackTangent = currentTrack.getTangentAt(progress).normalize();
     const seatPosition = trackPosition
       .clone()
-      .add(baseUp.current.clone().multiplyScalar(0.92));
+      .add(baseUp.current.clone().multiplyScalar(1.15))
+      .add(trackTangent.clone().multiplyScalar(-2.8));
 
     if (!hasTrackPosition.current) {
       camera.position.copy(seatPosition);
       lastTrackPosition.current.copy(trackPosition);
       const initialYaw = Math.atan2(trackTangent.x, -trackTangent.z);
-      const initialPitch = Math.asin(MathUtils.clamp(trackTangent.y, -1, 1));
 
       currentYaw.current = initialYaw;
       targetYaw.current = initialYaw;
-      currentPitch.current = initialPitch;
-      targetPitch.current = initialPitch;
+      currentPitch.current = 0;
+      targetPitch.current = 0;
       hasTrackPosition.current = true;
     } else {
       const delta = trackPosition.clone().sub(lastTrackPosition.current);

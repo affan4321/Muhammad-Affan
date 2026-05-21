@@ -8,33 +8,35 @@ import LightingTransition from "./LightingTransition";
 import Cave from "./Cave";
 import AudioManager from "./AudioManager";
 import CaveTrigger from "./CaveTrigger";
-import { Handcar } from "./Handcar";
-import { CameraController } from "./CameraController";
+import { Cart } from "./Cart";
 import Atmospherics from "./Atmospherics";
 import TunnelShell from "./TunnelShell";
 import { TunnelEnvironment } from "./TunnelEnvironment";
 import { useGameStore } from "@/store/gameStore";
-import { useHandcarInput } from "@/hooks/useHandcarInput";
+import { useCartInput } from "@/hooks/useCartInput";
 import { generateDemoTracks } from "@/lib/curves";
 
 /**
  * Inner scene component
  */
 const Scene = () => {
-  // Setup input (must be done here in the component)
-  useHandcarInput();
+  useCartInput();
 
   return (
     <>
       <PerspectiveCamera makeDefault position={[0, 2, -3]} fov={75} />
-      <CameraController />
+      {/* CameraController disabled to avoid fighting the cart-attached camera */}
+
+      {/* Lighting */}
+      <hemisphereLight intensity={0.18} color="#5c4c3d" groundColor="#050505" />
+      <directionalLight position={[6, 8, 6]} intensity={0.7} color="#fff2db" castShadow={false} />
+      <pointLight position={[0, 2.5, 0]} intensity={0.35} distance={30} color="#ffe9c9" />
 
       {/* Atmosphere and lighting */}
       <Atmospherics />
-      <ambientLight intensity={0.02} />
+      <ambientLight intensity={0.05} />
       <TunnelShell />
       <TunnelEnvironment />
-      {/* LightingTransition will animate directional light intensity */}
       <LightingTransition />
 
       {/* Environment */}
@@ -42,11 +44,11 @@ const Scene = () => {
 
       {/* Postprocessing */}
       <EffectComposer>
-        <Bloom intensity={0.8} luminanceThreshold={0.2} mipmapBlur />
+        <Bloom intensity={0.75} luminanceThreshold={0.18} mipmapBlur />
       </EffectComposer>
 
       {/* Game Objects */}
-      <Handcar />
+      <Cart />
       <Cave />
       <CaveTrigger />
       <AudioManager />
@@ -63,15 +65,12 @@ const GameInitializer = ({
   children: React.ReactNode;
 }) => {
   useEffect(() => {
-    const { mainTrack, leftPath, rightPath } = generateDemoTracks();
+    const { mainTrack, firstPaths } = generateDemoTracks();
 
     useGameStore.setState({
       currentTrack: mainTrack,
       gameState: "RIDING",
-      availablePaths: [
-        { id: "left", label: "Left Path", curve: leftPath },
-        { id: "right", label: "Right Path", curve: rightPath },
-      ],
+      availablePaths: firstPaths,
     });
   }, []);
 

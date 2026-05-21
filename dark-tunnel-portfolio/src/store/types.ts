@@ -7,12 +7,16 @@ export interface PathOption {
   label: string;
   description?: string;
   curve?: Curve<Vector3>;
+  nextPaths?: PathOption[];
 }
 
 export interface GameStoreState {
   // Movement
   currentTrack: Curve<Vector3> | null;
   progress: number;
+  overallProgress: number;
+  completedCaves: number;
+  totalCaves: number;
   speed: number;
   currentPosition: Vector3;
 
@@ -28,6 +32,8 @@ export interface GameStoreState {
   // Actions
   setCurrentTrack: (curve: Curve<Vector3>) => void;
   setProgress: (progress: number) => void;
+  setTotalCaves: (count: number) => void;
+  incrementCompletedCaves: () => void;
   setCurrentPosition: (pos: Vector3) => void;
   setGameState: (state: GameState) => void;
   setAvailablePaths: (paths: PathOption[]) => void;

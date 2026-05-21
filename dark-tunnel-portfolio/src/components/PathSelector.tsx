@@ -14,9 +14,14 @@ export const PathSelector = () => {
   const setGameState = useGameStore((state) => state.setGameState);
   const setProgress = useGameStore((state) => state.setProgress);
   const setCurrentTrack = useGameStore((state) => state.setCurrentTrack);
+  const setAvailablePaths = useGameStore((state) => state.setAvailablePaths);
   const selectedPath = useGameStore((state) => state.selectedPath);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [availablePaths]);
 
   // Setup keyboard input
   useEffect(() => {
@@ -44,6 +49,7 @@ export const PathSelector = () => {
           if (path.curve) {
             setCurrentTrack(path.curve);
             setProgress(0);
+            setAvailablePaths(path.nextPaths || []);
             setGameState("RIDING");
             setSelectedIndex(0); // Reset selection
           }
@@ -105,6 +111,7 @@ export const PathSelector = () => {
               if (path.curve) {
                 setCurrentTrack(path.curve);
                 setProgress(0);
+                setAvailablePaths(path.nextPaths || []);
                 setGameState("RIDING");
                 setSelectedIndex(0);
               }
