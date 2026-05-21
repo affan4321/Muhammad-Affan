@@ -98,9 +98,17 @@ const RailwayTracksForCurve = ({
             ? 1
             : Math.min(1, (i + 0.5) / segmentCount);
         const point = curve.getPointAt(t);
-        const nextT = Math.min(t + 1 / segmentCount, 1);
-        const nextPoint = curve.getPointAt(nextT);
-        const direction = nextPoint.clone().sub(point);
+        let direction: THREE.Vector3;
+        
+        if (i === segmentCount - 1) {
+          // For the last segment, use the curve tangent at the end
+          direction = curve.getTangentAt(0.99).clone();
+        } else {
+          const nextT = Math.min(t + 1 / segmentCount, 1);
+          const nextPoint = curve.getPointAt(nextT);
+          direction = nextPoint.clone().sub(point);
+        }
+        
         const yaw = getFlatYaw(direction) + yawOffset;
 
         return (
