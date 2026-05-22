@@ -98,13 +98,13 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
         activeBranch: path,
         trackContext: "branch",
         currentTrack: path.curve,
-        segmentProgress: 0,
+        segmentProgress: 0.08,
         availablePaths: [],
         gameState: "RIDING",
         overallProgress: syncOverallProgress(
           "branch",
           state.mainSegmentIndex,
-          0,
+          0.08,
           state.completedCaves,
           state.totalCaves
         ),
@@ -121,13 +121,13 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       trackContext: "main",
       currentTrack: nextCurve,
       mainSegmentIndex: nextIndex,
-      segmentProgress: 0,
+      segmentProgress: 0.08,
       availablePaths: [],
       gameState: "RIDING",
       overallProgress: syncOverallProgress(
         "main",
         nextIndex,
-        0,
+        0.08,
         state.completedCaves,
         state.totalCaves
       ),

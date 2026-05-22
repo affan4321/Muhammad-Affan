@@ -3,8 +3,12 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import { useGameStore } from "@/store/gameStore";
-import LampModel from "./models/LampModel";
-import { Line, useGLTF } from "@react-three/drei";
+import HorrorModel2 from "./models/HorrorModel2";
+import HorrorModel4 from "./models/HorrorModel4";
+import HorrorModel5 from "./models/HorrorModel5";
+import HorrorModel9 from "./models/HorrorModel9";
+import StreetLampModel from "./models/StreetLampModel";
+import { useGLTF } from "@react-three/drei";
 import {
   BRANCH_RAIL_SKIP,
   TERMINAL_BRANCH_RAIL_SKIP,
@@ -17,39 +21,6 @@ const getFlatYaw = (direction: THREE.Vector3) => {
   if (flatDirection.lengthSq() === 0) flatDirection.set(0, 0, 1);
   flatDirection.normalize();
   return Math.atan2(flatDirection.x, flatDirection.z);
-};
-
-const PathLine = ({
-  curve,
-  color,
-  opacity,
-  lineWidth,
-  sampleFrom = 0,
-}: {
-  curve: THREE.Curve<THREE.Vector3>;
-  color: string;
-  opacity: number;
-  lineWidth: number;
-  sampleFrom?: number;
-}) => {
-  const points = useMemo(() => {
-    const start = Math.max(0, Math.min(0.9, sampleFrom));
-    const sampleCount = 100;
-    return Array.from({ length: sampleCount + 1 }, (_, i) => {
-      const t = start + (i / sampleCount) * (1 - start);
-      return curve.getPointAt(t);
-    });
-  }, [curve, sampleFrom]);
-
-  return (
-    <Line
-      points={points}
-      color={color}
-      lineWidth={lineWidth}
-      transparent
-      opacity={opacity}
-    />
-  );
 };
 
 const RailwayTracksForCurve = ({
@@ -128,44 +99,6 @@ const RailwayTracksForCurve = ({
   );
 };
 
-const LampsAlongCurve = ({
-  curve,
-  idPrefix,
-  spacing = 0.1,
-  sampleFrom = 0,
-}: {
-  curve: THREE.Curve<THREE.Vector3>;
-  idPrefix: string;
-  spacing?: number;
-  sampleFrom?: number;
-}) => {
-  const lamps = useMemo(() => {
-    const items: React.ReactNode[] = [];
-    const start = Math.max(0, Math.min(0.9, sampleFrom));
-    for (let t = start; t <= 1; t += spacing) {
-      const point = curve.getPointAt(t);
-      const nextPoint = curve.getPointAt(Math.min(t + spacing, 1));
-      const direction = nextPoint.clone().sub(point);
-      const yaw = getFlatYaw(direction);
-      const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
-      const lampPosition = point.clone().add(right.multiplyScalar(2.5));
-
-      items.push(
-        <group
-          key={`${idPrefix}-lamp-${t.toFixed(2)}`}
-          position={[lampPosition.x, lampPosition.y + 1.5, lampPosition.z]}
-          rotation={[0, yaw + Math.PI, 0]}
-        >
-          <LampModel scale={0.28} />
-        </group>
-      );
-    }
-    return items;
-  }, [curve, idPrefix, spacing, sampleFrom]);
-
-  return <>{lamps}</>;
-};
-
 export const TunnelEnvironment = () => {
   const mainSpine = useGameStore((state) => state.mainSpine);
   const currentTrack = useGameStore((state) => state.currentTrack);
@@ -202,14 +135,70 @@ export const TunnelEnvironment = () => {
     <>
       {mainSpine && (
         <>
-          <PathLine curve={mainSpine} color="#3d5a48" opacity={0.55} lineWidth={2.5} />
           <RailwayTracksForCurve
             curve={mainSpine}
             idPrefix="main-spine"
             modelScale={1}
             highlight={trackContext === "main"}
           />
-          <LampsAlongCurve curve={mainSpine} idPrefix="main" spacing={0.09} />
+          {(() => {
+            const t = 0.11;
+            const point = mainSpine.getPointAt(t);
+            const tangent = mainSpine.getTangentAt(t).normalize();
+            const yaw = getFlatYaw(tangent);
+            return (
+              <group
+                position={[point.x, point.y, point.z]}
+                rotation={[0, yaw, 0]}
+              >
+                <HorrorModel4 scale={3.5} rotation={[0, Math.PI /2, 0]} position={[-5, 0, 0]} />
+              </group>
+            );
+          })()}
+          {(() => {
+            const t = 0.20;
+            const point = mainSpine.getPointAt(t);
+            const tangent = mainSpine.getTangentAt(t).normalize();
+            const yaw = getFlatYaw(tangent);
+            return (
+              <group
+                position={[point.x, point.y, point.z]}
+                rotation={[0, yaw, 0]}
+              >
+                <StreetLampModel scale={0.2} position={[2, 0, 0]} />
+                <pointLight position={[1.5, 2.5, 0]} intensity={7} distance={1} color="#ff0000" />
+              </group>
+            );
+          })()}
+          {(() => {
+            const t = 0.42;
+            const point = mainSpine.getPointAt(t);
+            const tangent = mainSpine.getTangentAt(t).normalize();
+            const yaw = getFlatYaw(tangent);
+            return (
+              <group
+                position={[point.x, point.y, point.z]}
+                rotation={[0, yaw, 0]}
+              >
+                <StreetLampModel scale={0.2} position={[2, 0, 0]} />
+                <pointLight position={[1.5, 2.5, 0]} intensity={7} distance={1} color="#ff0000" />
+              </group>
+            );
+          })()}
+          {(() => {
+            const t = 0.49;
+            const point = mainSpine.getPointAt(t);
+            const tangent = mainSpine.getTangentAt(t).normalize();
+            const yaw = getFlatYaw(tangent);
+            return (
+              <group
+                position={[point.x, point.y, point.z]}
+                rotation={[0, yaw, 0]}
+              >
+                <HorrorModel2 scale={1} position={[3, 0, 0]} rotation={[0, Math.PI / 4, 0]} />
+              </group>
+            );
+          })()}
         </>
       )}
 
@@ -219,12 +208,6 @@ export const TunnelEnvironment = () => {
         const isFuture = segmentIndex > mainSegmentIndex + 1;
         return (
           <group key={`branch-env-${id}`}>
-            <PathLine
-              curve={curve}
-              color={isActive ? "#00ff88" : isFuture ? "#1a3028" : "#2a4a3a"}
-              opacity={isActive ? 0.9 : isFuture ? 0.22 : 0.5}
-              lineWidth={isActive ? 2 : 1.2}
-            />
             {showRails && (
               <>
                 <RailwayTracksForCurve
@@ -235,7 +218,34 @@ export const TunnelEnvironment = () => {
                   skipStartFraction={railSkip}
                   tieSpacing={0.78}
                 />
-                <LampsAlongCurve curve={curve} idPrefix={`branch-lamp-${id}`} spacing={0.12} />
+                {id === "who-am-i" && (() => {
+                  const t = 0.6;
+                  const point = curve.getPointAt(t);
+                  const tangent = curve.getTangentAt(t).normalize();
+                  const yaw = getFlatYaw(tangent);
+                  return (
+                    <group
+                      position={[point.x, point.y, point.z]}
+                      rotation={[0, yaw, 0]}
+                    >
+                      <HorrorModel5 scale={1} position={[2, 2, 0]} rotation={[0, Math.PI / 2, 0]} />
+                    </group>
+                  );
+                })()}
+                {id === "resume-cv" && (() => {
+                  const t = 0.48;
+                  const point = curve.getPointAt(t);
+                  const tangent = curve.getTangentAt(t).normalize();
+                  const yaw = getFlatYaw(tangent);
+                  return (
+                    <group
+                      position={[point.x, point.y, point.z]}
+                      rotation={[0, yaw, 0]}
+                    >
+                      <HorrorModel9 scale={1} position={[2, 0, 0]} rotation={[0, 0, 0]} />
+                    </group>
+                  );
+                })()}
               </>
             )}
           </group>

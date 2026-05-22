@@ -1,13 +1,13 @@
 "use client";
 
-import { Center, useGLTF } from "@react-three/drei";
+import { Center } from "@react-three/drei";
+import AnimatedModel from "./AnimatedModel";
 
 export const LampModel = ({ scale = 0.01, position = [0, 0, 0], ...props }: any) => {
-  const gltf = useGLTF("/models/lamp.glb");
   return (
     <group position={position as [number, number, number]} scale={scale} {...props}>
       <Center>
-        <primitive object={gltf.scene} dispose={null} />
+        <AnimatedModel url="/models/lamp.glb" />
       </Center>
     </group>
   );

@@ -25,18 +25,12 @@ const Scene = () => {
       {/* Position/rotation come from Cart + cartRig.ts — do not set position here */}
       <PerspectiveCamera makeDefault fov={72} />
 
-      <hemisphereLight intensity={0.28} color="#5c4c3d" groundColor="#050505" />
-      <directionalLight position={[6, 8, 6]} intensity={0.55} color="#fff2db" castShadow={false} />
-      <pointLight position={[0, 2.5, 0]} intensity={0.45} distance={45} color="#ffe9c9" />
-
+      <fog attach="fog" args={["#000000", 1, 6]} />
       <Atmospherics />
-      <ambientLight intensity={0.05} />
       <TunnelShell />
       <TunnelEnvironment />
       <IglooEntrances />
       <LightingTransition />
-
-      <Grid args={[100, 100]} cellSize={5} cellColor="#444" sectionSize={20} sectionColor="#888" />
 
       <EffectComposer>
         <Bloom intensity={0.75} luminanceThreshold={0.18} mipmapBlur />

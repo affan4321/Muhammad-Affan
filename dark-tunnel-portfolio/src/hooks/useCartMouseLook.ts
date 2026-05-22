@@ -5,7 +5,7 @@ import { MathUtils } from "three";
 import { useGameStore } from "@/store/gameStore";
 import { CART_RIG } from "@/lib/cartRig";
 
-const isLookLocked = (gameState: string) => gameState === "CHOOSING_PATH";
+const isLookLocked = (gameState: string) => false;
 
 /**
  * Mouse-look offsets relative to the cart heading (does not move the cart on the track).

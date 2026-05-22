@@ -36,8 +36,8 @@ export const MAIN_X = 2 * S;
 
 /** Main tunnel weave — lower amplitude + tension = gradual curves, less rail overlap. */
 export const MAIN_SPINE_WIND = {
-  amplitude: 3.2 * S,
-  tension: 0.28,
+  amplitude: 2.0 * S,
+  tension: 0.4,
 };
 
 /**
@@ -124,7 +124,7 @@ export const createBranchCurve = (
   const p5 = p4.clone().add(dir.clone().multiplyScalar(10 * S));
 
   const curve = createTunnelCurve([p0, p1, p2, p2b, p3, p4, p5]);
-  curve.tension = 0.35;
+  curve.tension = 0.5;
   return curve;
 };
 

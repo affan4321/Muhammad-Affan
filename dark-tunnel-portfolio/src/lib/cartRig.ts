@@ -30,7 +30,7 @@ export const CART_RIG = {
     smooth: 0.14,
     resetSmooth: 0.22,
     /** After this many ms without mouse move, view recenters to track forward. */
-    idleMs: 700,
+    idleMs: 999999,
     idleRecenterSmooth: 0.07,
   },
 };
