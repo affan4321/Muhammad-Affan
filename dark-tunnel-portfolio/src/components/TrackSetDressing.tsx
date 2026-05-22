@@ -81,6 +81,8 @@ export const TrackSetDressing = () => {
         localRotation: prop.rotation ?? [0, 0, 0],
         scale: prop.scale ?? 0.1,
         animationName: prop.animationName,
+        baseLight: prop.baseLight,
+        light: prop.light,
       };
     }).filter(Boolean);
   }, [mainSpine, journey, mainSegmentIndex, trackContext, currentTrack]);
@@ -114,12 +116,26 @@ export const TrackSetDressing = () => {
                 animationName={p.animationName}
                 autoPlay
               />
-              <pointLight
-                position={[0, 2, 0]}
-                intensity={4}
-                distance={12}
-                color="#ff8866"
-              />
+              {p.baseLight !== false ? (
+                <pointLight
+                  position={[0, 1.2, 0]}
+                  intensity={12}
+                  distance={5}
+                  color="#ffe9c9"
+                />
+              ) : null}
+              {p.light ? (
+                <>
+                  {p.light.emit !== false ? (
+                    <pointLight
+                      position={p.light.position}
+                      intensity={p.light.intensity}
+                      distance={p.light.distance}
+                      color={p.light.color ?? "#ffffff"}
+                    />
+                  ) : null}
+                </>
+              ) : null}
             </group>
           </group>
         ) : null

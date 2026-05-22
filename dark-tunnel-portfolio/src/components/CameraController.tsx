@@ -13,6 +13,8 @@ export const CameraController = () => {
   const camera = useThree((state) => state.camera);
   const currentTrack = useGameStore((state) => state.currentTrack);
   const segmentProgress = useGameStore((state) => state.segmentProgress);
+  const isDebugCameraLocked = useGameStore((state) => state.isDebugCameraLocked);
+  const setDebugCameraLocked = useGameStore((state) => state.setDebugCameraLocked);
   const lastTrackPosition = useRef(new Vector3());
   const hasTrackPosition = useRef(false);
   const currentYaw = useRef(0);
@@ -26,7 +28,27 @@ export const CameraController = () => {
   }, [currentTrack]);
 
   useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.repeat || event.key.toLowerCase() !== "l") return;
+
+      const nextLocked = !useGameStore.getState().isDebugCameraLocked;
+      setDebugCameraLocked(nextLocked);
+      hasTrackPosition.current = false;
+
+      console.info(nextLocked ? "Camera locked" : "Camera free to move");
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [setDebugCameraLocked]);
+
+  useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
+      if (useGameStore.getState().isDebugCameraLocked) return;
+
       const sensitivity = 0.0025;
 
       targetYaw.current -= event.movementX * sensitivity;
@@ -46,6 +68,11 @@ export const CameraController = () => {
 
   useFrame(() => {
     if (!currentTrack) return;
+
+    if (isDebugCameraLocked) {
+      camera.up.copy(baseUp.current);
+      return;
+    }
 
     const trackPosition = currentTrack.getPointAt(segmentProgress);
     const trackTangent = currentTrack.getTangentAt(segmentProgress).normalize();
@@ -70,10 +97,10 @@ export const CameraController = () => {
       lastTrackPosition.current.copy(trackPosition);
     }
 
+    camera.position.lerp(seatPosition, 0.12);
+
     currentYaw.current = MathUtils.lerp(currentYaw.current, targetYaw.current, 0.08);
     currentPitch.current = MathUtils.lerp(currentPitch.current, targetPitch.current, 0.08);
-
-    camera.position.lerp(seatPosition, 0.12);
     camera.quaternion.setFromEuler(
       new Euler(currentPitch.current, currentYaw.current, 0, "YXZ")
     );

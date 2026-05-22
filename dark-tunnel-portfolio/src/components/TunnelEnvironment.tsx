@@ -7,7 +7,6 @@ import HorrorModel2 from "./models/HorrorModel2";
 import HorrorModel4 from "./models/HorrorModel4";
 import HorrorModel5 from "./models/HorrorModel5";
 import HorrorModel9 from "./models/HorrorModel9";
-import DogModel from "./models/DogModel";
 import StreetLampModel from "./models/StreetLampModel";
 import { useGLTF } from "@react-three/drei";
 import {
@@ -104,24 +103,28 @@ export const TunnelEnvironment = () => {
       curve: THREE.Curve<THREE.Vector3>;
       isTerminal: boolean;
       showRails: boolean;
+      showProps: boolean;
       segmentIndex: number;
     }[] = [];
     journey.forEach((segment, segmentIndex) => {
       const showRails = segmentIndex <= mainSegmentIndex;
       for (const branch of segment.branches) {
         if (branch.curve) {
+          const isActive =
+            trackContext === "branch" && currentTrack === branch.curve;
           list.push({
             id: branch.id,
             curve: branch.curve,
             isTerminal: Boolean(segment.isTerminalFork),
             showRails,
+            showProps: showRails || isActive,
             segmentIndex,
           });
         }
       }
     });
     return list;
-  }, [journey, mainSegmentIndex]);
+  }, [journey, mainSegmentIndex, trackContext, currentTrack]);
 
   return (
     <>
@@ -168,6 +171,7 @@ export const TunnelEnvironment = () => {
               </group>
             );
           })()}
+          {/* Horror light moved into SCENE_PROPS (TrackSetDressing) */}
           {(() => {
             const t = 0.49;
             const point = mainSpine.getPointAt(t);
@@ -182,21 +186,23 @@ export const TunnelEnvironment = () => {
         </>
       )}
 
-      {branchPaths.map(({ id, curve, isTerminal, showRails }) => {
+      {branchPaths.map(({ id, curve, isTerminal, showRails, showProps }) => {
         const isActive = trackContext === "branch" && currentTrack === curve;
         const railSkip = isTerminal ? TERMINAL_BRANCH_RAIL_SKIP : BRANCH_RAIL_SKIP;
         return (
           <group key={`branch-env-${id}`}>
             {showRails && (
+              <RailwayTracksForCurve
+                curve={curve}
+                idPrefix={`branch-${id}`}
+                modelScale={0.92}
+                highlight={isActive}
+                skipStartFraction={railSkip}
+                tieSpacing={0.78}
+              />
+            )}
+            {showProps && (
               <>
-                <RailwayTracksForCurve
-                  curve={curve}
-                  idPrefix={`branch-${id}`}
-                  modelScale={0.92}
-                  highlight={isActive}
-                  skipStartFraction={railSkip}
-                  tieSpacing={0.78}
-                />
                 {id === "who-am-i" &&
                   (() => {
                     const t = 0.6;
@@ -225,18 +231,20 @@ export const TunnelEnvironment = () => {
                       </group>
                     );
                   })()}
-                {id === "resume-cv" &&
+                {id === "social-handles" &&
                   (() => {
-                    const t = 0.8;
+                    const t = 0.45;
                     const point = curve.getPointAt(t);
                     const tangent = curve.getTangentAt(t).normalize();
                     const yaw = getFlatYaw(tangent);
                     return (
                       <group position={[point.x, point.y, point.z]} rotation={[0, yaw, 0]}>
-                        <DogModel scale={0.35} position={[2.5, 0, 0]} />
+                        <StreetLampModel scale={0.2} position={[2, 0, 0]} />
+                        <pointLight position={[1.5, 2.5, 0]} intensity={7} distance={1} color="#ff0000" />
                       </group>
                     );
                   })()}
+                {/* `HorrorModel9` for social-handles moved into SCENE_PROPS (TrackSetDressing) */}
               </>
             )}
           </group>

@@ -60,6 +60,7 @@ export interface GameStoreState {
   // Input
   isMovingForward: boolean;
   isMovingBackward: boolean;
+  isDebugCameraLocked: boolean;
 
   // Actions
   setCurrentTrack: (curve: Curve<Vector3>) => void;
@@ -75,5 +76,6 @@ export interface GameStoreState {
   stepToPreviousMainSegment: () => void;
   returnFromBranchToFork: () => void;
   setMovementInput: (forward: boolean, backward: boolean) => void;
+  setDebugCameraLocked: (locked: boolean) => void;
   reset: () => void;
 }

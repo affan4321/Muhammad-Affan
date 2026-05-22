@@ -25,9 +25,9 @@ export const CartModel = ({
         </Center>
       </group>
       <primitive object={lampGltf.scene.clone(true)} dispose={null} visible={visible} position={[position[0] + 0.9, position[1] + 0.8, position[2]]} rotation={[0, Math.PI, 0]} scale={scale * 0.4} />
-      <pointLight position={[position[0] + 0.6, position[1] + 0.6, position[2]+0.8]} intensity={7} distance={8} color="#ffaa00" />
+      <pointLight position={[position[0] + 0.6, position[1] + 0.6, position[2]+0.8]} intensity={7} distance={1} color="#ffaa00" />
       <primitive object={lampGltf.scene.clone(true)} dispose={null} visible={visible} position={[position[0] - 0.5, position[1] + 0.8, position[2]]} rotation={[0, Math.PI, 0]} scale={scale * 0.4} />
-      <pointLight position={[position[0] - 0.5, position[1] + 0.6, position[2]+0.8]} intensity={7} distance={8} color="#ffaa00" />
+      <pointLight position={[position[0] - 0.5, position[1] + 0.6, position[2]+0.8]} intensity={7} distance={1} color="#ffaa00" />
     </>
   );
 };

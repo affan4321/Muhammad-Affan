@@ -34,8 +34,11 @@ export const AnimatedModel = ({
   const logged = useRef(false);
 
   useEffect(() => {
-    if (process.env.NODE_ENV === "development" && !logged.current && names.length > 0) {
-      console.info(`[AnimatedModel] ${url} clips:`, names);
+    if (process.env.NODE_ENV === "development" && !logged.current) {
+      console.info(
+        `[AnimatedModel] ${url} clips:`,
+        names.length > 0 ? names : "(none — mesh only)"
+      );
       logged.current = true;
     }
   }, [url, names]);

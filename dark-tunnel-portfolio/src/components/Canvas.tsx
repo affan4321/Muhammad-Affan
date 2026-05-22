@@ -3,7 +3,7 @@
 import { Suspense, useEffect } from "react";
 import { Canvas as R3FCanvas } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
-import { PerspectiveCamera, Grid } from "@react-three/drei";
+import { PerspectiveCamera } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import LightingTransition from "./LightingTransition";
 import Cave from "./Cave";
@@ -21,6 +21,7 @@ import { TrackSetDressing } from "./TrackSetDressing";
 import { SCENE_PROP_URLS } from "@/lib/sceneProps";
 
 Object.values(SCENE_PROP_URLS).forEach((url) => useGLTF.preload(url));
+useGLTF.preload("/models/dog.glb");
 
 const Scene = () => {
   useCartInput();
@@ -33,8 +34,8 @@ const Scene = () => {
       <fog attach="fog" args={["#000000", 1, 6]} />
       <Atmospherics />
       <TunnelShell />
-      <TunnelEnvironment />
       <Suspense fallback={null}>
+        <TunnelEnvironment />
         <TrackSetDressing />
         <IglooEntrances />
       </Suspense>

@@ -22,6 +22,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   activeBranch: null,
   isMovingForward: false,
   isMovingBackward: false,
+  isDebugCameraLocked: false,
 
   setCurrentTrack: (curve) => set({ currentTrack: curve }),
 
@@ -260,6 +261,8 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       isMovingBackward: backward,
     }),
 
+  setDebugCameraLocked: (locked) => set({ isDebugCameraLocked: locked }),
+
   reset: () =>
     set({
       currentTrack: null,
@@ -278,5 +281,6 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       activeBranch: null,
       isMovingForward: false,
       isMovingBackward: false,
+      isDebugCameraLocked: false,
     }),
 }));

@@ -6,7 +6,9 @@ export type ScenePropModel =
   | "horror1"
   | "horror11"
   | "horror7"
-  | "horror9";
+  | "horror9"
+  | "horrorLight"
+  | "dog";
 
 /** Move along the track while playing a clip, then loop (start → end → start). */
 export type ScenePropPatrol = {
@@ -27,6 +29,14 @@ export type ScenePropPlacement = {
   offset?: [number, number, number];
   rotation?: [number, number, number];
   animationName?: string;
+  baseLight?: boolean;
+  light?: {
+    position: [number, number, number];
+    intensity: number;
+    distance: number;
+    color?: string;
+    emit?: boolean;
+  };
   /** Loop: run along track from startT to endT, reset, repeat */
   patrol?: ScenePropPatrol;
   /**
@@ -48,6 +58,39 @@ export const SCENE_PROPS: ScenePropPlacement[] = [
     minMainSegment: 1,
     patrol: { startT: 0.9, endT: 0.4, speed: 0.2 },
   },
+  {
+    trackId: "resume-cv",
+    t: 0.8,
+    model: "dog",
+    scale: 0.25,
+    rotation: [0, Math.PI / 4, 0],
+    offset: [-4, 0, 0],
+    minMainSegment: 1,
+  },
+  {
+    trackId: "social-handles",
+    t: 0.75,
+    model: "horror9",
+    scale: 0.015,
+    offset: [-5, 0, 0],
+    rotation: [0, Math.PI, 0],
+  },
+  {
+    trackId: "main",
+    t: 0.62,
+    model: "horrorLight",
+    scale: 0.35,
+    offset: [2, 0, 0],
+    rotation: [0, Math.PI+1, 0],
+    baseLight: false,
+    light: {
+      position: [0, 6.6, 0.4],
+      intensity: 200,
+      distance: 20,
+      color: "#5a0000",
+      emit: true,
+    },
+  },
 ];
 
 /** GLB paths — keep in sync with public/models */
@@ -56,4 +99,6 @@ export const SCENE_PROP_URLS: Record<ScenePropModel, string> = {
   horror11: "/models/horror 1.1.glb",
   horror7: "/models/horror 7.glb",
   horror9: "/models/horror 9.glb",
+  horrorLight: "/models/horror light.glb",
+  dog: "/models/dog.glb",
 };

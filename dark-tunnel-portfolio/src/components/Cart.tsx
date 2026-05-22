@@ -60,13 +60,32 @@ export const Cart = () => {
   const gameState = useGameStore((state) => state.gameState);
   const trackContext = useGameStore((state) => state.trackContext);
   const mainSegmentIndex = useGameStore((state) => state.mainSegmentIndex);
+  const isDebugCameraLocked = useGameStore((state) => state.isDebugCameraLocked);
+  const setDebugCameraLocked = useGameStore((state) => state.setDebugCameraLocked);
   const { camera } = useThree();
+  const scene = useThree((state) => state.scene);
   const { getSmoothedLook } = useCartMouseLook();
   const currentTrackId = useGameStore((state) => state.currentTrack);
 
   useEffect(() => {
     yawInitialized.current = false;
   }, [currentTrackId]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.repeat || event.key.toLowerCase() !== "l") return;
+
+      const nextLocked = !useGameStore.getState().isDebugCameraLocked;
+      setDebugCameraLocked(nextLocked);
+      console.info(nextLocked ? "Camera locked" : "Camera free to move");
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [setDebugCameraLocked]);
 
   const placeCart = (progress: number) => {
     if (!currentTrack || !groupRef.current) return;
@@ -92,14 +111,19 @@ export const Cart = () => {
   useFrame(() => {
     if (!groupRef.current || !camera) return;
 
+    if (isDebugCameraLocked) {
+      if (rigAttachedRef.current && camera.parent === groupRef.current) {
+        scene.attach(camera);
+        rigAttachedRef.current = false;
+      }
+      return;
+    }
+
     if (!rigAttachedRef.current) {
-      const originalParent = camera.parent;
-      groupRef.current.add(camera);
+      groupRef.current.attach(camera);
       const armsRig = armsRigRef.current;
       if (armsRig) camera.add(armsRig);
       rigAttachedRef.current = true;
-      (camera as THREE.Object3D & { _cartOrigParent?: THREE.Object3D | null })._cartOrigParent =
-        originalParent;
     }
 
     const look = getSmoothedLook();
@@ -133,20 +157,20 @@ export const Cart = () => {
   });
 
   useEffect(() => {
+    const cartGroup = groupRef.current;
+    const armsRig = armsRigRef.current;
+
     return () => {
       rigAttachedRef.current = false;
       try {
-        const armsRig = armsRigRef.current;
         if (armsRig) camera.remove(armsRig);
-        groupRef.current?.remove(camera);
-        const orig = (camera as THREE.Object3D & { _cartOrigParent?: THREE.Object3D | null })
-          ._cartOrigParent;
-        orig?.add(camera);
+        cartGroup?.remove(camera);
+        scene.attach(camera);
         camera.position.set(0, 0, 0);
         camera.rotation.set(0, 0, 0);
-      } catch (e) {}
+      } catch {}
     };
-  }, [camera]);
+  }, [camera, scene]);
 
   return (
     <group ref={groupRef} position={[0, 0, 0]}>
