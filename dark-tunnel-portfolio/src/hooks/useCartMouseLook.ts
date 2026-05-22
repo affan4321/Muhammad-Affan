@@ -5,7 +5,7 @@ import { MathUtils } from "three";
 import { useGameStore } from "@/store/gameStore";
 import { CART_RIG } from "@/lib/cartRig";
 
-const isLookLocked = (gameState: string) => false;
+const isLookLocked = (gameState: string) => gameState === "CHOOSING_PATH";
 
 /**
  * Mouse-look offsets relative to the cart heading (does not move the cart on the track).
@@ -32,11 +32,9 @@ export const useCartMouseLook = () => {
 
   useEffect(() => {
     if (isLookLocked(gameState)) {
-      targetYaw.current = 0;
-      targetPitch.current = 0;
-      lastPointer.current = null;
+      resetLook();
     }
-  }, [gameState]);
+  }, [gameState, resetLook]);
 
   useEffect(() => {
     resetLook();

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { Canvas as R3FCanvas } from "@react-three/fiber";
+import { useGLTF } from "@react-three/drei";
 import { PerspectiveCamera, Grid } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import LightingTransition from "./LightingTransition";
@@ -16,6 +17,10 @@ import { IglooEntrances } from "./IglooEntrances";
 import { useGameStore } from "@/store/gameStore";
 import { useCartInput } from "@/hooks/useCartInput";
 import { buildJourney } from "@/lib/journey";
+import { TrackSetDressing } from "./TrackSetDressing";
+import { SCENE_PROP_URLS } from "@/lib/sceneProps";
+
+Object.values(SCENE_PROP_URLS).forEach((url) => useGLTF.preload(url));
 
 const Scene = () => {
   useCartInput();
@@ -29,7 +34,10 @@ const Scene = () => {
       <Atmospherics />
       <TunnelShell />
       <TunnelEnvironment />
-      <IglooEntrances />
+      <Suspense fallback={null}>
+        <TrackSetDressing />
+        <IglooEntrances />
+      </Suspense>
       <LightingTransition />
 
       <EffectComposer>

@@ -1,18 +1,24 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useGLTF, useAnimations } from "@react-three/drei";
+import { SkeletonUtils } from "three-stdlib";
+import * as THREE from "three";
 
-interface AnimatedModelProps {
+export interface AnimatedModelProps {
   url: string;
   scale?: number;
   position?: [number, number, number];
   rotation?: [number, number, number];
   autoPlay?: boolean;
   animationName?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
+/**
+ * Loads a GLB and plays embedded clips. Clones with SkeletonUtils so skinned
+ * animations still run (a plain scene.clone() breaks the mixer).
+ */
 export const AnimatedModel = ({
   url,
   scale = 1,
@@ -22,29 +28,48 @@ export const AnimatedModel = ({
   animationName,
   ...props
 }: AnimatedModelProps) => {
-  const gltf = useGLTF(url);
-  const { actions, names } = useAnimations(gltf.animations, gltf.scene);
+  const { scene, animations } = useGLTF(url);
+  const root = useMemo(() => SkeletonUtils.clone(scene) as THREE.Group, [scene]);
+  const { actions, names, mixer } = useAnimations(animations, root);
+  const logged = useRef(false);
 
   useEffect(() => {
-    if (autoPlay && names.length > 0) {
-      // Play the specified animation or the first available one
-      const targetAnimation = animationName 
-        ? actions[animationName] 
-        : actions[names[0]];
-      
-      if (targetAnimation) {
-        targetAnimation.reset().play();
-      }
+    if (process.env.NODE_ENV === "development" && !logged.current && names.length > 0) {
+      console.info(`[AnimatedModel] ${url} clips:`, names);
+      logged.current = true;
     }
-  }, [actions, names, autoPlay, animationName]);
+  }, [url, names]);
+
+  useEffect(() => {
+    if (!autoPlay || names.length === 0) return;
+
+    const action = animationName ? actions[animationName] : actions[names[0]];
+    if (!action) {
+      if (process.env.NODE_ENV === "development") {
+        console.warn(`[AnimatedModel] No clip "${animationName ?? names[0]}" on ${url}`);
+      }
+      return;
+    }
+
+    action.reset().fadeIn(0.15).play();
+    return () => {
+      action.fadeOut(0.15);
+    };
+  }, [actions, names, autoPlay, animationName, url]);
+
+  useEffect(() => {
+    return () => {
+      mixer?.stopAllAction();
+    };
+  }, [mixer]);
 
   return (
-    <primitive 
-      object={gltf.scene.clone(true)} 
+    <primitive
+      object={root}
       position={position}
       rotation={rotation}
       scale={scale}
-      dispose={null}
+      frustumCulled={false}
       {...props}
     />
   );

@@ -7,6 +7,7 @@ import HorrorModel2 from "./models/HorrorModel2";
 import HorrorModel4 from "./models/HorrorModel4";
 import HorrorModel5 from "./models/HorrorModel5";
 import HorrorModel9 from "./models/HorrorModel9";
+import DogModel from "./models/DogModel";
 import StreetLampModel from "./models/StreetLampModel";
 import { useGLTF } from "@react-three/drei";
 import {
@@ -65,21 +66,12 @@ const RailwayTracksForCurve = ({
       {Array.from({ length: segmentCount }).map((_, i) => {
         if (i < startIndex) return null;
         const t =
-          i === segmentCount - 1
-            ? 1
-            : Math.min(1, (i + 0.5) / segmentCount);
+          i === segmentCount - 1 ? 1 : Math.min(1, (i + 0.5) / segmentCount);
         const point = curve.getPointAt(t);
-        let direction: THREE.Vector3;
-        
-        if (i === segmentCount - 1) {
-          // For the last segment, use the curve tangent at the end
-          direction = curve.getTangentAt(0.99).clone();
-        } else {
-          const nextT = Math.min(t + 1 / segmentCount, 1);
-          const nextPoint = curve.getPointAt(nextT);
-          direction = nextPoint.clone().sub(point);
-        }
-        
+        const direction =
+          i === segmentCount - 1
+            ? curve.getTangentAt(0.99).clone()
+            : curve.getPointAt(Math.min(t + 1 / segmentCount, 1)).clone().sub(point);
         const yaw = getFlatYaw(direction) + yawOffset;
 
         return (
@@ -147,24 +139,18 @@ export const TunnelEnvironment = () => {
             const tangent = mainSpine.getTangentAt(t).normalize();
             const yaw = getFlatYaw(tangent);
             return (
-              <group
-                position={[point.x, point.y, point.z]}
-                rotation={[0, yaw, 0]}
-              >
-                <HorrorModel4 scale={3.5} rotation={[0, Math.PI /2, 0]} position={[-5, 0, 0]} />
+              <group position={[point.x, point.y, point.z]} rotation={[0, yaw, 0]}>
+                <HorrorModel4 scale={3.5} rotation={[0, Math.PI / 2, 0]} position={[-5, 0, 0]} />
               </group>
             );
           })()}
           {(() => {
-            const t = 0.20;
+            const t = 0.2;
             const point = mainSpine.getPointAt(t);
             const tangent = mainSpine.getTangentAt(t).normalize();
             const yaw = getFlatYaw(tangent);
             return (
-              <group
-                position={[point.x, point.y, point.z]}
-                rotation={[0, yaw, 0]}
-              >
+              <group position={[point.x, point.y, point.z]} rotation={[0, yaw, 0]}>
                 <StreetLampModel scale={0.2} position={[2, 0, 0]} />
                 <pointLight position={[1.5, 2.5, 0]} intensity={7} distance={1} color="#ff0000" />
               </group>
@@ -176,10 +162,7 @@ export const TunnelEnvironment = () => {
             const tangent = mainSpine.getTangentAt(t).normalize();
             const yaw = getFlatYaw(tangent);
             return (
-              <group
-                position={[point.x, point.y, point.z]}
-                rotation={[0, yaw, 0]}
-              >
+              <group position={[point.x, point.y, point.z]} rotation={[0, yaw, 0]}>
                 <StreetLampModel scale={0.2} position={[2, 0, 0]} />
                 <pointLight position={[1.5, 2.5, 0]} intensity={7} distance={1} color="#ff0000" />
               </group>
@@ -191,10 +174,7 @@ export const TunnelEnvironment = () => {
             const tangent = mainSpine.getTangentAt(t).normalize();
             const yaw = getFlatYaw(tangent);
             return (
-              <group
-                position={[point.x, point.y, point.z]}
-                rotation={[0, yaw, 0]}
-              >
+              <group position={[point.x, point.y, point.z]} rotation={[0, yaw, 0]}>
                 <HorrorModel2 scale={1} position={[3, 0, 0]} rotation={[0, Math.PI / 4, 0]} />
               </group>
             );
@@ -202,10 +182,9 @@ export const TunnelEnvironment = () => {
         </>
       )}
 
-      {branchPaths.map(({ id, curve, isTerminal, showRails, segmentIndex }) => {
+      {branchPaths.map(({ id, curve, isTerminal, showRails }) => {
         const isActive = trackContext === "branch" && currentTrack === curve;
         const railSkip = isTerminal ? TERMINAL_BRANCH_RAIL_SKIP : BRANCH_RAIL_SKIP;
-        const isFuture = segmentIndex > mainSegmentIndex + 1;
         return (
           <group key={`branch-env-${id}`}>
             {showRails && (
@@ -218,34 +197,46 @@ export const TunnelEnvironment = () => {
                   skipStartFraction={railSkip}
                   tieSpacing={0.78}
                 />
-                {id === "who-am-i" && (() => {
-                  const t = 0.6;
-                  const point = curve.getPointAt(t);
-                  const tangent = curve.getTangentAt(t).normalize();
-                  const yaw = getFlatYaw(tangent);
-                  return (
-                    <group
-                      position={[point.x, point.y, point.z]}
-                      rotation={[0, yaw, 0]}
-                    >
-                      <HorrorModel5 scale={1} position={[2, 2, 0]} rotation={[0, Math.PI / 2, 0]} />
-                    </group>
-                  );
-                })()}
-                {id === "resume-cv" && (() => {
-                  const t = 0.48;
-                  const point = curve.getPointAt(t);
-                  const tangent = curve.getTangentAt(t).normalize();
-                  const yaw = getFlatYaw(tangent);
-                  return (
-                    <group
-                      position={[point.x, point.y, point.z]}
-                      rotation={[0, yaw, 0]}
-                    >
-                      <HorrorModel9 scale={1} position={[2, 0, 0]} rotation={[0, 0, 0]} />
-                    </group>
-                  );
-                })()}
+                {id === "who-am-i" &&
+                  (() => {
+                    const t = 0.6;
+                    const point = curve.getPointAt(t);
+                    const tangent = curve.getTangentAt(t).normalize();
+                    const yaw = getFlatYaw(tangent);
+                    return (
+                      <group position={[point.x, point.y, point.z]} rotation={[0, yaw, 0]}>
+                        <HorrorModel5
+                          scale={1}
+                          position={[2, 2, 0]}
+                          rotation={[0, Math.PI / 2, 0]}
+                        />
+                      </group>
+                    );
+                  })()}
+                {id === "resume-cv" &&
+                  (() => {
+                    const t = 0.48;
+                    const point = curve.getPointAt(t);
+                    const tangent = curve.getTangentAt(t).normalize();
+                    const yaw = getFlatYaw(tangent);
+                    return (
+                      <group position={[point.x, point.y, point.z]} rotation={[0, yaw, 0]}>
+                        <HorrorModel9 scale={1} position={[2, 0, 0]} rotation={[0, 0, 0]} />
+                      </group>
+                    );
+                  })()}
+                {id === "resume-cv" &&
+                  (() => {
+                    const t = 0.8;
+                    const point = curve.getPointAt(t);
+                    const tangent = curve.getTangentAt(t).normalize();
+                    const yaw = getFlatYaw(tangent);
+                    return (
+                      <group position={[point.x, point.y, point.z]} rotation={[0, yaw, 0]}>
+                        <DogModel scale={0.35} position={[2.5, 0, 0]} />
+                      </group>
+                    );
+                  })()}
               </>
             )}
           </group>
