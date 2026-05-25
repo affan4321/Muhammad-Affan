@@ -19,12 +19,25 @@ import { useCartInput } from "@/hooks/useCartInput";
 import { buildJourney } from "@/lib/journey";
 import { TrackSetDressing } from "./TrackSetDressing";
 import { SCENE_PROP_URLS } from "@/lib/sceneProps";
+import { LoadingScreen } from "./LoadingScreen";
 
 Object.values(SCENE_PROP_URLS).forEach((url) => useGLTF.preload(url));
 useGLTF.preload("/models/dog.glb");
 
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    useGameStore.getState().reset();
+  });
+}
+
 const Scene = () => {
   useCartInput();
+  const setSceneLoading = useGameStore((state) => state.setSceneLoading);
+
+  useEffect(() => {
+    setSceneLoading(false);
+    return () => setSceneLoading(true);
+  }, [setSceneLoading]);
 
   return (
     <>
@@ -34,11 +47,9 @@ const Scene = () => {
       <fog attach="fog" args={["#000000", 1, 6]} />
       <Atmospherics />
       <TunnelShell />
-      <Suspense fallback={null}>
-        <TunnelEnvironment />
-        <TrackSetDressing />
-        <IglooEntrances />
-      </Suspense>
+      <TunnelEnvironment />
+      <TrackSetDressing />
+      <IglooEntrances />
       <LightingTransition />
 
       <EffectComposer>
@@ -76,7 +87,9 @@ export const GameCanvas = () => {
           display: "block",
         }}
       >
-        <Scene />
+        <Suspense fallback={<LoadingScreen />}>
+          <Scene />
+        </Suspense>
       </R3FCanvas>
     </GameInitializer>
   );

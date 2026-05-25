@@ -20,6 +20,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   gameState: "IDLE",
   availablePaths: [],
   activeBranch: null,
+  isSceneLoading: true,
   isMovingForward: false,
   isMovingBackward: false,
   isDebugCameraLocked: false,
@@ -85,6 +86,8 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   setAvailablePaths: (paths) => set({ availablePaths: paths }),
 
   setActiveBranch: (path) => set({ activeBranch: path }),
+
+  setSceneLoading: (loading) => set({ isSceneLoading: loading }),
 
   selectPathAtFork: (path) => {
     const state = get();

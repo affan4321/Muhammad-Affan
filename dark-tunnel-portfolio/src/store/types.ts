@@ -56,6 +56,7 @@ export interface GameStoreState {
   gameState: GameState;
   availablePaths: PathOption[];
   activeBranch: PathOption | null;
+  isSceneLoading: boolean;
 
   // Input
   isMovingForward: boolean;
@@ -71,6 +72,7 @@ export interface GameStoreState {
   setGameState: (state: GameState) => void;
   setAvailablePaths: (paths: PathOption[]) => void;
   setActiveBranch: (path: PathOption | null) => void;
+  setSceneLoading: (loading: boolean) => void;
   selectPathAtFork: (path: PathOption) => void;
   completeIgloo: () => void;
   stepToPreviousMainSegment: () => void;

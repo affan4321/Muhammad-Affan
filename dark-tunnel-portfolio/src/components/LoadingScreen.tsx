@@ -1,130 +1,108 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { Canvas } from "@react-three/fiber";
-import { Center, OrbitControls, useProgress, useGLTF } from "@react-three/drei";
+import { Suspense, useRef, useState } from "react";
+import { Html, Center, PerspectiveCamera, useProgress, useGLTF } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
+import { useGameStore } from "@/store/gameStore";
+
+useGLTF.preload("/models/muhammad-affan-model-compressed.glb");
 
 const LoadingModel = () => {
   const { scene } = useGLTF("/models/muhammad-affan-model-compressed.glb");
+
   return (
     <Center>
-      <primitive object={scene} scale={1.05} rotation={[0, Math.PI / 4, 0]} />
+      <primitive object={scene} scale={1.05} />
     </Center>
   );
 };
 
 export const LoadingScreen = () => {
-  const { active } = useProgress();
-  const [showPreview, setShowPreview] = useState(false);
-  const [bootVisible, setBootVisible] = useState(true);
+  const progress = useProgress((state) => state.progress);
+  const isSceneLoading = useGameStore((state) => state.isSceneLoading);
+  const modelGroup = useRef<THREE.Group | null>(null);
+  const [displayProgress, setDisplayProgress] = useState(0);
+  const maxProgress = useRef(0);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setBootVisible(false);
-    }, 350);
+  useFrame((_, delta) => {
+    if (modelGroup.current) {
+      modelGroup.current.rotation.y += delta * 0.6;
+    }
 
-    return () => window.clearTimeout(timer);
-  }, []);
+    const nextProgress = Math.min(100, progress);
+    if (nextProgress > maxProgress.current) {
+      maxProgress.current = nextProgress;
+      setDisplayProgress(nextProgress);
+    }
+  });
 
-  useEffect(() => {
-    if (!active) return;
-
-    const timer = window.setTimeout(() => {
-      setShowPreview(true);
-    }, 350);
-
-    return () => window.clearTimeout(timer);
-  }, [active]);
-
-  const shouldShow = active || bootVisible;
-  if (!shouldShow) return null;
+  if (!isSceneLoading) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 200,
-        background:
-          "radial-gradient(circle at center, rgba(35, 0, 0, 0.55), rgba(0, 0, 0, 0.98) 62%)",
-        color: "#ffd9d9",
-        fontFamily:
-          'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          top: "12%",
-          left: 0,
-          right: 0,
-          display: "flex",
-          justifyContent: "center",
-          pointerEvents: "none",
-        }}
-      >
-        <div style={{ fontSize: 14, letterSpacing: "0.35em", textTransform: "uppercase" }}>
-          Loading
-        </div>
-      </div>
+    <>
+      <PerspectiveCamera makeDefault fov={33} position={[0, 0, 8.2]} />
+      <color attach="background" args={["#050000"]} />
+      <fog attach="fog" args={["#050000", 5, 18]} />
+      <ambientLight intensity={0.05} />
+      <directionalLight position={[-7, 2.5, 7]} intensity={3.6} color="#ffd2b8" />
+      <directionalLight position={[6, 0, -4]} intensity={0.35} color="#5a1820" />
 
-      {showPreview ? (
+      <group ref={modelGroup} position={[-1.05, -0.3, 0]} scale={4}>
+        <Suspense fallback={null}>
+          <LoadingModel />
+        </Suspense>
+      </group>
+
+      <Html
+        fullscreen
+        transform={false}
+        style={{ pointerEvents: "none", width: "100vw", height: "100vh" }}
+      >
         <div
           style={{
-            position: "absolute",
-            inset: 0,
+            width: "100%",
+            height: "100%",
             display: "grid",
-            placeItems: "center",
+            gridTemplateColumns: "1fr 1fr",
+            color: "#ffd9d9",
+            fontFamily:
+              'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+            background: "transparent",
           }}
         >
           <div
             style={{
-              width: "min(580px, 88vw)",
-              height: "min(520px, 62vh)",
-            }}
-          >
-            <Canvas
-              camera={{ position: [0, 0, 4.4], fov: 35 }}
-              dpr={1}
-              frameloop="demand"
-              gl={{ alpha: true, antialias: false, powerPreference: "low-power" }}
-              style={{ width: "100%", height: "100%" }}
-            >
-              <ambientLight intensity={2} />
-              <directionalLight position={[2, 3, 4]} intensity={2.6} color="#ffd9c0" />
-              <directionalLight position={[-3, -2, -4]} intensity={0.55} color="#4b0000" />
-              <Suspense fallback={null}>
-                <LoadingModel />
-              </Suspense>
-              <OrbitControls enablePan={false} enableZoom={false} enableRotate />
-            </Canvas>
-          </div>
-        </div>
-      ) : (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "grid",
-            placeItems: "center",
-            pointerEvents: "none",
-          }}
-        >
-          <div
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: "50%",
-              border: "2px solid rgba(255, 145, 145, 0.25)",
-              borderTopColor: "#ff6e6e",
-              animation: "loader-spin 0.9s linear infinite",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "end",
+              justifyContent: "center",
+              paddingLeft: "2rem",
+              paddingRight: "2rem",
+              gap: 10,
             }}
           />
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingLeft: "2rem",
+              paddingRight: "2rem",
+              gap: 10,
+            }}
+          >
+            <div style={{ fontSize: 18, fontWeight: 600, letterSpacing: "0.18em" }}>
+              Loading...
+            </div>
+            <div style={{ fontSize: 82, fontWeight: 600, lineHeight: 0.92, color: "#ff6e6e" }}>
+              {displayProgress.toFixed(1)}
+            </div>
+          </div>
         </div>
-      )}
-
-      <style>{`@keyframes loader-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-    </div>
+      </Html>
+    </>
   );
 };
 
