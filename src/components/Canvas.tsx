@@ -1,0 +1,103 @@
+"use client";
+
+import { Suspense, useEffect, useState } from "react";
+import { Canvas as R3FCanvas } from "@react-three/fiber";
+import { useGLTF } from "@react-three/drei";
+import { PerspectiveCamera } from "@react-three/drei";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
+import LightingTransition from "./LightingTransition";
+import Cave from "./Cave";
+import AudioManager from "./AudioManager";
+import CaveTrigger from "./CaveTrigger";
+import { Cart } from "./Cart";
+import Atmospherics from "./Atmospherics";
+import TunnelShell from "./TunnelShell";
+import { TunnelEnvironment } from "./TunnelEnvironment";
+import { IglooEntrances } from "./IglooEntrances";
+import { useGameStore } from "@/store/gameStore";
+import { useCartInput } from "@/hooks/useCartInput";
+import { buildJourney } from "@/lib/journey";
+import { TrackSetDressing } from "./TrackSetDressing";
+import { SCENE_PROP_URLS } from "@/lib/sceneProps";
+import { LoadingScreen } from "./LoadingScreen";
+
+// Object.values(SCENE_PROP_URLS).forEach((url) => useGLTF.preload(url));
+// useGLTF.preload("/models/dog.glb");
+
+if (import.meta.turbopackHot) {
+  import.meta.turbopackHot.dispose(() => {
+    useGameStore.getState().reset();
+  });
+}
+
+const Scene = () => {
+  useCartInput();
+  const setSceneLoading = useGameStore((state) => state.setSceneLoading);
+
+  useEffect(() => {
+    setSceneLoading(false);
+    return () => setSceneLoading(true);
+  }, [setSceneLoading]);
+
+  return (
+    <>
+      {/* Position/rotation come from Cart + cartRig.ts — do not set position here */}
+      <PerspectiveCamera makeDefault fov={72} />
+
+      <Atmospherics />
+      <TunnelShell />
+      <TunnelEnvironment />
+      <TrackSetDressing />
+      <IglooEntrances />
+      <LightingTransition />
+
+      <EffectComposer>
+        <Bloom intensity={0.75} luminanceThreshold={0.18} mipmapBlur />
+      </EffectComposer>
+
+      <Cart />
+      <Cave />
+      <CaveTrigger />
+      <AudioManager />
+    </>
+  );
+};
+
+const GameInitializer = ({ children }: { children: React.ReactNode }) => {
+  useEffect(() => {
+    const graph = buildJourney();
+    useGameStore.getState().setJourneyGraph(graph);
+  }, []);
+
+  return <>{children}</>;
+};
+
+export const GameCanvas = () => {
+  // Force remount on hot reload to prevent Three.js state issues
+  const [key, setKey] = useState(0);
+  if (import.meta.turbopackHot) {
+    import.meta.turbopackHot.accept(() => {
+      setKey((prev) => prev + 1);
+    });
+  }
+
+  return (
+    <GameInitializer>
+      <R3FCanvas key={key}
+        gl={{
+          antialias: true,
+          alpha: true,
+        }}
+        style={{
+          width: "100%",
+          height: "100vh",
+          display: "block",
+        }}
+      >
+        <Suspense fallback={<LoadingScreen />}>
+          <Scene />
+        </Suspense>
+      </R3FCanvas>
+    </GameInitializer>
+  );
+};
