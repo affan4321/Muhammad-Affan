@@ -3,7 +3,7 @@ export { Cart } from "./Cart";
 export { ArmsModel } from "./models/ArmsModel";
 export { CameraController } from "./CameraController";
 export { DebugUI } from "./DebugUI";
-export { PerformanceHUD } from "./PerformanceHUD";
+export { HelpOverlay } from "./HelpOverlay";
 export { PathSelector } from "./PathSelector";
 export { IglooPanel } from "./IglooPanel";
 export { Hologram } from "./Hologram";

@@ -15,6 +15,8 @@ import {
   getRailSegmentCount,
 } from "@/lib/pathGeometry";
 
+useGLTF.preload("/models/railway track.glb");
+
 const getFlatYaw = (direction: THREE.Vector3) => {
   const flatDirection = direction.clone();
   flatDirection.y = 0;
@@ -143,7 +145,7 @@ export const TunnelEnvironment = () => {
             const yaw = getFlatYaw(tangent);
             return (
               <group position={[point.x, point.y, point.z]} rotation={[0, yaw, 0]}>
-                <HorrorModel4 scale={3.5} rotation={[0, Math.PI / 2, 0]} position={[-5, 0, 0]} />
+                <HorrorModel4 scale={3.5} rotation={[0, Math.PI / 2, 0]} position={[-4, 0, 0]} />
               </group>
             );
           })()}
@@ -180,6 +182,18 @@ export const TunnelEnvironment = () => {
             return (
               <group position={[point.x, point.y, point.z]} rotation={[0, yaw, 0]}>
                 <HorrorModel2 scale={1} position={[3, 0, 0]} rotation={[0, Math.PI / 4, 0]} />
+              </group>
+            );
+          })()}
+          {(() => {
+            const t = 0.96;
+            const point = mainSpine.getPointAt(t);
+            const tangent = mainSpine.getTangentAt(t).normalize();
+            const yaw = getFlatYaw(tangent);
+            return (
+              <group position={[point.x, point.y, point.z]} rotation={[0, yaw, 0]}>
+                <StreetLampModel scale={0.2} position={[2, 0, 0]} />
+                <pointLight position={[1.5, 2.5, 0]} intensity={7} distance={1} color="#ff0000" />
               </group>
             );
           })()}
@@ -234,6 +248,58 @@ export const TunnelEnvironment = () => {
                 {id === "social-handles" &&
                   (() => {
                     const t = 0.45;
+                    const point = curve.getPointAt(t);
+                    const tangent = curve.getTangentAt(t).normalize();
+                    const yaw = getFlatYaw(tangent);
+                    return (
+                      <group position={[point.x, point.y, point.z]} rotation={[0, yaw, 0]}>
+                        <StreetLampModel scale={0.2} position={[2, 0, 0]} />
+                        <pointLight position={[1.5, 2.5, 0]} intensity={7} distance={1} color="#ff0000" />
+                      </group>
+                    );
+                  })()}
+                {id === "jewelry-cad" &&
+                  (() => {
+                    const t = 0.43;
+                    const point = curve.getPointAt(t);
+                    const tangent = curve.getTangentAt(t).normalize();
+                    const yaw = getFlatYaw(tangent);
+                    return (
+                      <group position={[point.x, point.y, point.z]} rotation={[0, yaw, 0]}>
+                        <StreetLampModel scale={0.2} position={[2, 0, 0]} />
+                        <pointLight position={[1.5, 2.5, 0]} intensity={7} distance={1} color="#ff0000" />
+                      </group>
+                    );
+                  })()}
+                {id === "video-editing" &&
+                  (() => {
+                    const t = 0.47;
+                    const point = curve.getPointAt(t);
+                    const tangent = curve.getTangentAt(t).normalize();
+                    const yaw = getFlatYaw(tangent);
+                    return (
+                      <group position={[point.x, point.y, point.z]} rotation={[0, yaw, 0]}>
+                        <StreetLampModel scale={0.2} position={[2, 0, 0]} />
+                        <pointLight position={[1.5, 2.5, 0]} intensity={7} distance={1} color="#ff0000" />
+                      </group>
+                    );
+                  })()}
+                {id === "game-dev" &&
+                  (() => {
+                    const t = 0.44;
+                    const point = curve.getPointAt(t);
+                    const tangent = curve.getTangentAt(t).normalize();
+                    const yaw = getFlatYaw(tangent);
+                    return (
+                      <group position={[point.x, point.y, point.z]} rotation={[0, yaw, 0]}>
+                        <StreetLampModel scale={0.2} position={[2, 0, 0]} />
+                        <pointLight position={[1.5, 2.5, 0]} intensity={7} distance={1} color="#ff0000" />
+                      </group>
+                    );
+                  })()}
+                {id === "ai-journey" &&
+                  (() => {
+                    const t = 0.48;
                     const point = curve.getPointAt(t);
                     const tangent = curve.getTangentAt(t).normalize();
                     const yaw = getFlatYaw(tangent);

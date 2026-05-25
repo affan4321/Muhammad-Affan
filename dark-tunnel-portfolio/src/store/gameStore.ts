@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { GameStoreState, JourneyGraph } from "./types";
+import { GameStoreState, JourneyGraph, TrackContext } from "./types";
 import { Vector3 } from "three";
 import { collectAllPathCurves, getSegmentCurve, syncOverallProgress } from "@/lib/journey";
 
@@ -7,12 +7,12 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   currentTrack: null,
   segmentProgress: 0,
   mainSegmentIndex: 0,
-  trackContext: "main",
+  trackContext: "main" as TrackContext,
   overallProgress: 0,
   completedCaves: 0,
-  totalCaves: 3,
+  totalCaves: 4,
   completedCaveIds: [],
-  speed: 0.001,
+  speed: 0.002,
   currentPosition: new Vector3(0, 0, 0),
   journey: [],
   mainSpine: null,
@@ -67,7 +67,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       pathCurves: collectAllPathCurves(graph),
       totalCaves: Math.max(1, graph.segments.length),
       mainSegmentIndex: 0,
-      trackContext: "main",
+      trackContext: "main" as TrackContext,
       currentTrack: firstCurve,
       segmentProgress: 0,
       overallProgress: 0,
@@ -100,15 +100,15 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       if (!path.curve) return;
       set({
         activeBranch: path,
-        trackContext: "branch",
+        trackContext: "branch" as TrackContext,
         currentTrack: path.curve,
-        segmentProgress: 0.08,
+        segmentProgress: 0,
         availablePaths: [],
         gameState: "RIDING",
         overallProgress: syncOverallProgress(
           "branch",
           state.mainSegmentIndex,
-          0.08,
+          0,
           state.completedCaves,
           state.totalCaves
         ),
@@ -122,16 +122,16 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
 
     set({
       activeBranch: null,
-      trackContext: "main",
+      trackContext: "main" as TrackContext,
       currentTrack: nextCurve,
       mainSegmentIndex: nextIndex,
-      segmentProgress: 0.08,
+      segmentProgress: 0,
       availablePaths: [],
       gameState: "RIDING",
       overallProgress: syncOverallProgress(
         "main",
         nextIndex,
-        0.08,
+        0,
         state.completedCaves,
         state.totalCaves
       ),
@@ -165,7 +165,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
         completedCaveIds,
         completedCaves,
         activeBranch: null,
-        trackContext: "main",
+        trackContext: "main" as TrackContext,
         currentTrack: atFork,
         segmentProgress: 0.99,
         gameState: "RIDING",
@@ -185,7 +185,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       completedCaveIds,
       completedCaves,
       activeBranch: null,
-      trackContext: "main",
+      trackContext: "main" as TrackContext,
       currentTrack: nextCurve,
       mainSegmentIndex: nextIndex,
       segmentProgress: 0,
@@ -213,7 +213,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     if (!mainCurve) return;
 
     set({
-      trackContext: "main",
+      trackContext: "main" as TrackContext,
       currentTrack: mainCurve,
       segmentProgress: 0.97,
       activeBranch: null,
@@ -271,10 +271,10 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       currentTrack: null,
       segmentProgress: 0,
       mainSegmentIndex: 0,
-      trackContext: "main",
+      trackContext: "main" as TrackContext,
       overallProgress: 0,
       completedCaves: 0,
-      totalCaves: 3,
+      totalCaves: 4,
       completedCaveIds: [],
       gameState: "IDLE",
       journey: [],
@@ -285,5 +285,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       isMovingForward: false,
       isMovingBackward: false,
       isDebugCameraLocked: false,
+      isSceneLoading: true,
+      currentPosition: new Vector3(0, 0, 0),
     }),
 }));

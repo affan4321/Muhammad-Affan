@@ -26,6 +26,9 @@ export const LoadingScreen = () => {
   const maxProgress = useRef(0);
 
   useFrame((_, delta) => {
+    // Stop useFrame when not loading to prevent performance drain
+    if (!isSceneLoading) return;
+    
     if (modelGroup.current) {
       modelGroup.current.rotation.y += delta * 0.6;
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Canvas as R3FCanvas } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import { PerspectiveCamera } from "@react-three/drei";
@@ -21,11 +21,11 @@ import { TrackSetDressing } from "./TrackSetDressing";
 import { SCENE_PROP_URLS } from "@/lib/sceneProps";
 import { LoadingScreen } from "./LoadingScreen";
 
-Object.values(SCENE_PROP_URLS).forEach((url) => useGLTF.preload(url));
-useGLTF.preload("/models/dog.glb");
+// Object.values(SCENE_PROP_URLS).forEach((url) => useGLTF.preload(url));
+// useGLTF.preload("/models/dog.glb");
 
-if (import.meta.hot) {
-  import.meta.hot.dispose(() => {
+if (import.meta.turbopackHot) {
+  import.meta.turbopackHot.dispose(() => {
     useGameStore.getState().reset();
   });
 }
@@ -44,7 +44,6 @@ const Scene = () => {
       {/* Position/rotation come from Cart + cartRig.ts — do not set position here */}
       <PerspectiveCamera makeDefault fov={72} />
 
-      <fog attach="fog" args={["#000000", 1, 6]} />
       <Atmospherics />
       <TunnelShell />
       <TunnelEnvironment />
@@ -74,9 +73,17 @@ const GameInitializer = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const GameCanvas = () => {
+  // Force remount on hot reload to prevent Three.js state issues
+  const [key, setKey] = useState(0);
+  if (import.meta.turbopackHot) {
+    import.meta.turbopackHot.accept(() => {
+      setKey((prev) => prev + 1);
+    });
+  }
+
   return (
     <GameInitializer>
-      <R3FCanvas
+      <R3FCanvas key={key}
         gl={{
           antialias: true,
           alpha: true,

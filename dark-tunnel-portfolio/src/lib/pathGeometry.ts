@@ -16,8 +16,8 @@ export class SpineSegmentCurve extends Curve<Vector3> {
   }
 
   private spineTAt(t: number): number {
-    const span = this.tEnd - this.tStart + this.padStart + this.padEnd;
-    return Math.min(1, Math.max(0, this.tStart - this.padStart + t * span));
+    const span = this.tEnd - this.tStart;
+    return Math.min(1, Math.max(0, this.tStart + t * span));
   }
 
   getPointAt(t: number, optionalTarget?: Vector3): Vector3 {

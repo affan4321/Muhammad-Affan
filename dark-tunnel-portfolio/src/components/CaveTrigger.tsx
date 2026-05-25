@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useGameStore } from "@/store/gameStore";
 import { getForkChoices } from "@/lib/journey";
 
-const END_THRESHOLD = 0.992;
+const END_THRESHOLD = 1;
 const BACKTRACK_CLEAR = 0.82;
 
 export const CaveTrigger = () => {

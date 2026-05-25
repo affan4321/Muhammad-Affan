@@ -5,7 +5,10 @@
 export type ScenePropModel =
   | "horror1"
   | "horror11"
+  | "horror3"
+  | "horror6"
   | "horror7"
+  | "horror8"
   | "horror9"
   | "horrorLight"
   | "dog";
@@ -53,7 +56,7 @@ export const SCENE_PROPS: ScenePropPlacement[] = [
     t: 0,
     model: "horror1",
     scale: 2,
-    offset: [3.5, 0, 0],
+    offset: [0, 0, 0],
     rotation: [0, 2 * Math.PI, 0],
     minMainSegment: 1,
     patrol: { startT: 0.9, endT: 0.4, speed: 0.2 },
@@ -68,12 +71,40 @@ export const SCENE_PROPS: ScenePropPlacement[] = [
     minMainSegment: 1,
   },
   {
+    trackId: "about-me",
+    t: 0.72,
+    model: "horror3",
+    scale: 0.05,
+    offset: [3, 0, 0],
+    rotation: [0, Math.PI+1, 0],
+    minMainSegment: 2,
+  },
+  {
     trackId: "social-handles",
     t: 0.75,
     model: "horror9",
     scale: 0.015,
     offset: [-5, 0, 0],
     rotation: [0, Math.PI, 0],
+  },
+  {
+    trackId: "video-editing",
+    t: 0.73,
+    model: "horror8",
+    scale: 0.9,
+    offset: [2, -0.4, 0],
+    rotation: [0, Math.PI, 0],
+    minMainSegment: 3,
+  },
+  {
+    trackId: "ai-journey",
+    t: 0,
+    model: "horror11",
+    scale: 1.75,
+    offset: [3, 0, 0],
+    rotation: [0, 2 * Math.PI, 0],
+    minMainSegment: 3,
+    patrol: { startT: 0.9, endT: 0.4, speed: 0.2 },
   },
   {
     trackId: "main",
@@ -91,13 +122,39 @@ export const SCENE_PROPS: ScenePropPlacement[] = [
       emit: true,
     },
   },
+  {
+    trackId: "main",
+    t: 0.88,
+    model: "horror7",
+    scale: 1.5,
+    offset: [3, 0, 0],
+    rotation: [0, Math.PI + 1, 0],
+  },
+  {
+    trackId: "main",
+    t: 1.0,
+    model: "horror6",
+    scale: 3,
+    offset: [-0.5, -0.7, 11.5],
+    rotation: [0, Math.PI, 0],
+    light: {
+      position: [0, 6.6, 0.4],
+      intensity: 200,
+      distance: 20,
+      color: "#5a0000",
+      emit: true,
+    },
+  },
 ];
 
 /** GLB paths — keep in sync with public/models */
 export const SCENE_PROP_URLS: Record<ScenePropModel, string> = {
   horror1: "/models/horror 1.glb",
   horror11: "/models/horror 1.1.glb",
+  horror3: "/models/horror 3.glb",
+  horror6: "/models/horror 6.glb",
   horror7: "/models/horror 7.glb",
+  horror8: "/models/horror 8.glb",
   horror9: "/models/horror 9.glb",
   horrorLight: "/models/horror light.glb",
   dog: "/models/dog.glb",

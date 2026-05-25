@@ -173,11 +173,12 @@ export const syncOverallProgress = (
   mainSegmentIndex: number,
   segmentProgress: number,
   _completedCaves: number,
-  totalCaves: number
+  _totalCaves: number
 ): number => {
-  const total = Math.max(1, totalCaves);
+  // There are 4 main segments (0, 1, 2, 3), so divide by 4
+  const totalSegments = 4;
   if (trackContext === "branch") {
-    return Math.min(1, mainSegmentIndex / total);
+    return Math.min(1, mainSegmentIndex / totalSegments);
   }
-  return Math.min(1, (mainSegmentIndex + segmentProgress) / total);
+  return Math.min(1, (mainSegmentIndex + segmentProgress) / totalSegments);
 };
