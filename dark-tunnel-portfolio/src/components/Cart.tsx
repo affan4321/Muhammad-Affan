@@ -111,6 +111,15 @@ export const Cart = () => {
   useFrame(() => {
     if (!groupRef.current || !camera) return;
 
+    // Stop cart from controlling camera when inside chamber
+    if (gameState === "INSIDE_CHAMBER") {
+      if (rigAttachedRef.current && camera.parent === groupRef.current) {
+        scene.attach(camera);
+        rigAttachedRef.current = false;
+      }
+      return;
+    }
+
     if (isDebugCameraLocked) {
       if (rigAttachedRef.current && camera.parent === groupRef.current) {
         scene.attach(camera);
@@ -131,7 +140,7 @@ export const Cart = () => {
 
     if (!currentTrack || gameState === "IDLE") return;
 
-    if (gameState === "CHOOSING_PATH" || gameState === "INSIDE_CHAMBER") {
+    if (gameState === "CHOOSING_PATH") {
       placeCart(segmentProgress);
       return;
     }

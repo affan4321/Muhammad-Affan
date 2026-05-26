@@ -6,6 +6,7 @@ export { DebugUI } from "./DebugUI";
 export { HelpOverlay } from "./HelpOverlay";
 export { PathSelector } from "./PathSelector";
 export { ChamberPanel } from "./ChamberPanel";
+export { SmartMapPanel } from "./SmartMapPanel";
 export { Hologram } from "./Hologram";
 export { LightingTransition } from "./LightingTransition";
 export { Chamber } from "./Chamber";

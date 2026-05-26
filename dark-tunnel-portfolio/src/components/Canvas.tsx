@@ -5,6 +5,7 @@ import { Canvas as R3FCanvas } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import { PerspectiveCamera } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
+import * as THREE from "three";
 import LightingTransition from "./LightingTransition";
 import Chamber from "./Chamber";
 import AudioManager from "./AudioManager";
@@ -21,8 +22,8 @@ import { TrackSetDressing } from "./TrackSetDressing";
 import { SCENE_PROP_URLS } from "@/lib/sceneProps";
 import { LoadingScreen } from "./LoadingScreen";
 
-// Object.values(SCENE_PROP_URLS).forEach((url) => useGLTF.preload(url));
-// useGLTF.preload("/models/dog.glb");
+Object.values(SCENE_PROP_URLS).forEach((url) => useGLTF.preload(url));
+useGLTF.preload("/models/dog.glb");
 
 if (import.meta.turbopackHot) {
   import.meta.turbopackHot.dispose(() => {
@@ -65,10 +66,10 @@ const Scene = () => {
   return (
     <>
       {/* Position/rotation come from Cart + cartRig.ts — do not set position here */}
-      <PerspectiveCamera makeDefault fov={72} />
+      {!isInsideChamber && <PerspectiveCamera makeDefault fov={72} />}
 
       {!isInsideChamber && <Atmospherics />}
-      <LightingTransition />
+      {!isInsideChamber && <LightingTransition />}
 
       {!isInsideChamber && (
         <EffectComposer>
@@ -109,6 +110,11 @@ export const GameCanvas = () => {
         gl={{
           antialias: true,
           alpha: true,
+        }}
+        onCreated={({ gl }) => {
+          gl.toneMapping = THREE.ACESFilmicToneMapping;
+          gl.toneMappingExposure = 1.45;
+          gl.outputColorSpace = THREE.SRGBColorSpace;
         }}
         style={{
           width: "100%",

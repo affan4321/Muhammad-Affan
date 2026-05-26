@@ -8,7 +8,7 @@ import gsap from "gsap";
 
 const TUNNEL_INTENSITY = 0.45;
 const FORK_INTENSITY = 2.8;
-const CHAMBER_INTENSITY = 0;
+const CHAMBER_INTENSITY = 3.0;
 
 export const LightingTransition = () => {
   const dirRef = useRef<DirectionalLight | null>(null);

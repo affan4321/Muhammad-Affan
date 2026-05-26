@@ -57,6 +57,10 @@ export interface GameStoreState {
   availablePaths: PathOption[];
   activeBranch: PathOption | null;
   isSceneLoading: boolean;
+  focusedChamberObjectId: string | null;
+  openChamberObjectId: string | null;
+  focusedMapBoardId: string | null;
+  openMapBoardId: string | null;
 
   // Input
   isMovingForward: boolean;
@@ -79,8 +83,13 @@ export interface GameStoreState {
   setAvailablePaths: (paths: PathOption[]) => void;
   setActiveBranch: (path: PathOption | null) => void;
   setSceneLoading: (loading: boolean) => void;
+  setFocusedChamberObjectId: (objectId: string | null) => void;
+  setOpenChamberObjectId: (objectId: string | null) => void;
+  setFocusedMapBoardId: (boardId: string | null) => void;
+  setOpenMapBoardId: (boardId: string | null) => void;
   selectPathAtFork: (path: PathOption) => void;
   completeChamber: () => void;
+  returnToBeginning: () => void;
   stepToPreviousMainSegment: () => void;
   returnFromBranchToFork: () => void;
   setMovementInput: (forward: boolean, backward: boolean) => void;

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { GameStoreState, JourneyGraph, TrackContext } from "./types";
 import { Vector3 } from "three";
-import { collectAllPathCurves, getSegmentCurve, syncOverallProgress } from "@/lib/journey";
+import { buildJourney, collectAllPathCurves, getSegmentCurve, syncOverallProgress } from "@/lib/journey";
 
 export const useGameStore = create<GameStoreState>((set, get) => ({
   currentTrack: null,
@@ -21,6 +21,10 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   availablePaths: [],
   activeBranch: null,
   isSceneLoading: true,
+  focusedChamberObjectId: null,
+  openChamberObjectId: null,
+  focusedMapBoardId: null,
+  openMapBoardId: null,
   isMovingForward: false,
   isMovingBackward: false,
   isMovingLeft: false,
@@ -82,6 +86,10 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       gameState: graph.segments.length > 0 ? "RIDING" : "IDLE",
       availablePaths: [],
       activeBranch: null,
+      focusedChamberObjectId: null,
+      openChamberObjectId: null,
+      focusedMapBoardId: null,
+      openMapBoardId: null,
     });
   },
 
@@ -94,6 +102,18 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   setActiveBranch: (path) => set({ activeBranch: path }),
 
   setSceneLoading: (loading) => set({ isSceneLoading: loading }),
+
+  setFocusedChamberObjectId: (objectId) =>
+    set({ focusedChamberObjectId: objectId }),
+
+  setOpenChamberObjectId: (objectId) =>
+    set({ openChamberObjectId: objectId }),
+
+  setFocusedMapBoardId: (boardId) =>
+    set({ focusedMapBoardId: boardId }),
+
+  setOpenMapBoardId: (boardId) =>
+    set({ openMapBoardId: boardId }),
 
   selectPathAtFork: (path) => {
     const state = get();
@@ -207,6 +227,40 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     });
   },
 
+  returnToBeginning: () => {
+    const graph = buildJourney();
+    const firstCurve = getSegmentCurve(graph, 0);
+
+    set({
+      currentTrack: firstCurve,
+      segmentProgress: 0,
+      mainSegmentIndex: 0,
+      trackContext: "main" as TrackContext,
+      overallProgress: 0,
+      completedChambers: 0,
+      totalChambers: Math.max(1, graph.segments.length),
+      completedChamberIds: [],
+      speed: 0.002,
+      currentPosition: new Vector3(0, 0, 0),
+      journey: graph.segments,
+      mainSpine: graph.mainSpine,
+      pathCurves: collectAllPathCurves(graph),
+      gameState: graph.segments.length > 0 ? "RIDING" : "IDLE",
+      availablePaths: [],
+      activeBranch: null,
+      isSceneLoading: false,
+      focusedChamberObjectId: null,
+      openChamberObjectId: null,
+      focusedMapBoardId: null,
+      openMapBoardId: null,
+      isMovingForward: false,
+      isMovingBackward: false,
+      isMovingLeft: false,
+      isMovingRight: false,
+      isDebugCameraLocked: false,
+    });
+  },
+
   returnFromBranchToFork: () => {
     const state = get();
     if (state.trackContext !== "branch") return;
@@ -292,6 +346,10 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       isMovingBackward: false,
       isDebugCameraLocked: false,
       isSceneLoading: true,
+      focusedChamberObjectId: null,
+      openChamberObjectId: null,
+      focusedMapBoardId: null,
+      openMapBoardId: null,
       currentPosition: new Vector3(0, 0, 0),
     }),
 }));

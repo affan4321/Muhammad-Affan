@@ -7,7 +7,7 @@ export const LampModel = ({ scale = 0.01, position = [0, 0, 0], ...props }: any)
   return (
     <group position={position as [number, number, number]} scale={scale} {...props}>
       <Center>
-        <AnimatedModel url="/models/lamp.glb" />
+        <AnimatedModel url="/models/rusty lamp.glb" />
       </Center>
     </group>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useGameStore } from "@/store/gameStore";
 import { PathOption } from "@/store/types";
 
@@ -54,35 +54,32 @@ export const PathSelector = () => {
   const gameState = useGameStore((state) => state.gameState);
   const availablePaths = useGameStore((state) => state.availablePaths);
   const selectPathAtFork = useGameStore((state) => state.selectPathAtFork);
+  const returnToBeginning = useGameStore((state) => state.returnToBeginning);
   const mainSegmentIndex = useGameStore((state) => state.mainSegmentIndex);
   const journey = useGameStore((state) => state.journey);
 
-  const { leftPaths, centerPath, rightPaths, flatList } = useMemo(() => {
+  const { flatList } = useMemo(() => {
     const branches = availablePaths.filter((p) => p.kind === "branch");
     const cont = availablePaths.find((p) => p.kind === "continue") ?? null;
     const left = branches.filter((p) => p.side !== "right");
     const right = branches.filter((p) => p.side === "right");
     const flat: PathOption[] = [...left, ...(cont ? [cont] : []), ...right];
     return {
-      leftPaths: left,
-      centerPath: cont,
-      rightPaths: right,
       flatList: flat,
     };
   }, [availablePaths]);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  useEffect(() => {
-    setSelectedIndex(0);
-  }, [availablePaths]);
-
-  const confirmSelection = (index: number) => {
+  const confirmSelection = useCallback((index: number) => {
     const path = flatList[index];
     if (!path) return;
     selectPathAtFork(path);
     setSelectedIndex(0);
-  };
+  }, [flatList, selectPathAtFork]);
+
+  const safeSelectedIndex =
+    flatList.length === 0 ? 0 : Math.min(selectedIndex, flatList.length - 1);
 
   useEffect(() => {
     if (gameState !== "CHOOSING_PATH" || flatList.length === 0) return;
@@ -97,7 +94,7 @@ export const PathSelector = () => {
           break;
         case "Enter":
           e.preventDefault();
-          confirmSelection(selectedIndex);
+          confirmSelection(safeSelectedIndex);
           break;
         default:
           break;
@@ -106,7 +103,7 @@ export const PathSelector = () => {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [gameState, flatList, selectedIndex, selectPathAtFork]);
+  }, [gameState, flatList, safeSelectedIndex, confirmSelection]);
 
   if (gameState !== "CHOOSING_PATH" || flatList.length === 0) {
     return null;
@@ -115,7 +112,7 @@ export const PathSelector = () => {
   const forkLabel = journey[mainSegmentIndex]?.forkLabel ?? "Choose Your Path";
   const isTerminalFork = journey[mainSegmentIndex]?.isTerminalFork;
 
-  const selectedId = flatList[selectedIndex]?.id;
+  const selectedId = flatList[safeSelectedIndex]?.id;
 
   return (
     <div
@@ -163,6 +160,24 @@ export const PathSelector = () => {
       <p style={{ color: "#888", marginTop: "15px", fontSize: "12px" }}>
         ← → Select | Enter Confirm
       </p>
+
+      <button
+        type="button"
+        onClick={() => returnToBeginning()}
+        style={{
+          marginTop: "10px",
+          padding: "8px 16px",
+          backgroundColor: "transparent",
+          color: "#0f0",
+          border: "1px solid #0f0",
+          borderRadius: "4px",
+          fontWeight: "bold",
+          cursor: "pointer",
+          fontSize: "12px",
+        }}
+      >
+        Beginning
+      </button>
     </div>
   );
 };

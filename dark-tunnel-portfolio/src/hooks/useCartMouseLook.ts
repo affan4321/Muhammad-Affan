@@ -5,7 +5,8 @@ import { MathUtils } from "three";
 import { useGameStore } from "@/store/gameStore";
 import { CART_RIG } from "@/lib/cartRig";
 
-const isLookLocked = (gameState: string) => gameState === "CHOOSING_PATH";
+const isLookLocked = (gameState: string, isMapOpen: boolean) =>
+  gameState === "CHOOSING_PATH" || isMapOpen;
 
 /**
  * Mouse-look offsets relative to the cart heading (does not move the cart on the track).
@@ -14,12 +15,13 @@ const isLookLocked = (gameState: string) => gameState === "CHOOSING_PATH";
 export const useCartMouseLook = () => {
   const gameState = useGameStore((state) => state.gameState);
   const currentTrack = useGameStore((state) => state.currentTrack);
+  const isMapOpen = useGameStore((state) => Boolean(state.openMapBoardId));
   const targetYaw = useRef(0);
   const targetPitch = useRef(0);
   const currentYaw = useRef(0);
   const currentPitch = useRef(0);
   const lastPointer = useRef<{ x: number; y: number } | null>(null);
-  const lastMoveAt = useRef(performance.now());
+  const lastMoveAt = useRef(0);
 
   const resetLook = useCallback(() => {
     targetYaw.current = 0;
@@ -31,10 +33,14 @@ export const useCartMouseLook = () => {
   }, []);
 
   useEffect(() => {
-    if (isLookLocked(gameState)) {
+    if (isLookLocked(gameState, isMapOpen)) {
       resetLook();
     }
-  }, [gameState, resetLook]);
+  }, [gameState, isMapOpen, resetLook]);
+
+  useEffect(() => {
+    lastMoveAt.current = performance.now();
+  }, []);
 
   useEffect(() => {
     resetLook();
@@ -50,7 +56,7 @@ export const useCartMouseLook = () => {
 
     const handleMouseMove = (event: MouseEvent) => {
       if (useGameStore.getState().gameState === "IDLE") return;
-      if (isLookLocked(useGameStore.getState().gameState)) return;
+      if (isLookLocked(useGameStore.getState().gameState, Boolean(useGameStore.getState().openMapBoardId))) return;
       if (isUiTarget(event.target)) return;
 
       const { sensitivity, pitchMin, pitchMax } = CART_RIG.mouseLook;
@@ -96,7 +102,7 @@ export const useCartMouseLook = () => {
     const state = useGameStore.getState().gameState;
     const { smooth, resetSmooth } = CART_RIG.mouseLook;
 
-    if (isLookLocked(state)) {
+    if (isLookLocked(state, Boolean(useGameStore.getState().openMapBoardId))) {
       targetYaw.current = 0;
       targetPitch.current = 0;
       currentYaw.current = MathUtils.lerp(currentYaw.current, 0, resetSmooth);
@@ -119,5 +125,5 @@ export const useCartMouseLook = () => {
     return { yaw: currentYaw.current, pitch: currentPitch.current };
   };
 
-  return { getSmoothedLook, resetLook, isLocked: isLookLocked(gameState) };
+  return { getSmoothedLook, resetLook, isLocked: isLookLocked(gameState, isMapOpen) };
 };
