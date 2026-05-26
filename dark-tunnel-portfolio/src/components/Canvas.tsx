@@ -1,6 +1,7 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
+import type { MutableRefObject } from "react";
 import { Canvas as R3FCanvas } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import { PerspectiveCamera } from "@react-three/drei";
@@ -21,6 +22,7 @@ import { buildJourney } from "@/lib/journey";
 import { TrackSetDressing } from "./TrackSetDressing";
 import { SCENE_PROP_URLS } from "@/lib/sceneProps";
 import { LoadingScreen } from "./LoadingScreen";
+import { GRAPHICS_QUALITY_PRESETS } from "@/lib/graphicsQuality";
 
 Object.values(SCENE_PROP_URLS).forEach((url) => useGLTF.preload(url));
 useGLTF.preload("/models/dog.glb");
@@ -52,9 +54,36 @@ const ChamberScene = () => {
   );
 };
 
-const Scene = () => {
+const RendererQualityController = ({
+  rendererRef,
+}: {
+  rendererRef: MutableRefObject<THREE.WebGLRenderer | null>;
+}) => {
+  const graphicsQuality = useGameStore((state) => state.graphicsQuality);
+  const preset = GRAPHICS_QUALITY_PRESETS[graphicsQuality];
+
+  useEffect(() => {
+    const renderer = rendererRef.current;
+    if (!renderer) return;
+
+    renderer.toneMappingExposure = preset.exposure;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, preset.pixelRatio));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = preset.shadowMapType;
+  }, [preset, rendererRef]);
+
+  return null;
+};
+
+const Scene = ({
+  rendererRef,
+}: {
+  rendererRef: MutableRefObject<THREE.WebGLRenderer | null>;
+}) => {
   const setSceneLoading = useGameStore((state) => state.setSceneLoading);
   const gameState = useGameStore((state) => state.gameState);
+  const graphicsQuality = useGameStore((state) => state.graphicsQuality);
+  const preset = GRAPHICS_QUALITY_PRESETS[graphicsQuality];
 
   useEffect(() => {
     setSceneLoading(false);
@@ -67,13 +96,14 @@ const Scene = () => {
     <>
       {/* Position/rotation come from Cart + cartRig.ts — do not set position here */}
       {!isInsideChamber && <PerspectiveCamera makeDefault fov={72} />}
+      <RendererQualityController rendererRef={rendererRef} />
 
       {!isInsideChamber && <Atmospherics />}
       {!isInsideChamber && <LightingTransition />}
 
       {!isInsideChamber && (
         <EffectComposer>
-          <Bloom intensity={0.75} luminanceThreshold={0.18} mipmapBlur />
+          <Bloom intensity={preset.bloomIntensity} luminanceThreshold={preset.bloomThreshold} mipmapBlur />
         </EffectComposer>
       )}
 
@@ -98,6 +128,7 @@ const GameInitializer = ({ children }: { children: React.ReactNode }) => {
 export const GameCanvas = () => {
   // Force remount on hot reload to prevent Three.js state issues
   const [key, setKey] = useState(0);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   if (import.meta.turbopackHot) {
     import.meta.turbopackHot.accept(() => {
       setKey((prev) => prev + 1);
@@ -112,6 +143,7 @@ export const GameCanvas = () => {
           alpha: true,
         }}
         onCreated={({ gl }) => {
+          rendererRef.current = gl;
           gl.toneMapping = THREE.ACESFilmicToneMapping;
           gl.toneMappingExposure = 1.45;
           gl.outputColorSpace = THREE.SRGBColorSpace;
@@ -123,7 +155,7 @@ export const GameCanvas = () => {
         }}
       >
         <Suspense fallback={<LoadingScreen />}>
-          <Scene />
+          <Scene rendererRef={rendererRef} />
         </Suspense>
       </R3FCanvas>
     </GameInitializer>

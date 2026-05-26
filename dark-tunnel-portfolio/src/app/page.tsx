@@ -1,10 +1,12 @@
 "use client";
 
 import { GameCanvas } from "@/components";
+import { BootstrapGate } from "@/components/BootstrapGate";
 import { DebugUI } from "@/components/DebugUI";
 import { HelpOverlay } from "@/components/HelpOverlay";
 import { PathSelector } from "@/components/PathSelector";
 import { ChamberPanel } from "@/components/ChamberPanel";
+import { SettingsGear } from "@/components/SettingsGear";
 import { SmartMapPanel } from "@/components/SmartMapPanel";
 import { useGameStore } from "@/store/gameStore";
 
@@ -13,16 +15,19 @@ export default function Home() {
 
   return (
     <div style={{ width: "100%", height: "100vh", overflow: "hidden" }} suppressHydrationWarning>
-      <GameCanvas />
-      {!isSceneLoading && (
-        <>
-          <DebugUI />
-          <HelpOverlay />
-          <PathSelector />
-          <ChamberPanel />
-          <SmartMapPanel />
-        </>
-      )}
+      <BootstrapGate>
+        <GameCanvas />
+        {!isSceneLoading && (
+          <>
+            <DebugUI />
+            <HelpOverlay />
+            <SettingsGear />
+            <PathSelector />
+            <ChamberPanel />
+            <SmartMapPanel />
+          </>
+        )}
+      </BootstrapGate>
     </div>
   );
 }

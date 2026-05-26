@@ -1,4 +1,5 @@
 import { Vector3, Curve } from "three";
+import type { GraphicsQuality } from "@/lib/graphicsQuality";
 
 export type GameState = "RIDING" | "CHOOSING_PATH" | "INSIDE_CHAMBER" | "IDLE";
 export type TrackContext = "main" | "branch";
@@ -61,6 +62,8 @@ export interface GameStoreState {
   openChamberObjectId: string | null;
   focusedMapBoardId: string | null;
   openMapBoardId: string | null;
+  playerName: string;
+  graphicsQuality: GraphicsQuality;
 
   // Input
   isMovingForward: boolean;
@@ -83,6 +86,8 @@ export interface GameStoreState {
   setAvailablePaths: (paths: PathOption[]) => void;
   setActiveBranch: (path: PathOption | null) => void;
   setSceneLoading: (loading: boolean) => void;
+  setPlayerName: (playerName: string) => void;
+  setGraphicsQuality: (graphicsQuality: GraphicsQuality) => void;
   setFocusedChamberObjectId: (objectId: string | null) => void;
   setOpenChamberObjectId: (objectId: string | null) => void;
   setFocusedMapBoardId: (boardId: string | null) => void;

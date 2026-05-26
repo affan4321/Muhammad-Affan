@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { GameStoreState, JourneyGraph, TrackContext } from "./types";
 import { Vector3 } from "three";
 import { buildJourney, collectAllPathCurves, getSegmentCurve, syncOverallProgress } from "@/lib/journey";
+import type { GraphicsQuality } from "@/lib/graphicsQuality";
 
 export const useGameStore = create<GameStoreState>((set, get) => ({
   currentTrack: null,
@@ -25,6 +26,8 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   openChamberObjectId: null,
   focusedMapBoardId: null,
   openMapBoardId: null,
+  playerName: "Traveler",
+  graphicsQuality: "medium" as GraphicsQuality,
   isMovingForward: false,
   isMovingBackward: false,
   isMovingLeft: false,
@@ -96,6 +99,10 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   setCurrentPosition: (pos) => set({ currentPosition: pos }),
 
   setGameState: (gameState) => set({ gameState }),
+
+  setPlayerName: (playerName) => set({ playerName }),
+
+  setGraphicsQuality: (graphicsQuality) => set({ graphicsQuality }),
 
   setAvailablePaths: (paths) => set({ availablePaths: paths }),
 
