@@ -4,7 +4,7 @@ import { GameCanvas } from "@/components";
 import { DebugUI } from "@/components/DebugUI";
 import { HelpOverlay } from "@/components/HelpOverlay";
 import { PathSelector } from "@/components/PathSelector";
-import { IglooPanel } from "@/components/IglooPanel";
+import { ChamberPanel } from "@/components/ChamberPanel";
 import { useGameStore } from "@/store/gameStore";
 
 export default function Home() {
@@ -18,7 +18,7 @@ export default function Home() {
           <DebugUI />
           <HelpOverlay />
           <PathSelector />
-          <IglooPanel />
+          <ChamberPanel />
         </>
       )}
     </div>

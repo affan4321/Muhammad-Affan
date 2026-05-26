@@ -32,14 +32,16 @@ const PathButton = ({
       cursor: "pointer",
       fontWeight: "bold",
       transition: "all 0.2s",
-      minWidth: "110px",
+      flex: 1,
+      minWidth: "140px",
+      maxWidth: "200px",
       textAlign: "center",
     }}
   >
     {path.label}
     {path.kind === "branch" && (
       <div style={{ fontSize: "10px", marginTop: "4px", opacity: 0.8 }}>
-        → Information Igloo
+        → Information Chamber
       </div>
     )}
   </div>
@@ -119,9 +121,9 @@ export const PathSelector = () => {
     <div
       style={{
         position: "fixed",
-        bottom: 40,
+        top: "50%",
         left: "50%",
-        transform: "translateX(-50%)",
+        transform: "translate(-50%, -50%)",
         backgroundColor: "rgba(0, 0, 0, 0.92)",
         border: "2px solid #0f0",
         borderRadius: "8px",
@@ -140,72 +142,26 @@ export const PathSelector = () => {
 
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "1fr auto 1fr",
+          display: "flex",
+          justifyContent: "center",
           alignItems: "center",
           gap: "16px",
+          flexWrap: "wrap",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "12px",
-            justifyContent: "flex-end",
-          }}
-        >
-          {leftPaths.map((path) => (
-            <PathButton
-              key={path.id}
-              path={path}
-              selected={selectedId === path.id}
-              onSelect={() => setSelectedIndex(flatList.findIndex((p) => p.id === path.id))}
-              onConfirm={() =>
-                confirmSelection(flatList.findIndex((p) => p.id === path.id))
-              }
-            />
-          ))}
-        </div>
-
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          {centerPath ? (
-            <PathButton
-              path={centerPath}
-              selected={selectedId === centerPath.id}
-              onSelect={() =>
-                setSelectedIndex(flatList.findIndex((p) => p.id === centerPath.id))
-              }
-              onConfirm={() =>
-                confirmSelection(flatList.findIndex((p) => p.id === centerPath.id))
-              }
-            />
-          ) : null}
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "12px",
-            justifyContent: "flex-start",
-          }}
-        >
-          {rightPaths.map((path) => (
-            <PathButton
-              key={path.id}
-              path={path}
-              selected={selectedId === path.id}
-              onSelect={() => setSelectedIndex(flatList.findIndex((p) => p.id === path.id))}
-              onConfirm={() =>
-                confirmSelection(flatList.findIndex((p) => p.id === path.id))
-              }
-            />
-          ))}
-        </div>
+        {flatList.map((path, index) => (
+          <PathButton
+            key={path.id}
+            path={path}
+            selected={selectedId === path.id}
+            onSelect={() => setSelectedIndex(index)}
+            onConfirm={() => confirmSelection(index)}
+          />
+        ))}
       </div>
 
       <p style={{ color: "#888", marginTop: "15px", fontSize: "12px" }}>
-        ← → Select (left · center main · right) | Enter Confirm
+        ← → Select | Enter Confirm
       </p>
     </div>
   );

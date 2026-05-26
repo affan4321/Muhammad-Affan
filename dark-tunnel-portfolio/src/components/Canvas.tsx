@@ -6,14 +6,14 @@ import { useGLTF } from "@react-three/drei";
 import { PerspectiveCamera } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import LightingTransition from "./LightingTransition";
-import Cave from "./Cave";
+import Chamber from "./Chamber";
 import AudioManager from "./AudioManager";
-import CaveTrigger from "./CaveTrigger";
+import ChamberTrigger from "./ChamberTrigger";
 import { Cart } from "./Cart";
 import Atmospherics from "./Atmospherics";
 import TunnelShell from "./TunnelShell";
 import { TunnelEnvironment } from "./TunnelEnvironment";
-import { IglooEntrances } from "./IglooEntrances";
+import { ChamberEntrances } from "./ChamberEntrances";
 import { useGameStore } from "@/store/gameStore";
 import { useCartInput } from "@/hooks/useCartInput";
 import { buildJourney } from "@/lib/journey";
@@ -30,34 +30,56 @@ if (import.meta.turbopackHot) {
   });
 }
 
-const Scene = () => {
+const TunnelScene = () => {
   useCartInput();
+  return (
+    <>
+      <TunnelShell />
+      <TunnelEnvironment />
+      <TrackSetDressing />
+      <ChamberEntrances />
+      <Cart />
+    </>
+  );
+};
+
+const ChamberScene = () => {
+  return (
+    <>
+      <Chamber />
+    </>
+  );
+};
+
+const Scene = () => {
   const setSceneLoading = useGameStore((state) => state.setSceneLoading);
+  const gameState = useGameStore((state) => state.gameState);
 
   useEffect(() => {
     setSceneLoading(false);
     return () => setSceneLoading(true);
   }, [setSceneLoading]);
 
+  const isInsideChamber = gameState === "INSIDE_CHAMBER";
+
   return (
     <>
       {/* Position/rotation come from Cart + cartRig.ts — do not set position here */}
       <PerspectiveCamera makeDefault fov={72} />
 
-      <Atmospherics />
-      <TunnelShell />
-      <TunnelEnvironment />
-      <TrackSetDressing />
-      <IglooEntrances />
+      {!isInsideChamber && <Atmospherics />}
       <LightingTransition />
 
-      <EffectComposer>
-        <Bloom intensity={0.75} luminanceThreshold={0.18} mipmapBlur />
-      </EffectComposer>
+      {!isInsideChamber && (
+        <EffectComposer>
+          <Bloom intensity={0.75} luminanceThreshold={0.18} mipmapBlur />
+        </EffectComposer>
+      )}
 
-      <Cart />
-      <Cave />
-      <CaveTrigger />
+      {/* Level management: only render one scene at a time */}
+      {isInsideChamber ? <ChamberScene /> : <TunnelScene />}
+
+      <ChamberTrigger />
       <AudioManager />
     </>
   );

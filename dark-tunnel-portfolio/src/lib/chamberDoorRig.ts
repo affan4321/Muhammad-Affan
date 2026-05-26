@@ -1,7 +1,7 @@
 /**
- * Igloo entrance door — tune scale / placement here.
+ * Chamber entrance door — tune scale / placement here.
  */
-export const DOOR_RIG = {
+export const CHAMBER_DOOR_RIG = {
   scale: 4,
   /** Meters before track end (along approach), door faces the cart. */
   approachOffset: 1.1,

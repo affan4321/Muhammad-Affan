@@ -5,16 +5,16 @@ import { useGLTF } from "@react-three/drei";
 import DoorModel from "./models/DoorModel";
 import RustyLampModel from "./models/RustyLampModel";
 import { useGameStore } from "@/store/gameStore";
-import { getIglooDoorTransform } from "@/lib/iglooDoor";
-import { DOOR_RIG } from "@/lib/doorRig";
+import { getChamberDoorTransform } from "@/lib/chamberDoor";
+import { CHAMBER_DOOR_RIG } from "@/lib/chamberDoorRig";
 
 useGLTF.preload("/models/door.glb");
 useGLTF.preload("/models/rusty lamp.glb");
 
 /**
- * One door at the end of every branch path (each information igloo entrance).
+ * One door at the end of every branch path (each information chamber entrance).
  */
-export const IglooEntrances = () => {
+export const ChamberEntrances = () => {
   const journey = useGameStore((state) => state.journey);
   const trackContext = useGameStore((state) => state.trackContext);
   const currentTrack = useGameStore((state) => state.currentTrack);
@@ -24,7 +24,7 @@ export const IglooEntrances = () => {
     const list: {
       id: string;
       curve: NonNullable<(typeof journey)[0]["branches"][0]["curve"]>;
-      transform: ReturnType<typeof getIglooDoorTransform>;
+      transform: ReturnType<typeof getChamberDoorTransform>;
     }[] = [];
 
     for (const segment of journey) {
@@ -33,7 +33,7 @@ export const IglooEntrances = () => {
         list.push({
           id: branch.id,
           curve: branch.curve,
-          transform: getIglooDoorTransform(branch.curve),
+          transform: getChamberDoorTransform(branch.curve),
         });
       }
     }
@@ -44,23 +44,23 @@ export const IglooEntrances = () => {
 
   const onActiveBranch =
     trackContext === "branch" &&
-    (gameState === "RIDING" || gameState === "INSIDE_CAVE");
+    (gameState === "RIDING" || gameState === "INSIDE_CHAMBER");
 
   return (
-    <group name="igloo-entrances">
+    <group name="chamber-entrances">
       {entrances.map(({ id, curve, transform }) => {
         const active = onActiveBranch && currentTrack === curve;
 
         return (
           <group
-            key={`igloo-entrance-${id}`}
+            key={`chamber-entrance-${id}`}
             position={transform.position}
             rotation={[0, transform.rotationY, 0]}
           >
-            <DoorModel scale={DOOR_RIG.scale} />
-            <RustyLampModel 
-              scale={5} 
-              position={[0, 2.7, 0]} 
+            <DoorModel scale={CHAMBER_DOOR_RIG.scale} />
+            <RustyLampModel
+              scale={5}
+              position={[0, 2.7, 0]}
               rotation={[1, 0, 1.5]}
             />
             <pointLight
@@ -85,4 +85,4 @@ export const IglooEntrances = () => {
   );
 };
 
-export default IglooEntrances;
+export default ChamberEntrances;

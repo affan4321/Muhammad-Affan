@@ -131,7 +131,7 @@ export const Cart = () => {
 
     if (!currentTrack || gameState === "IDLE") return;
 
-    if (gameState === "CHOOSING_PATH" || gameState === "INSIDE_CAVE") {
+    if (gameState === "CHOOSING_PATH" || gameState === "INSIDE_CHAMBER") {
       placeCart(segmentProgress);
       return;
     }

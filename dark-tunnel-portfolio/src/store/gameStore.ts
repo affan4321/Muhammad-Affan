@@ -9,9 +9,9 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   mainSegmentIndex: 0,
   trackContext: "main" as TrackContext,
   overallProgress: 0,
-  completedCaves: 0,
-  totalCaves: 4,
-  completedCaveIds: [],
+  completedChambers: 0,
+  totalChambers: 4,
+  completedChamberIds: [],
   speed: 0.002,
   currentPosition: new Vector3(0, 0, 0),
   journey: [],
@@ -23,9 +23,15 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   isSceneLoading: true,
   isMovingForward: false,
   isMovingBackward: false,
+  isMovingLeft: false,
+  isMovingRight: false,
   isDebugCameraLocked: false,
 
   setCurrentTrack: (curve) => set({ currentTrack: curve }),
+  setMovingForward: (value) => set({ isMovingForward: value }),
+  setMovingBackward: (value) => set({ isMovingBackward: value }),
+  setMovingLeft: (value) => set({ isMovingLeft: value }),
+  setMovingRight: (value) => set({ isMovingRight: value }),
 
   setSegmentProgress: (progress) =>
     set((state) => {
@@ -36,25 +42,25 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
           state.trackContext,
           state.mainSegmentIndex,
           segmentProgress,
-          state.completedCaves,
-          state.totalCaves
+          state.completedChambers,
+          state.totalChambers
         ),
       };
     }),
 
-  setTotalCaves: (count) =>
+  setTotalChambers: (count) =>
     set((state) => {
-      const totalCaves = Math.max(1, Math.floor(count));
-      const completedCaves = Math.min(state.completedCaves, totalCaves);
+      const totalChambers = Math.max(1, Math.floor(count));
+      const completedChambers = Math.min(state.completedChambers, totalChambers);
       return {
-        totalCaves,
-        completedCaves,
+        totalChambers,
+        completedChambers,
         overallProgress: syncOverallProgress(
           state.trackContext,
           state.mainSegmentIndex,
           state.segmentProgress,
-          completedCaves,
-          totalCaves
+          completedChambers,
+          totalChambers
         ),
       };
     }),
@@ -65,14 +71,14 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       journey: graph.segments,
       mainSpine: graph.mainSpine,
       pathCurves: collectAllPathCurves(graph),
-      totalCaves: Math.max(1, graph.segments.length),
+      totalChambers: Math.max(1, graph.segments.length),
       mainSegmentIndex: 0,
       trackContext: "main" as TrackContext,
       currentTrack: firstCurve,
       segmentProgress: 0,
       overallProgress: 0,
-      completedCaves: 0,
-      completedCaveIds: [],
+      completedChambers: 0,
+      completedChamberIds: [],
       gameState: graph.segments.length > 0 ? "RIDING" : "IDLE",
       availablePaths: [],
       activeBranch: null,
@@ -109,8 +115,8 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
           "branch",
           state.mainSegmentIndex,
           0,
-          state.completedCaves,
-          state.totalCaves
+          state.completedChambers,
+          state.totalChambers
         ),
       });
       return;
@@ -132,29 +138,29 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
         "main",
         nextIndex,
         0,
-        state.completedCaves,
-        state.totalCaves
+        state.completedChambers,
+        state.totalChambers
       ),
     });
   },
 
-  completeIgloo: () => {
+  completeChamber: () => {
     const state = get();
     const branch = state.activeBranch;
-    if (!branch?.caveId) return;
+    if (!branch?.chamberId) return;
 
     const graph: JourneyGraph = {
       mainSpine: state.mainSpine!,
       segments: state.journey,
     };
 
-    const alreadyDone = state.completedCaveIds.includes(branch.caveId);
-    const completedCaveIds = alreadyDone
-      ? state.completedCaveIds
-      : [...state.completedCaveIds, branch.caveId];
-    const completedCaves = alreadyDone
-      ? state.completedCaves
-      : Math.min(state.completedCaves + 1, state.totalCaves);
+    const alreadyDone = state.completedChamberIds.includes(branch.chamberId);
+    const completedChamberIds = alreadyDone
+      ? state.completedChamberIds
+      : [...state.completedChamberIds, branch.chamberId];
+    const completedChambers = alreadyDone
+      ? state.completedChambers
+      : Math.min(state.completedChambers + 1, state.totalChambers);
 
     const nextIndex = state.mainSegmentIndex + 1;
     const nextCurve = getSegmentCurve(graph, nextIndex);
@@ -162,8 +168,8 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     if (!nextCurve) {
       const atFork = getSegmentCurve(graph, state.mainSegmentIndex);
       set({
-        completedCaveIds,
-        completedCaves,
+        completedChamberIds,
+        completedChambers,
         activeBranch: null,
         trackContext: "main" as TrackContext,
         currentTrack: atFork,
@@ -174,16 +180,16 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
           "main",
           state.mainSegmentIndex,
           0.99,
-          completedCaves,
-          state.totalCaves
+          completedChambers,
+          state.totalChambers
         ),
       });
       return;
     }
 
     set({
-      completedCaveIds,
-      completedCaves,
+      completedChamberIds,
+      completedChambers,
       activeBranch: null,
       trackContext: "main" as TrackContext,
       currentTrack: nextCurve,
@@ -195,8 +201,8 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
         "main",
         nextIndex,
         0,
-        completedCaves,
-        state.totalCaves
+        completedChambers,
+        state.totalChambers
       ),
     });
   },
@@ -223,8 +229,8 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
         "main",
         state.mainSegmentIndex,
         0.97,
-        state.completedCaves,
-        state.totalCaves
+        state.completedChambers,
+        state.totalChambers
       ),
     });
   },
@@ -252,8 +258,8 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
         "main",
         prevIndex,
         0.97,
-        state.completedCaves,
-        state.totalCaves
+        state.completedChambers,
+        state.totalChambers
       ),
     });
   },
@@ -273,9 +279,9 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       mainSegmentIndex: 0,
       trackContext: "main" as TrackContext,
       overallProgress: 0,
-      completedCaves: 0,
-      totalCaves: 4,
-      completedCaveIds: [],
+      completedChambers: 0,
+      totalChambers: 4,
+      completedChamberIds: [],
       gameState: "IDLE",
       journey: [],
       mainSpine: null,

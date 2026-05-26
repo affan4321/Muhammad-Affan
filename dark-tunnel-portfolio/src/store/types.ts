@@ -1,6 +1,6 @@
 import { Vector3, Curve } from "three";
 
-export type GameState = "RIDING" | "CHOOSING_PATH" | "INSIDE_CAVE" | "IDLE";
+export type GameState = "RIDING" | "CHOOSING_PATH" | "INSIDE_CHAMBER" | "IDLE";
 export type TrackContext = "main" | "branch";
 export type PathKind = "branch" | "continue";
 
@@ -10,7 +10,7 @@ export interface PathOption {
   description?: string;
   curve?: Curve<Vector3>;
   kind: PathKind;
-  caveId?: string;
+  chamberId?: string;
   side?: "left" | "right" | "center";
 }
 
@@ -38,13 +38,13 @@ export interface GameStoreState {
   segmentProgress: number;
   /** Which main-line segment the player is on */
   mainSegmentIndex: number;
-  /** main = riding the spine; branch = side path to igloo */
+  /** main = riding the spine; branch = side path to chamber */
   trackContext: TrackContext;
-  /** Global journey progress (0–1), divided by cave count */
+  /** Global journey progress (0–1), divided by chamber count */
   overallProgress: number;
-  completedCaves: number;
-  totalCaves: number;
-  completedCaveIds: string[];
+  completedChambers: number;
+  totalChambers: number;
+  completedChamberIds: string[];
   speed: number;
   currentPosition: Vector3;
 
@@ -61,20 +61,26 @@ export interface GameStoreState {
   // Input
   isMovingForward: boolean;
   isMovingBackward: boolean;
+  isMovingLeft: boolean;
+  isMovingRight: boolean;
   isDebugCameraLocked: boolean;
 
   // Actions
   setCurrentTrack: (curve: Curve<Vector3>) => void;
   setSegmentProgress: (progress: number) => void;
-  setTotalCaves: (count: number) => void;
+  setTotalChambers: (count: number) => void;
   setJourneyGraph: (graph: JourneyGraph) => void;
   setCurrentPosition: (pos: Vector3) => void;
   setGameState: (state: GameState) => void;
+  setMovingForward: (value: boolean) => void;
+  setMovingBackward: (value: boolean) => void;
+  setMovingLeft: (value: boolean) => void;
+  setMovingRight: (value: boolean) => void;
   setAvailablePaths: (paths: PathOption[]) => void;
   setActiveBranch: (path: PathOption | null) => void;
   setSceneLoading: (loading: boolean) => void;
   selectPathAtFork: (path: PathOption) => void;
-  completeIgloo: () => void;
+  completeChamber: () => void;
   stepToPreviousMainSegment: () => void;
   returnFromBranchToFork: () => void;
   setMovementInput: (forward: boolean, backward: boolean) => void;

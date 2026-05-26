@@ -9,7 +9,7 @@ export const DebugUI = () => {
   const gameState = useGameStore((state) => state.gameState);
   const trackContext = useGameStore((state) => state.trackContext);
   const mainSegmentIndex = useGameStore((state) => state.mainSegmentIndex);
-  const totalCaves = useGameStore((state) => state.totalCaves);
+  const totalChambers = useGameStore((state) => state.totalChambers);
   const activeBranch = useGameStore((state) => state.activeBranch);
   const [fps, setFps] = useState(0);
 

@@ -8,7 +8,7 @@ import gsap from "gsap";
 
 const TUNNEL_INTENSITY = 0.45;
 const FORK_INTENSITY = 2.8;
-const IGLOO_INTENSITY = 3.2;
+const CHAMBER_INTENSITY = 0;
 
 export const LightingTransition = () => {
   const dirRef = useRef<DirectionalLight | null>(null);
@@ -17,7 +17,7 @@ export const LightingTransition = () => {
   const tweenRef = useRef<gsap.core.Tween | null>(null);
 
   const targetIntensity = () => {
-    if (gameState === "INSIDE_CAVE") return IGLOO_INTENSITY;
+    if (gameState === "INSIDE_CHAMBER") return CHAMBER_INTENSITY;
     if (gameState === "CHOOSING_PATH" && segmentProgress >= 0.88) {
       return FORK_INTENSITY;
     }

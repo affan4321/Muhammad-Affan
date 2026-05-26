@@ -134,7 +134,7 @@ export const HelpOverlay = () => {
                 >
                   Enter / Click
                 </kbd>
-                <span style={{ color: "rgba(255, 255, 255, 0.8)" }}>Select / Exit Igloo</span>
+                <span style={{ color: "rgba(255, 255, 255, 0.8)" }}>Select / Exit Chamber</span>
               </div>
             </div>
           </div>
@@ -145,7 +145,7 @@ export const HelpOverlay = () => {
             </h3>
             <div style={{ color: "rgba(255, 255, 255, 0.8)", lineHeight: "1.5" }}>
               Ride through the dark tunnel and explore different paths at each
-              junction. Visit igloos to discover more about the journey.
+              junction. Visit chambers to discover more about the journey.
             </div>
           </div>
 

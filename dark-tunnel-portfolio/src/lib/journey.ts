@@ -31,7 +31,7 @@ export const buildJourney = (): JourneyGraph => {
     label,
     curve,
     kind: "branch",
-    caveId: id,
+    chamberId: id,
     side: headingToSide(headingDeg),
   });
 
@@ -172,8 +172,8 @@ export const syncOverallProgress = (
   trackContext: "main" | "branch",
   mainSegmentIndex: number,
   segmentProgress: number,
-  _completedCaves: number,
-  _totalCaves: number
+  _completedChambers: number,
+  _totalChambers: number
 ): number => {
   // There are 4 main segments (0, 1, 2, 3), so divide by 4
   const totalSegments = 4;
