@@ -3,7 +3,6 @@
 import { GameCanvas } from "@/components";
 import { BootstrapGate } from "@/components/BootstrapGate";
 import { DebugUI } from "@/components/DebugUI";
-import { HelpOverlay } from "@/components/HelpOverlay";
 import { PathSelector } from "@/components/PathSelector";
 import { ChamberPanel } from "@/components/ChamberPanel";
 import { SettingsGear } from "@/components/SettingsGear";
@@ -20,7 +19,6 @@ export default function Home() {
         {!isSceneLoading && (
           <>
             <DebugUI />
-            <HelpOverlay />
             <SettingsGear />
             <PathSelector />
             <ChamberPanel />

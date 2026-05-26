@@ -16,7 +16,7 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
   const setPlayerName = useGameStore((state) => state.setPlayerName);
   const setGraphicsQuality = useGameStore((state) => state.setGraphicsQuality);
   const [isReady, setIsReady] = useState(false);
-  const [isSetupComplete, setIsSetupComplete] = useState(false);
+  const [hasStartedSession, setHasStartedSession] = useState(false);
   const [initialName, setInitialName] = useState(DEFAULT_USER_SETTINGS.playerName);
   const [initialQuality, setInitialQuality] = useState(DEFAULT_USER_SETTINGS.graphicsQuality);
 
@@ -29,7 +29,6 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
         setInitialQuality(savedSettings.graphicsQuality);
         setPlayerName(savedSettings.playerName);
         setGraphicsQuality(savedSettings.graphicsQuality);
-        setIsSetupComplete(savedSettings.setupComplete);
       }
 
       setIsReady(true);
@@ -38,25 +37,14 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
     return () => window.clearTimeout(timeoutId);
   }, [setGraphicsQuality, setPlayerName]);
 
-  useEffect(() => {
-    if (!isReady || !isSetupComplete) return;
-
-    saveUserSettings({
-      playerName,
-      graphicsQuality,
-      setupComplete: true,
-    });
-  }, [graphicsQuality, isReady, isSetupComplete, playerName]);
-
   const handleStart = (nextPlayerName: string, nextGraphicsQuality: typeof graphicsQuality) => {
     setPlayerName(nextPlayerName);
     setGraphicsQuality(nextGraphicsQuality);
-    setIsSetupComplete(true);
     setIsReady(true);
+    setHasStartedSession(true);
     saveUserSettings({
       playerName: nextPlayerName,
       graphicsQuality: nextGraphicsQuality,
-      setupComplete: true,
     });
   };
 
@@ -64,7 +52,7 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
     return null;
   }
 
-  if (!isSetupComplete) {
+  if (!hasStartedSession) {
     return (
       <SetupScreen
         initialName={initialName}

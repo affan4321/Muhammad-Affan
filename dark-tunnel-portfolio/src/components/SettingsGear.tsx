@@ -9,11 +9,16 @@ export const SettingsGear = () => {
   const graphicsQuality = useGameStore((state) => state.graphicsQuality);
   const setGraphicsQuality = useGameStore((state) => state.setGraphicsQuality);
   const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"settings" | "help">("settings");
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setIsOpen(false);
+      }
+      if (event.key.toLowerCase() === "h") {
+        setIsOpen(true);
+        setActiveTab("help");
       }
     };
 
@@ -25,8 +30,11 @@ export const SettingsGear = () => {
     <>
       <button
         type="button"
-        onClick={() => setIsOpen((value) => !value)}
-        aria-label="Open graphics settings"
+        onClick={() => {
+          setIsOpen(true);
+          setActiveTab("settings");
+        }}
+        aria-label="Open settings"
         style={{
           position: "fixed",
           top: 10,
@@ -36,7 +44,7 @@ export const SettingsGear = () => {
           height: 46,
           borderRadius: 14,
           border: "1px solid rgba(160, 255, 183, 0.22)",
-          background: isOpen ? "rgba(31, 255, 95, 0.12)" : "rgba(0, 0, 0, 0.58)",
+          background: "rgba(0, 0, 0, 0.58)",
           color: "#e7ffe9",
           cursor: "pointer",
           backdropFilter: "blur(10px)",
@@ -48,62 +56,258 @@ export const SettingsGear = () => {
         ⚙
       </button>
 
+      <div
+        style={{
+          position: "fixed",
+          top: 14,
+          right: 64,
+          zIndex: 125,
+          fontSize: 11,
+          color: "rgba(231, 255, 233, 0.6)",
+          letterSpacing: "0.05em",
+          pointerEvents: "none",
+        }}
+      >
+        Press H for help
+      </div>
+
       {isOpen && (
-        <div
-          style={{
-            position: "fixed",
-            top: 62,
-            right: 10,
-            zIndex: 124,
-            width: "min(320px, calc(100vw - 20px))",
-            borderRadius: 18,
-            border: "1px solid rgba(160, 255, 183, 0.18)",
-            background: "rgba(6, 10, 7, 0.92)",
-            color: "#f2fff4",
-            padding: 16,
-            boxShadow: "0 22px 70px rgba(0, 0, 0, 0.5)",
-            backdropFilter: "blur(14px)",
-          }}
-        >
-          <div style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: 11, letterSpacing: "0.11em", color: "#9dffb9" }}>SETTINGS</div>
-            <div style={{ fontSize: 18, fontWeight: 800, marginTop: 4 }}>Hello, {playerName}</div>
-          </div>
+        <>
+          <div
+            onClick={() => setIsOpen(false)}
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(0, 0, 0, 0.8)",
+              zIndex: 124,
+            }}
+          />
+          <div
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 125,
+              width: "min(500px, calc(100vw - 40px))",
+              maxHeight: "80vh",
+              borderRadius: 18,
+              border: "1px solid rgba(160, 255, 183, 0.18)",
+              background: "rgba(6, 10, 7, 0.96)",
+              color: "#f2fff4",
+              padding: 24,
+              boxShadow: "0 22px 70px rgba(0, 0, 0, 0.5)",
+              backdropFilter: "blur(14px)",
+              overflowY: "auto",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <div style={{ fontSize: 11, letterSpacing: "0.11em", color: "#9dffb9" }}>MENU</div>
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#e7ffe9",
+                  fontSize: 24,
+                  cursor: "pointer",
+                  padding: 0,
+                  lineHeight: 1,
+                }}
+              >
+                ✕
+              </button>
+            </div>
 
-          <div style={{ display: "grid", gap: 10 }}>
-            {GRAPHICS_QUALITY_ORDER.map((quality) => {
-              const preset = GRAPHICS_QUALITY_PRESETS[quality];
-              const isSelected = graphicsQuality === quality;
+            <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+              <button
+                type="button"
+                onClick={() => setActiveTab("settings")}
+                style={{
+                  flex: 1,
+                  padding: "10px 16px",
+                  borderRadius: 8,
+                  border: activeTab === "settings" ? "1px solid #9dffb9" : "1px solid rgba(160, 255, 183, 0.12)",
+                  background: activeTab === "settings" ? "rgba(31, 255, 95, 0.12)" : "rgba(255, 255, 255, 0.04)",
+                  color: "#f2fff4",
+                  cursor: "pointer",
+                  fontSize: 14,
+                  fontWeight: 600,
+                }}
+              >
+                Settings
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("help")}
+                style={{
+                  flex: 1,
+                  padding: "10px 16px",
+                  borderRadius: 8,
+                  border: activeTab === "help" ? "1px solid #9dffb9" : "1px solid rgba(160, 255, 183, 0.12)",
+                  background: activeTab === "help" ? "rgba(31, 255, 95, 0.12)" : "rgba(255, 255, 255, 0.04)",
+                  color: "#f2fff4",
+                  cursor: "pointer",
+                  fontSize: 14,
+                  fontWeight: 600,
+                }}
+              >
+                Help
+              </button>
+            </div>
 
-              return (
-                <button
-                  key={quality}
-                  type="button"
-                  onClick={() => setGraphicsQuality(quality)}
-                  style={{
-                    textAlign: "left",
-                    borderRadius: 12,
-                    border: isSelected ? "1px solid #9dffb9" : "1px solid rgba(160, 255, 183, 0.12)",
-                    background: isSelected ? "rgba(31, 255, 95, 0.12)" : "rgba(255, 255, 255, 0.04)",
-                    color: "#f2fff4",
-                    padding: "12px 14px",
-                    cursor: "pointer",
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
-                    <div>
-                      <div style={{ fontWeight: 700 }}>{preset.label}</div>
-                      <div style={{ fontSize: 12, color: "rgba(231, 255, 233, 0.68)", marginTop: 4 }}>
-                        {preset.description}
-                      </div>
+            {activeTab === "settings" && (
+              <>
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 18, fontWeight: 800, marginTop: 4 }}>Hello, {playerName}</div>
+                </div>
+
+                <div style={{ display: "grid", gap: 10 }}>
+                  {GRAPHICS_QUALITY_ORDER.map((quality) => {
+                    const preset = GRAPHICS_QUALITY_PRESETS[quality];
+                    const isSelected = graphicsQuality === quality;
+
+                    return (
+                      <button
+                        key={quality}
+                        type="button"
+                        onClick={() => setGraphicsQuality(quality)}
+                        style={{
+                          textAlign: "left",
+                          borderRadius: 12,
+                          border: isSelected ? "1px solid #9dffb9" : "1px solid rgba(160, 255, 183, 0.12)",
+                          background: isSelected ? "rgba(31, 255, 95, 0.12)" : "rgba(255, 255, 255, 0.04)",
+                          color: "#f2fff4",
+                          padding: "12px 14px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
+                          <div>
+                            <div style={{ fontWeight: 700 }}>{preset.label}</div>
+                            <div style={{ fontSize: 12, color: "rgba(231, 255, 233, 0.68)", marginTop: 4 }}>
+                              {preset.description}
+                            </div>
+                          </div>
+                          {isSelected && <span style={{ color: "#9dffb9", fontSize: 12, fontWeight: 700 }}>ACTIVE</span>}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {activeTab === "help" && (
+              <>
+                <div style={{ marginBottom: 16 }}>
+                  <h3 style={{ margin: "0 0 12px 0", fontSize: 16, fontWeight: 700 }}>
+                    Controls
+                  </h3>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                      <kbd
+                        style={{
+                          backgroundColor: "rgba(255, 255, 255, 0.15)",
+                          padding: "4px 8px",
+                          borderRadius: 4,
+                          fontSize: 12,
+                          fontFamily: "monospace",
+                          minWidth: 80,
+                          textAlign: "center",
+                        }}
+                      >
+                        W / ↑ / Click
+                      </kbd>
+                      <span style={{ color: "rgba(255, 255, 255, 0.8)" }}>Move Forward</span>
                     </div>
-                    {isSelected && <span style={{ color: "#9dffb9", fontSize: 12, fontWeight: 700 }}>ACTIVE</span>}
+                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                      <kbd
+                        style={{
+                          backgroundColor: "rgba(255, 255, 255, 0.15)",
+                          padding: "4px 8px",
+                          borderRadius: 4,
+                          fontSize: 12,
+                          fontFamily: "monospace",
+                          minWidth: 80,
+                          textAlign: "center",
+                        }}
+                      >
+                        S / ↓ / R-Click
+                      </kbd>
+                      <span style={{ color: "rgba(255, 255, 255, 0.8)" }}>Move Backward</span>
+                    </div>
+                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                      <kbd
+                        style={{
+                          backgroundColor: "rgba(255, 255, 255, 0.15)",
+                          padding: "4px 8px",
+                          borderRadius: 4,
+                          fontSize: 12,
+                          fontFamily: "monospace",
+                          minWidth: 80,
+                          textAlign: "center",
+                        }}
+                      >
+                        Mouse
+                      </kbd>
+                      <span style={{ color: "rgba(255, 255, 255, 0.8)" }}>Look Around</span>
+                    </div>
+                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                      <kbd
+                        style={{
+                          backgroundColor: "rgba(255, 255, 255, 0.15)",
+                          padding: "4px 8px",
+                          borderRadius: 4,
+                          fontSize: 12,
+                          fontFamily: "monospace",
+                          minWidth: 80,
+                          textAlign: "center",
+                        }}
+                      >
+                        Enter / Click
+                      </kbd>
+                      <span style={{ color: "rgba(255, 255, 255, 0.8)" }}>Select / Exit Chamber</span>
+                    </div>
                   </div>
-                </button>
-              );
-            })}
+                </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <h3 style={{ margin: "0 0 12px 0", fontSize: 16, fontWeight: 700 }}>
+                    Navigation
+                  </h3>
+                  <div style={{ color: "rgba(255, 255, 255, 0.8)", lineHeight: 1.5 }}>
+                    Ride through the dark tunnel and explore different paths at each
+                    junction. Visit chambers to discover more about the journey.
+                  </div>
+                </div>
+
+                <div>
+                  <h3 style={{ margin: "0 0 12px 0", fontSize: 16, fontWeight: 700 }}>
+                    Tips
+                  </h3>
+                  <ul
+                    style={{
+                      margin: 0,
+                      paddingLeft: 20,
+                      color: "rgba(255, 255, 255, 0.8)",
+                      lineHeight: 1.6,
+                      listStyleType: "disc",
+                      listStylePosition: "inside",
+                    }}
+                  >
+                    <li style={{ marginBottom: 6 }}>Use arrow keys or mouse clicks to move</li>
+                    <li style={{ marginBottom: 6 }}>Explore all branches to complete the journey</li>
+                  </ul>
+                </div>
+              </>
+            )}
           </div>
-        </div>
+        </>
       )}
     </>
   );

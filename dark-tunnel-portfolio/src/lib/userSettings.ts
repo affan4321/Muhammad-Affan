@@ -3,7 +3,6 @@ import { GRAPHICS_QUALITY_ORDER, type GraphicsQuality } from "./graphicsQuality"
 export type UserSettings = {
   playerName: string;
   graphicsQuality: GraphicsQuality;
-  setupComplete: boolean;
 };
 
 const STORAGE_KEY = "dark-tunnel-user-settings-v1";
@@ -11,7 +10,6 @@ const STORAGE_KEY = "dark-tunnel-user-settings-v1";
 export const DEFAULT_USER_SETTINGS: UserSettings = {
   playerName: "Traveler",
   graphicsQuality: "medium",
-  setupComplete: false,
 };
 
 const isGraphicsQuality = (value: unknown): value is GraphicsQuality =>
@@ -33,7 +31,6 @@ export const loadUserSettings = (): UserSettings | null => {
       graphicsQuality: isGraphicsQuality(parsedValue.graphicsQuality)
         ? parsedValue.graphicsQuality
         : DEFAULT_USER_SETTINGS.graphicsQuality,
-      setupComplete: Boolean(parsedValue.setupComplete),
     };
   } catch {
     return null;
