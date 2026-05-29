@@ -59,7 +59,7 @@ export const SCENE_PROPS: ScenePropPlacement[] = [
     offset: [0, 0, 0],
     rotation: [0, 2 * Math.PI, 0],
     minMainSegment: 1,
-    patrol: { startT: 0.9, endT: 0.4, speed: 0.2 },
+    patrol: { startT: 0.8, endT: 0.6, speed: 0.2 },
   },
   {
     trackId: "resume-cv",
@@ -104,7 +104,7 @@ export const SCENE_PROPS: ScenePropPlacement[] = [
     offset: [3, 0, 0],
     rotation: [0, 2 * Math.PI, 0],
     minMainSegment: 3,
-    patrol: { startT: 0.9, endT: 0.4, speed: 0.2 },
+    patrol: { startT: 0.8, endT: 0.6, speed: 0.2 },
   },
   {
     trackId: "main",

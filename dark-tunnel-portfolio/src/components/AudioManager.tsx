@@ -14,10 +14,11 @@ const BACKGROUND_VOLUME_MULTIPLIERS: Record<string, number> = {
   main: 0.8,
   "resume-cv": 0.5,
   "who-am-i": 0.15,
-  "social-handles": 0.72,
+  "social-handles": 0.42,
   "jewelry-cad": 0.66,
-  "video-editing": 0.66,
+  "video-editing": 0.36,
   "game-dev": 0.7,
+  "about-me": 0.6,
 };
 
 const getBackgroundVolumeMultiplier = (bgKey: string) => BACKGROUND_VOLUME_MULTIPLIERS[bgKey] ?? 0.75;
@@ -43,8 +44,35 @@ export default function AudioManager() {
   const cartWasMovingRef = useRef(false);
   const milestoneSoundTriggeredRef = useRef(false);
   const overall54SoundTriggeredRef = useRef(false);
+  const overall66SoundTriggeredRef = useRef(false);
   const whoAmiSoundTriggeredRef = useRef(false);
+  const resumeCvSoundTriggeredRef = useRef(false);
+  const resumeCv63SoundTriggeredRef = useRef(false);
+  const socialHandlesSoundTriggeredRef = useRef(false);
+  const aboutMeSoundTriggeredRef = useRef(false);
+  const videoEditingSoundTriggeredRef = useRef(false);
+  const aiJourneySoundTriggeredRef = useRef(false);
   const bgNeedsRestartRef = useRef(true);
+  const sliceLoopRef = useRef<Howl | null>(null);
+  const previousProgressRef = useRef(overallProgress);
+  const musicVolumeRef = useRef(musicVolume);
+  const masterVolumeRef = useRef(masterVolume);
+  const sfxVolumeRef = useRef(sfxVolume);
+  const isMutedRef = useRef(isMuted);
+
+  // Update refs when values change
+  useEffect(() => {
+    musicVolumeRef.current = musicVolume;
+  }, [musicVolume]);
+  useEffect(() => {
+    masterVolumeRef.current = masterVolume;
+  }, [masterVolume]);
+  useEffect(() => {
+    sfxVolumeRef.current = sfxVolume;
+  }, [sfxVolume]);
+  useEffect(() => {
+    isMutedRef.current = isMuted;
+  }, [isMuted]);
 
   // Ensure a single AudioListener on the camera
   useEffect(() => {
@@ -62,7 +90,7 @@ export default function AudioManager() {
     };
   }, [camera]);
 
-  // Background music (Howler)
+  // Background music (Howler) - only handles source changes
   useEffect(() => {
     if (isSceneLoading) {
       if (bgRef.current) {
@@ -83,74 +111,54 @@ export default function AudioManager() {
       "jewelry-cad": "/audio/bg5.mp3",
       "video-editing": "/audio/bg6.mp3",
       "game-dev": "/audio/bg7.mp3",
+      "about-me": "/audio/bg8.mp3",
     };
 
     const bgKey = trackContext === "branch" && activeBranch?.id ? activeBranch.id : "main";
     const targetSrc = bgKey === "main" ? "/audio/bg.mp3" : BG_MAP[bgKey] ?? "/audio/bg.mp3";
     const trackMultiplier = getBackgroundVolumeMultiplier(bgKey);
 
-    if (isMuted) {
-      bgNeedsRestartRef.current = true;
-      if (bgRef.current) {
-        try {
-          bgRef.current.stop();
-          bgRef.current.unload();
-        } catch {}
-        bgRef.current = null;
-        currentBgSrcRef.current = null;
-      }
-      return;
-    }
-
     try {
-      Howler.mute(false);
       if (Howler.ctx && Howler.ctx.state === "suspended") {
         void Howler.ctx.resume();
       }
     } catch {}
 
-    const needsRestart = bgNeedsRestartRef.current || currentBgSrcRef.current !== targetSrc || !bgRef.current;
-
-    // if already playing the same source and we don't need a restart, just update volume
-    if (!needsRestart && currentBgSrcRef.current === targetSrc && bgRef.current) {
-      bgRef.current.volume(musicVolume * masterVolume * trackMultiplier);
-      return;
-    }
-
-    const fadeDuration = 400;
-
-    // fade out existing
+    // stop and unload existing
     if (bgRef.current) {
       try {
-        const old = bgRef.current;
-        const fromVol = old.volume() as number || 0;
-        old.fade(fromVol, 0, fadeDuration);
-        setTimeout(() => {
-          try { old.unload(); } catch {}
-        }, fadeDuration + 50);
+        bgRef.current.stop();
+        bgRef.current.unload();
       } catch {}
       bgRef.current = null;
       currentBgSrcRef.current = null;
     }
 
-    // create new Howl at zero volume then fade in
+    // create new Howl with target volume
+    const targetVol = isMutedRef.current ? 0 : musicVolumeRef.current * masterVolumeRef.current * trackMultiplier;
     const howl = new Howl({
       src: [targetSrc],
       loop: true,
-      volume: 0,
+      volume: targetVol,
       html5: true,
     });
     bgRef.current = howl;
     currentBgSrcRef.current = targetSrc;
-    bgNeedsRestartRef.current = false;
-    const targetVol = musicVolume * masterVolume * trackMultiplier;
+
     const playWhenReady = () => {
-      try { howl.play(); } catch {}
-      try { howl.fade(0, targetVol, fadeDuration); } catch {}
+      try {
+        howl.play();
+      } catch (e) {
+        console.error("Failed to play audio:", e);
+      }
     };
     howl.once("load", playWhenReady);
-    // Try playing immediately; if audio isn't ready yet the once('load') handler will fade when ready.
-    try { howl.play(); } catch {}
+    // Try playing immediately
+    try {
+      howl.play();
+    } catch (e) {
+      console.error("Failed to play audio immediately:", e);
+    }
     if (howl.state && howl.state() === "loaded") playWhenReady();
 
     return () => {
@@ -158,27 +166,22 @@ export default function AudioManager() {
       if (currentBgSrcRef.current === targetSrc) currentBgSrcRef.current = null;
       bgRef.current = null;
     };
-  }, [activeBranch, trackContext, musicVolume, masterVolume, isMuted, isSceneLoading]);
+  }, [activeBranch, trackContext, isSceneLoading]);
 
-  // React to volume/mute changes
+  // Update background music volume without recreating
   useEffect(() => {
-    Howler.volume(isMuted ? 0 : masterVolume);
-    Howler.mute(isMuted);
     if (bgRef.current) {
       const bgKey = trackContext === "branch" && activeBranch?.id ? activeBranch.id : "main";
       const trackMultiplier = getBackgroundVolumeMultiplier(bgKey);
-      const targetVolume = musicVolume * masterVolume * trackMultiplier;
+      const targetVolume = isMuted ? 0 : musicVolume * masterVolume * trackMultiplier;
       bgRef.current.volume(targetVolume);
     }
-    if (!isMuted) {
-      bgNeedsRestartRef.current = true;
-    }
-  }, [masterVolume, musicVolume, isMuted, trackContext, activeBranch?.id]);
+  }, [musicVolume, masterVolume, isMuted, trackContext, activeBranch?.id]);
 
   // Cart movement loop. Starts only while the cart is actually moving.
   useEffect(() => {
-    const shouldPlay = !isSceneLoading && gameState === "RIDING" && isCartMoving && !isMuted;
-    const targetVolume = shouldPlay ? Math.max(0, Math.min(1, sfxVolume * masterVolume * 0.15)) : 0;
+    const shouldPlay = !isSceneLoading && gameState === "RIDING" && isCartMoving;
+    const targetVolume = shouldPlay ? (isMuted ? 0 : Math.max(0, Math.min(1, sfxVolume * masterVolume * 0.15))) : 0;
 
     if (shouldPlay) {
       if (!cartWasMovingRef.current || !cartRef.current) {
@@ -231,16 +234,14 @@ export default function AudioManager() {
     if (!howl) {
       howl = new Howl({
         src: [`/audio/sfx/${filename}`],
-        volume: sfxVolume * masterVolume,
+        volume: isMuted ? 0 : sfxVolume * masterVolume,
         html5: true,
         pool: 8,
       });
       SFX_CACHE.set(key, howl);
     }
-    if (!isMuted) {
-      howl.volume(sfxVolume * masterVolume);
-      howl.play();
-    }
+    howl.volume(isMuted ? 0 : sfxVolume * masterVolume);
+    howl.play();
   };
 
   // Play the milestone cue once when overall progress crosses 4%.
@@ -273,6 +274,21 @@ export default function AudioManager() {
     playSfx("791293__sadiquecat__ghost-you-better-run-edited.mp3");
   }, [overallProgress]);
 
+  // Play the 66% overall milestone cue once.
+  useEffect(() => {
+    const milestone = 0.66;
+
+    if (overallProgress < milestone) {
+      overall66SoundTriggeredRef.current = false;
+      return;
+    }
+
+    if (overall66SoundTriggeredRef.current) return;
+
+    overall66SoundTriggeredRef.current = true;
+    playSfx("760657__humanpaperclip__creepy-laughter-female-0101-e.mp3");
+  }, [overallProgress]);
+
   // Play a Who Am I-only cue once when the branch reaches 47% progress.
   useEffect(() => {
     const isWhoAmIPath = trackContext === "branch" && activeBranch?.id === "who-am-i";
@@ -289,6 +305,162 @@ export default function AudioManager() {
     whoAmiSoundTriggeredRef.current = true;
     playSfx("59560__dangerbabe__moans01.mp3");
   }, [activeBranch?.id, branchProgress, trackContext]);
+
+  // Play a Resume CV cue once when the branch reaches 43% progress.
+  useEffect(() => {
+    const isResumeCvPath = trackContext === "branch" && activeBranch?.id === "resume-cv";
+    const milestone = 0.43;
+
+    if (!isResumeCvPath) {
+      resumeCvSoundTriggeredRef.current = false;
+      return;
+    }
+
+    if (branchProgress < milestone) return;
+    if (resumeCvSoundTriggeredRef.current) return;
+
+    resumeCvSoundTriggeredRef.current = true;
+    playSfx("3.mp3");
+  }, [activeBranch?.id, branchProgress, trackContext]);
+
+  // Play a Resume CV cue once when the branch reaches 63% progress.
+  useEffect(() => {
+    const isResumeCvPath = trackContext === "branch" && activeBranch?.id === "resume-cv";
+    const milestone = 0.63;
+
+    if (!isResumeCvPath) {
+      resumeCv63SoundTriggeredRef.current = false;
+      return;
+    }
+
+    if (branchProgress < milestone) return;
+    if (resumeCv63SoundTriggeredRef.current) return;
+
+    resumeCv63SoundTriggeredRef.current = true;
+    playSfx("404920__coldvet__dog-growl-beast-creature.mp3");
+  }, [activeBranch?.id, branchProgress, trackContext]);
+
+  // Play an AI Journey cue once when the branch reaches 43% progress.
+  useEffect(() => {
+    const isAiJourneyPath = trackContext === "branch" && activeBranch?.id === "ai-journey";
+    const milestone = 0.43;
+
+    if (!isAiJourneyPath) {
+      aiJourneySoundTriggeredRef.current = false;
+      return;
+    }
+
+    if (branchProgress < milestone) return;
+    if (aiJourneySoundTriggeredRef.current) return;
+
+    aiJourneySoundTriggeredRef.current = true;
+    playSfx("3.mp3");
+  }, [activeBranch?.id, branchProgress, trackContext]);
+
+  // Play a Social Handles cue once when the branch reaches 69% progress.
+  useEffect(() => {
+    const isSocialHandlesPath = trackContext === "branch" && activeBranch?.id === "social-handles";
+    const milestone = 0.69;
+
+    if (!isSocialHandlesPath) {
+      socialHandlesSoundTriggeredRef.current = false;
+      return;
+    }
+
+    if (branchProgress < milestone) return;
+    if (socialHandlesSoundTriggeredRef.current) return;
+
+    socialHandlesSoundTriggeredRef.current = true;
+    playSfx("245412__peridactyloptrix__demonic-voice-2.mp3");
+  }, [activeBranch?.id, branchProgress, trackContext]);
+
+  // Play an About Me cue once when the branch reaches 68% progress.
+  useEffect(() => {
+    const isAboutMePath = trackContext === "branch" && activeBranch?.id === "about-me";
+    const milestone = 0.68;
+
+    if (!isAboutMePath) {
+      aboutMeSoundTriggeredRef.current = false;
+      return;
+    }
+
+    if (branchProgress < milestone) return;
+    if (aboutMeSoundTriggeredRef.current) return;
+
+    aboutMeSoundTriggeredRef.current = true;
+    playSfx("271628__carmsie__i-own-you.mp3");
+  }, [activeBranch?.id, branchProgress, trackContext]);
+
+  // Play a Video Editing cue once when the branch reaches 69% progress.
+  useEffect(() => {
+    const isVideoEditingPath = trackContext === "branch" && activeBranch?.id === "video-editing";
+    const milestone = 0.69;
+
+    if (!isVideoEditingPath) {
+      videoEditingSoundTriggeredRef.current = false;
+      return;
+    }
+
+    if (branchProgress < milestone) return;
+    if (videoEditingSoundTriggeredRef.current) return;
+
+    videoEditingSoundTriggeredRef.current = true;
+    playSfx("718345__rydra_wong__distorted-female-and-male-laughter.mp3");
+  }, [activeBranch?.id, branchProgress, trackContext]);
+
+  // Play slice.mp3 in a loop from 83% to 93% overall progress
+  useEffect(() => {
+    const startThreshold = 0.83;
+    const endThreshold = 0.93;
+    const prevProgress = previousProgressRef.current;
+    const currentProgress = overallProgress;
+
+    const wasInRange = prevProgress >= startThreshold && prevProgress <= endThreshold;
+    const isInRange = currentProgress >= startThreshold && currentProgress <= endThreshold;
+    const enteredRange = !wasInRange && isInRange;
+    const exitedRange = wasInRange && !isInRange;
+
+    previousProgressRef.current = currentProgress;
+
+    if (enteredRange) {
+      try {
+        if (Howler.ctx && Howler.ctx.state === "suspended") {
+          void Howler.ctx.resume();
+        }
+      } catch {}
+
+      if (!sliceLoopRef.current) {
+        const targetVol = isMutedRef.current ? 0 : sfxVolumeRef.current * masterVolumeRef.current;
+        const howl = new Howl({
+          src: ["/audio/sfx/slice.mp3"],
+          loop: true,
+          volume: targetVol,
+          html5: true,
+        });
+        sliceLoopRef.current = howl;
+        try {
+          howl.play();
+        } catch (e) {
+          console.error("Failed to play slice loop:", e);
+        }
+      }
+    } else if (exitedRange) {
+      if (sliceLoopRef.current) {
+        try {
+          sliceLoopRef.current.stop();
+          sliceLoopRef.current.unload();
+        } catch {}
+        sliceLoopRef.current = null;
+      }
+    }
+  }, [overallProgress]);
+
+  // Update slice loop volume
+  useEffect(() => {
+    if (sliceLoopRef.current) {
+      sliceLoopRef.current.volume(isMuted ? 0 : sfxVolume * masterVolume);
+    }
+  }, [sfxVolume, masterVolume, isMuted]);
 
   // Positional audio playback (dispatch events with detail { url, position: {x,y,z} })
   useEffect(() => {
