@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { GRAPHICS_QUALITY_ORDER, GRAPHICS_QUALITY_PRESETS } from "@/lib/graphicsQuality";
+import { saveUserSettings } from "@/lib/userSettings";
 import { useGameStore } from "@/store/gameStore";
 
 export const SettingsGear = () => {
@@ -10,6 +11,25 @@ export const SettingsGear = () => {
   const setGraphicsQuality = useGameStore((state) => state.setGraphicsQuality);
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"settings" | "help">("settings");
+  const masterVolume = useGameStore((s) => s.masterVolume);
+  const musicVolume = useGameStore((s) => s.musicVolume);
+  const sfxVolume = useGameStore((s) => s.sfxVolume);
+  const isMuted = useGameStore((s) => s.isMuted);
+  const setMasterVolume = useGameStore((s) => s.setMasterVolume);
+  const setMusicVolume = useGameStore((s) => s.setMusicVolume);
+  const setSfxVolume = useGameStore((s) => s.setSfxVolume);
+  const setMuted = useGameStore((s) => s.setMuted);
+  const setUiPaused = useGameStore((s) => s.setUiPaused);
+  const setMovementInput = useGameStore((s) => s.setMovementInput);
+  const setCartMoving = useGameStore((s) => s.setCartMoving);
+
+  useEffect(() => {
+    setUiPaused(isOpen);
+    if (isOpen) {
+      setMovementInput(false, false);
+      setCartMoving(false);
+    }
+  }, [isOpen, setCartMoving, setMovementInput, setUiPaused]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -199,6 +219,63 @@ export const SettingsGear = () => {
                     );
                   })}
                 </div>
+
+                    <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 12 }}>
+                      <h4 style={{ margin: "6px 0", fontSize: 13, fontWeight: 700 }}>Audio</h4>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+                        <label style={{ fontSize: 13, color: "rgba(231,255,233,0.8)" }}>Mute</label>
+                        <input
+                          type="checkbox"
+                          checked={isMuted}
+                          onChange={(e) => {
+                            setMuted(e.target.checked);
+                            saveUserSettings({ playerName, graphicsQuality, masterVolume, musicVolume, sfxVolume, isMuted: e.target.checked });
+                          }}
+                        />
+                      </div>
+
+                      <label style={{ fontSize: 12, color: "rgba(231,255,233,0.8)" }}>Master</label>
+                      <input
+                        type="range"
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        value={masterVolume}
+                        onChange={(e) => {
+                          const v = Number(e.target.value);
+                          setMasterVolume(v);
+                          saveUserSettings({ playerName, graphicsQuality, masterVolume: v, musicVolume, sfxVolume, isMuted });
+                        }}
+                      />
+
+                      <label style={{ fontSize: 12, color: "rgba(231,255,233,0.8)" }}>Music</label>
+                      <input
+                        type="range"
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        value={musicVolume}
+                        onChange={(e) => {
+                          const v = Number(e.target.value);
+                          setMusicVolume(v);
+                          saveUserSettings({ playerName, graphicsQuality, masterVolume, musicVolume: v, sfxVolume, isMuted });
+                        }}
+                      />
+
+                      <label style={{ fontSize: 12, color: "rgba(231,255,233,0.8)" }}>SFX</label>
+                      <input
+                        type="range"
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        value={sfxVolume}
+                        onChange={(e) => {
+                          const v = Number(e.target.value);
+                          setSfxVolume(v);
+                          saveUserSettings({ playerName, graphicsQuality, masterVolume, musicVolume, sfxVolume: v, isMuted });
+                        }}
+                      />
+                    </div>
               </>
             )}
 

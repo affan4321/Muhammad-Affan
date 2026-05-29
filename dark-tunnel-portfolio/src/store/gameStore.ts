@@ -13,7 +13,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   completedChambers: 0,
   totalChambers: 4,
   completedChamberIds: [],
-  speed: 0.002,
+  speed: 0.0015,
   currentPosition: new Vector3(0, 0, 0),
   journey: [],
   mainSpine: null,
@@ -28,11 +28,18 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   openMapBoardId: null,
   playerName: "Traveler",
   graphicsQuality: "medium" as GraphicsQuality,
+  // Audio
+  masterVolume: 1,
+  musicVolume: 0.8,
+  sfxVolume: 0.9,
+  isMuted: false,
   isMovingForward: false,
   isMovingBackward: false,
   isMovingLeft: false,
   isMovingRight: false,
   isDebugCameraLocked: false,
+  isCartMoving: false,
+  isUiPaused: false,
 
   setCurrentTrack: (curve) => set({ currentTrack: curve }),
   setMovingForward: (value) => set({ isMovingForward: value }),
@@ -103,6 +110,10 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   setPlayerName: (playerName) => set({ playerName }),
 
   setGraphicsQuality: (graphicsQuality) => set({ graphicsQuality }),
+  setMasterVolume: (v: number) => set({ masterVolume: Math.max(0, Math.min(1, v)) }),
+  setMusicVolume: (v: number) => set({ musicVolume: Math.max(0, Math.min(1, v)) }),
+  setSfxVolume: (v: number) => set({ sfxVolume: Math.max(0, Math.min(1, v)) }),
+  setMuted: (m: boolean) => set({ isMuted: m }),
 
   setAvailablePaths: (paths) => set({ availablePaths: paths }),
 
@@ -247,7 +258,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       completedChambers: 0,
       totalChambers: Math.max(1, graph.segments.length),
       completedChamberIds: [],
-      speed: 0.002,
+      speed: 0.0015,
       currentPosition: new Vector3(0, 0, 0),
       journey: graph.segments,
       mainSpine: graph.mainSpine,
@@ -332,6 +343,8 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     }),
 
   setDebugCameraLocked: (locked) => set({ isDebugCameraLocked: locked }),
+  setCartMoving: (moving) => set({ isCartMoving: moving }),
+  setUiPaused: (paused) => set({ isUiPaused: paused }),
 
   reset: () =>
     set({
@@ -352,6 +365,8 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       isMovingForward: false,
       isMovingBackward: false,
       isDebugCameraLocked: false,
+      isCartMoving: false,
+      isUiPaused: false,
       isSceneLoading: true,
       focusedChamberObjectId: null,
       openChamberObjectId: null,

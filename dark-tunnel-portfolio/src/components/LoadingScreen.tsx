@@ -1,8 +1,9 @@
 "use client";
 
-import { Suspense, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Html, Center, PerspectiveCamera, useProgress, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
+import { Howl } from "howler";
 import * as THREE from "three";
 import { useGameStore } from "@/store/gameStore";
 
@@ -22,13 +23,36 @@ export const LoadingScreen = () => {
   const progress = useProgress((state) => state.progress);
   const isSceneLoading = useGameStore((state) => state.isSceneLoading);
   const modelGroup = useRef<THREE.Group | null>(null);
-  const [displayProgress, setDisplayProgress] = useState(0);
+  const progressTextRef = useRef<HTMLDivElement | null>(null);
   const maxProgress = useRef(0);
+  const loaderMusicRef = useRef<Howl | null>(null);
+
+  useEffect(() => {
+    const music = new Howl({
+      src: ["/audio/GTA San Andreas Theme.mp3"],
+      loop: true,
+      volume: 0.85,
+      html5: true,
+    });
+
+    loaderMusicRef.current = music;
+    try {
+      music.play();
+    } catch {}
+
+    return () => {
+      try {
+        music.stop();
+        music.unload();
+      } catch {}
+      loaderMusicRef.current = null;
+    };
+  }, []);
 
   useFrame((_, delta) => {
     // Stop useFrame when not loading to prevent performance drain
     if (!isSceneLoading) return;
-    
+
     if (modelGroup.current) {
       modelGroup.current.rotation.y += delta * 0.6;
     }
@@ -36,7 +60,9 @@ export const LoadingScreen = () => {
     const nextProgress = Math.min(100, progress);
     if (nextProgress > maxProgress.current) {
       maxProgress.current = nextProgress;
-      setDisplayProgress(nextProgress);
+      if (progressTextRef.current) {
+        progressTextRef.current.textContent = nextProgress.toFixed(1);
+      }
     }
   });
 
@@ -52,9 +78,9 @@ export const LoadingScreen = () => {
       <directionalLight position={[6, 0, -4]} intensity={0.35} color="#5a1820" />
 
       <group ref={modelGroup} position={[-1.05, -0.3, 0]} scale={4}>
-        <Suspense fallback={null}>
+        <React.Suspense fallback={null}>
           <LoadingModel />
-        </Suspense>
+        </React.Suspense>
       </group>
 
       <Html
@@ -99,8 +125,11 @@ export const LoadingScreen = () => {
             <div style={{ fontSize: 18, fontWeight: 600, letterSpacing: "0.18em" }}>
               Loading...
             </div>
-            <div style={{ fontSize: 82, fontWeight: 600, lineHeight: 0.92, color: "#ff6e6e" }}>
-              {displayProgress.toFixed(1)}
+            <div
+              ref={progressTextRef}
+              style={{ fontSize: 82, fontWeight: 600, lineHeight: 0.92, color: "#ff6e6e" }}
+            >
+              0.0
             </div>
           </div>
         </div>

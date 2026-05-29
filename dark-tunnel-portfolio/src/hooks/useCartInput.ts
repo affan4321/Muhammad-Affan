@@ -10,6 +10,7 @@ import { getForkChoices, getSegmentCurve, syncOverallProgress } from "@/lib/jour
 export const useCartInput = () => {
   const setMovingForward = useGameStore((state) => state.setMovingForward);
   const setMovingBackward = useGameStore((state) => state.setMovingBackward);
+  const isUiPaused = useGameStore((state) => state.isUiPaused);
   const leftShiftPressedRef = useRef(false);
 
   const jumpToMainSegment = useCallback((segmentIndex: number) => {
@@ -87,6 +88,8 @@ export const useCartInput = () => {
     const handleContextMenu = (e: MouseEvent) => e.preventDefault();
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (isUiPaused) return;
+
       if (e.code === "ShiftLeft") {
         leftShiftPressedRef.current = true;
         return;
@@ -168,6 +171,8 @@ export const useCartInput = () => {
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
+      if (isUiPaused) return;
+
       if (e.code === "ShiftLeft") {
         leftShiftPressedRef.current = false;
         return;
@@ -193,6 +198,8 @@ export const useCartInput = () => {
     };
 
     const handleMouseDown = (e: MouseEvent) => {
+      if (isUiPaused) return;
+
       const forward = useGameStore.getState().isMovingForward;
       const backward = useGameStore.getState().isMovingBackward;
 
@@ -208,6 +215,8 @@ export const useCartInput = () => {
     };
 
     const handleMouseUp = (e: MouseEvent) => {
+      if (isUiPaused) return;
+
       const forward = useGameStore.getState().isMovingForward;
       const backward = useGameStore.getState().isMovingBackward;
 
@@ -235,5 +244,5 @@ export const useCartInput = () => {
       window.removeEventListener("mouseup", handleMouseUp);
       window.removeEventListener("contextmenu", handleContextMenu);
     };
-  }, [jumpToChamber, jumpToMainSegment, setMovingBackward, setMovingForward]);
+  }, [isUiPaused, jumpToChamber, jumpToMainSegment, setMovingBackward, setMovingForward]);
 };

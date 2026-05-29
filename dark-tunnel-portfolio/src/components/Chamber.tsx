@@ -72,6 +72,36 @@ export const Chamber = () => {
     setOpenChamberObjectId(null);
   }, [activeBranch?.id, setFocusedChamberObjectId, setOpenChamberObjectId]);
 
+  // Play door opening when entering a chamber (positional if available)
+  useEffect(() => {
+    if (gameState !== "INSIDE_CHAMBER") return;
+    try {
+      const door = chamberTrack ? getChamberDoorTransform(chamberTrack) : null;
+      const pos = door ? { x: door.position[0], y: door.position[1], z: door.position[2] } : null;
+      // Prefer dispatching the positional event (AudioManager listens for it).
+      if (pos) {
+        try {
+          window.dispatchEvent(new CustomEvent("dt-play-positional", { detail: { url: `/audio/sfx/door opening.mp3`, position: pos } }));
+        } catch {}
+      }
+
+      // Also call the non-positional helper if it's available now, or retry shortly.
+      try {
+        const play = (window as any).__DT_PLAY_SFX;
+        if (typeof play === "function") {
+          try { play("door opening.mp3"); } catch {}
+        } else {
+          setTimeout(() => {
+            try {
+              const p = (window as any).__DT_PLAY_SFX;
+              if (typeof p === "function") p("door opening.mp3");
+            } catch {}
+          }, 250);
+        }
+      } catch {}
+    } catch {}
+  }, [gameState, chamberTrack]);
+
   useEffect(() => {
     if (gameState !== "INSIDE_CHAMBER" || !chamberObjectId) return;
 
@@ -79,6 +109,10 @@ export const Chamber = () => {
       if (event.key === "Enter" && isDocumentFocused && !isDocumentOpen) {
         event.preventDefault();
         setOpenChamberObjectId(chamberObjectId);
+        try {
+          const play = (window as any).__DT_PLAY_SFX;
+          if (typeof play === "function") play("paper picking.mp3");
+        } catch {}
         return;
       }
 
@@ -194,11 +228,23 @@ export const Chamber = () => {
               onPointerOut={() => setFocusedChamberObjectId(null)}
               onPointerDown={(event) => {
                 event.stopPropagation();
-                if (chamberObjectId) setOpenChamberObjectId(chamberObjectId);
+                  if (chamberObjectId) {
+                    setOpenChamberObjectId(chamberObjectId);
+                    try {
+                      const play = (window as any).__DT_PLAY_SFX;
+                      if (typeof play === "function") play("paper picking.mp3");
+                    } catch {}
+                  }
               }}
               onClick={(event) => {
                 event.stopPropagation();
-                if (chamberObjectId) setOpenChamberObjectId(chamberObjectId);
+                  if (chamberObjectId) {
+                    setOpenChamberObjectId(chamberObjectId);
+                    try {
+                      const play = (window as any).__DT_PLAY_SFX;
+                      if (typeof play === "function") play("paper picking.mp3");
+                    } catch {}
+                  }
               }}
             >
               <planeGeometry args={[6, 7.5]} />

@@ -111,7 +111,6 @@ const Scene = ({
       {isInsideChamber ? <ChamberScene /> : <TunnelScene />}
 
       <ChamberTrigger />
-      <AudioManager />
     </>
   );
 };
@@ -154,6 +153,7 @@ export const GameCanvas = () => {
           display: "block",
         }}
       >
+        <AudioManager />
         <Suspense fallback={<LoadingScreen />}>
           <Scene rendererRef={rendererRef} />
         </Suspense>

@@ -65,12 +65,20 @@ export interface GameStoreState {
   playerName: string;
   graphicsQuality: GraphicsQuality;
 
+  // Audio
+  masterVolume: number;
+  musicVolume: number;
+  sfxVolume: number;
+  isMuted: boolean;
+
   // Input
   isMovingForward: boolean;
   isMovingBackward: boolean;
   isMovingLeft: boolean;
   isMovingRight: boolean;
   isDebugCameraLocked: boolean;
+  isCartMoving: boolean;
+  isUiPaused: boolean;
 
   // Actions
   setCurrentTrack: (curve: Curve<Vector3>) => void;
@@ -88,6 +96,10 @@ export interface GameStoreState {
   setSceneLoading: (loading: boolean) => void;
   setPlayerName: (playerName: string) => void;
   setGraphicsQuality: (graphicsQuality: GraphicsQuality) => void;
+  setMasterVolume: (v: number) => void;
+  setMusicVolume: (v: number) => void;
+  setSfxVolume: (v: number) => void;
+  setMuted: (m: boolean) => void;
   setFocusedChamberObjectId: (objectId: string | null) => void;
   setOpenChamberObjectId: (objectId: string | null) => void;
   setFocusedMapBoardId: (boardId: string | null) => void;
@@ -99,5 +111,7 @@ export interface GameStoreState {
   returnFromBranchToFork: () => void;
   setMovementInput: (forward: boolean, backward: boolean) => void;
   setDebugCameraLocked: (locked: boolean) => void;
+  setCartMoving: (moving: boolean) => void;
+  setUiPaused: (paused: boolean) => void;
   reset: () => void;
 }

@@ -80,6 +80,11 @@ const SmartMapBoard = ({
         onClick={(event) => {
           event.stopPropagation();
           setOpenMapBoardId(marker.id);
+          if (typeof window !== "undefined") {
+            try {
+              (window as any).__DT_PLAY_SFX?.("458585__inspectorj__ui-mechanical-select-01-fx.mp3");
+            } catch {}
+          }
         }}
         args={[0.2, 0.95, 0.75]}
         radius={0.09}

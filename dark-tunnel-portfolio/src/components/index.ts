@@ -11,5 +11,5 @@ export { Hologram } from "./Hologram";
 export { LightingTransition } from "./LightingTransition";
 export { Chamber } from "./Chamber";
 export { ChamberEntrances } from "./ChamberEntrances";
-export { AudioManager } from "./AudioManager";
+export { default as AudioManager } from "./AudioManager";
 export { ChamberTrigger } from "./ChamberTrigger";

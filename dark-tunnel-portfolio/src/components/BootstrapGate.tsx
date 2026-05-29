@@ -15,6 +15,10 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
   const graphicsQuality = useGameStore((state) => state.graphicsQuality);
   const setPlayerName = useGameStore((state) => state.setPlayerName);
   const setGraphicsQuality = useGameStore((state) => state.setGraphicsQuality);
+  const setMasterVolume = useGameStore((s) => s.setMasterVolume);
+  const setMusicVolume = useGameStore((s) => s.setMusicVolume);
+  const setSfxVolume = useGameStore((s) => s.setSfxVolume);
+  const setMuted = useGameStore((s) => s.setMuted);
   const [isReady, setIsReady] = useState(false);
   const [hasStartedSession, setHasStartedSession] = useState(false);
   const [initialName, setInitialName] = useState(DEFAULT_USER_SETTINGS.playerName);
@@ -29,6 +33,10 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
         setInitialQuality(savedSettings.graphicsQuality);
         setPlayerName(savedSettings.playerName);
         setGraphicsQuality(savedSettings.graphicsQuality);
+        if (typeof savedSettings.masterVolume === "number") setMasterVolume(savedSettings.masterVolume);
+        if (typeof savedSettings.musicVolume === "number") setMusicVolume(savedSettings.musicVolume);
+        if (typeof savedSettings.sfxVolume === "number") setSfxVolume(savedSettings.sfxVolume);
+        if (typeof savedSettings.isMuted === "boolean") setMuted(savedSettings.isMuted);
       }
 
       setIsReady(true);
@@ -45,6 +53,10 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
     saveUserSettings({
       playerName: nextPlayerName,
       graphicsQuality: nextGraphicsQuality,
+      masterVolume: 1,
+      musicVolume: 0.8,
+      sfxVolume: 0.9,
+      isMuted: false,
     });
   };
 
