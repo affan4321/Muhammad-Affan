@@ -6,11 +6,12 @@ import { useFrame } from "@react-three/fiber";
 import { Howl } from "howler";
 import * as THREE from "three";
 import { useGameStore } from "@/store/gameStore";
+import { R2_BASE_URL } from "@/lib/sceneProps";
 
-useGLTF.preload("/models/muhammad-affan-model-compressed.glb");
+useGLTF.preload(`${R2_BASE_URL}/models/muhammad-affan-model-compressed.glb`);
 
 const LoadingModel = () => {
-  const { scene } = useGLTF("/models/muhammad-affan-model-compressed.glb");
+  const { scene } = useGLTF(`${R2_BASE_URL}/models/muhammad-affan-model-compressed.glb`);
 
   return (
     <Center>
@@ -29,7 +30,7 @@ export const LoadingScreen = () => {
 
   useEffect(() => {
     const music = new Howl({
-      src: ["/audio/GTA San Andreas Theme.mp3"],
+      src: [`${R2_BASE_URL}/audio/GTA%20San%20Andreas%20Theme.mp3`],
       loop: true,
       volume: 0.85,
       html5: true,

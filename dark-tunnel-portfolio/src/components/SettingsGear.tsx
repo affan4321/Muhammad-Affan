@@ -40,11 +40,24 @@ export const SettingsGear = () => {
         setIsOpen(true);
         setActiveTab("help");
       }
+      if (event.key === "\\") {
+        toggleFullscreen();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
   return (
     <>
@@ -89,6 +102,20 @@ export const SettingsGear = () => {
         }}
       >
         Press H for help
+      </div>
+      <div
+        style={{
+          position: "fixed",
+          top: 28,
+          right: 64,
+          zIndex: 125,
+          fontSize: 10,
+          color: "rgba(231, 255, 233, 0.5)",
+          letterSpacing: "0.05em",
+          pointerEvents: "none",
+        }}
+      >
+        Press \ to toggle fullscreen
       </div>
 
       {isOpen && (

@@ -1,6 +1,7 @@
 "use client";
 
 import { Center, useGLTF } from "@react-three/drei";
+import { R2_BASE_URL } from "@/lib/sceneProps";
 
 export const CartModel = ({
   scale = 0.14,
@@ -12,10 +13,10 @@ export const CartModel = ({
   position?: [number, number, number];
   visible?: boolean;
 }) => {
-  useGLTF.preload("/models/cart.glb");
-  useGLTF.preload("/models/cart-lamp.glb");
-  const gltf = useGLTF("/models/cart.glb");
-  const lampGltf = useGLTF("/models/cart-lamp.glb");
+  useGLTF.preload(`${R2_BASE_URL}/models/cart.glb`);
+  useGLTF.preload(`${R2_BASE_URL}/models/cart-lamp.glb`);
+  const gltf = useGLTF(`${R2_BASE_URL}/models/cart.glb`);
+  const lampGltf = useGLTF(`${R2_BASE_URL}/models/cart-lamp.glb`);
 
   return (
     <>

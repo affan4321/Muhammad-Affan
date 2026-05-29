@@ -2,12 +2,13 @@
 
 import { Center } from "@react-three/drei";
 import AnimatedModel from "./AnimatedModel";
+import { R2_BASE_URL } from "@/lib/sceneProps";
 
 export const HorrorLightModel = ({ scale = 1, position = [0, 0, 0], ...props }: any) => {
   return (
     <group position={position as [number, number, number]} scale={scale} {...props}>
       <Center>
-        <AnimatedModel url="/models/horror light.glb" />
+        <AnimatedModel url={`${R2_BASE_URL}/models/horror%20light.glb`} />
       </Center>
     </group>
   );

@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dark Tunnel Portfolio
+
+An immersive 3D portfolio experience built with Next.js, Three.js, and React Three Fiber. Navigate through a dark tunnel, explore different paths, and discover chambers with interactive content.
+
+## Features
+
+- **3D Navigation**: Ride through a procedurally generated dark tunnel
+- **Branching Paths**: Explore different career paths at each junction
+- **Interactive Chambers**: View detailed content in 3D chambers
+- **Audio Experience**: Dynamic background music and sound effects
+- **Camera Controls**: Free camera movement with mouse
+- **Fullscreen Mode**: Toggle fullscreen for immersive experience
+- **Settings Panel**: Customize graphics quality and audio settings
 
 ## Getting Started
 
-First, run the development server:
+First, install dependencies:
+
+```bash
+npm install
+```
+
+Then run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Controls
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **W / ↑ / Click**: Move forward
+- **S / ↓ / R-Click**: Move backward
+- **Mouse**: Look around
+- **Enter / Click**: Select / Exit chamber
+- **H**: Open help menu
+- **\**: Toggle fullscreen
+- **L**: Lock/unlock camera (debug)
+
+## Deployment
+
+### Important: Large Asset Files
+
+This project contains large 3D model files and audio files that are excluded from git:
+- `/public/models/*` - 3D model files (gitignored)
+- `/public/audio/*` - Audio files (gitignored)
+
+These files must be hosted separately using Cloudflare R2. See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions on setting up R2 and uploading assets.
+
+### Deploy on Vercel
+
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Vercel will automatically deploy on push
+
+The project includes a `vercel.json` configuration for optimal deployment settings.
+
+### Deployment Configuration
+
+- `vercel.json` - Vercel deployment settings
+- `DEPLOYMENT.md` - Comprehensive deployment guide with R2 asset storage setup
+
+## Tech Stack
+
+- **Framework**: Next.js 16
+- **3D Graphics**: Three.js, React Three Fiber, React Three Drei
+- **Post-processing**: React Three Postprocessing
+- **Physics**: React Three Rapier
+- **Audio**: Howler.js
+- **State Management**: Zustand
+- **Styling**: Tailwind CSS
+- **Animations**: GSAP
+
+## Project Structure
+
+- `src/components/` - React components (Chamber, Cart, AudioManager, etc.)
+- `src/lib/` - Utility functions and configurations
+- `src/store/` - Zustand state management
+- `src/hooks/` - Custom React hooks
+- `public/models/` - 3D model files (gitignored)
+- `public/audio/` - Audio files (gitignored)
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Three.js Documentation](https://threejs.org/docs/)
+- [React Three Fiber Documentation](https://docs.pmnd.rs/react-three-fiber)
+- [Howler.js Documentation](https://howlerjs.com/)

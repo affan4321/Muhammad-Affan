@@ -5,6 +5,7 @@ import { Howl, Howler } from "howler";
 import * as THREE from "three";
 import { useThree } from "@react-three/fiber";
 import { useGameStore } from "@/store/gameStore";
+import { R2_BASE_URL } from "@/lib/sceneProps";
 
 const SFX_CACHE = new Map<string, Howl>();
 
@@ -105,17 +106,17 @@ export default function AudioManager() {
     }
 
     const BG_MAP: Record<string, string> = {
-      "resume-cv": "/audio/bg2.mp3",
-      "who-am-i": "/audio/bg3.mp3",
-      "social-handles": "/audio/bg4.mp3",
-      "jewelry-cad": "/audio/bg5.mp3",
-      "video-editing": "/audio/bg6.mp3",
-      "game-dev": "/audio/bg7.mp3",
-      "about-me": "/audio/bg8.mp3",
+      "resume-cv": `${R2_BASE_URL}/audio/bg2.mp3`,
+      "who-am-i": `${R2_BASE_URL}/audio/bg3.mp3`,
+      "social-handles": `${R2_BASE_URL}/audio/bg4.mp3`,
+      "jewelry-cad": `${R2_BASE_URL}/audio/bg5.mp3`,
+      "video-editing": `${R2_BASE_URL}/audio/bg6.mp3`,
+      "game-dev": `${R2_BASE_URL}/audio/bg7.mp3`,
+      "about-me": `${R2_BASE_URL}/audio/bg8.mp3`,
     };
 
     const bgKey = trackContext === "branch" && activeBranch?.id ? activeBranch.id : "main";
-    const targetSrc = bgKey === "main" ? "/audio/bg.mp3" : BG_MAP[bgKey] ?? "/audio/bg.mp3";
+    const targetSrc = bgKey === "main" ? `${R2_BASE_URL}/audio/bg.mp3` : BG_MAP[bgKey] ?? `${R2_BASE_URL}/audio/bg.mp3`;
     const trackMultiplier = getBackgroundVolumeMultiplier(bgKey);
 
     try {
@@ -191,7 +192,7 @@ export default function AudioManager() {
         } catch {}
 
         cartRef.current = new Howl({
-          src: ["/audio/cart-sound.mp3"],
+          src: [`${R2_BASE_URL}/audio/cart-sound.mp3`],
           loop: true,
           volume: targetVolume,
           html5: true,
@@ -233,7 +234,7 @@ export default function AudioManager() {
     let howl = SFX_CACHE.get(key);
     if (!howl) {
       howl = new Howl({
-        src: [`/audio/sfx/${filename}`],
+        src: [`${R2_BASE_URL}/audio/sfx/${filename}`],
         volume: isMuted ? 0 : sfxVolume * masterVolume,
         html5: true,
         pool: 8,
@@ -432,7 +433,7 @@ export default function AudioManager() {
       if (!sliceLoopRef.current) {
         const targetVol = isMutedRef.current ? 0 : sfxVolumeRef.current * masterVolumeRef.current;
         const howl = new Howl({
-          src: ["/audio/sfx/slice.mp3"],
+          src: [`${R2_BASE_URL}/audio/sfx/slice.mp3`],
           loop: true,
           volume: targetVol,
           html5: true,

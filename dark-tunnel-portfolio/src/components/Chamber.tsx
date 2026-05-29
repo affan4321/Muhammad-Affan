@@ -8,6 +8,7 @@ import LampModel from "./models/LampModel";
 import PDFViewer from "./PDFViewer";
 import { useGameStore } from "@/store/gameStore";
 import { getChamberDoorTransform } from "@/lib/chamberDoor";
+import { R2_BASE_URL } from "@/lib/sceneProps";
 import { CHAMBER_CONTENT } from "@/lib/chamberContent";
 
 /** Chamber interior with isolation room model and orbit controls. */
@@ -81,7 +82,7 @@ export const Chamber = () => {
       // Prefer dispatching the positional event (AudioManager listens for it).
       if (pos) {
         try {
-          window.dispatchEvent(new CustomEvent("dt-play-positional", { detail: { url: `/audio/sfx/door opening.mp3`, position: pos } }));
+          window.dispatchEvent(new CustomEvent("dt-play-positional", { detail: { url: `${R2_BASE_URL}/audio/sfx/door%20opening.mp3`, position: pos } }));
         } catch {}
       }
 

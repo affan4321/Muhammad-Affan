@@ -20,12 +20,12 @@ import { useGameStore } from "@/store/gameStore";
 import { useCartInput } from "@/hooks/useCartInput";
 import { buildJourney } from "@/lib/journey";
 import { TrackSetDressing } from "./TrackSetDressing";
-import { SCENE_PROP_URLS } from "@/lib/sceneProps";
+import { SCENE_PROP_URLS, R2_BASE_URL } from "@/lib/sceneProps";
 import { LoadingScreen } from "./LoadingScreen";
 import { GRAPHICS_QUALITY_PRESETS } from "@/lib/graphicsQuality";
 
 Object.values(SCENE_PROP_URLS).forEach((url) => useGLTF.preload(url));
-useGLTF.preload("/models/dog.glb");
+useGLTF.preload(`${R2_BASE_URL}/models/dog.glb`);
 
 if (import.meta.turbopackHot) {
   import.meta.turbopackHot.dispose(() => {
