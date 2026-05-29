@@ -11,7 +11,7 @@ export const PDFViewer = ({ pdfUrl }: Props) => {
     <div
       style={{
         width: "100%",
-        height: "500px",
+        height: "700px",
         backgroundColor: "#1a1a1a",
         borderRadius: "8px",
         overflow: "hidden",

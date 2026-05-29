@@ -293,6 +293,10 @@ export const Chamber = () => {
                       </a>
                     ))}
                   </div>
+                ) : chamberContent.type === "about-me" ? (
+                  <div style={{ lineHeight: 1.6, fontSize: "14px", maxHeight: "400px", overflowY: "auto", paddingRight: "8px" }}>
+                    <p style={{ marginTop: 0, color: "#fff2d6", whiteSpace: "pre-wrap" }}>{chamberContent.summary}</p>
+                  </div>
                 ) : (
                   <div style={{ display: "grid", gap: "12px" }}>
                     {chamberContent.projects?.map((project) => (
@@ -324,7 +328,7 @@ export const Chamber = () => {
           )}
         </group>
       )}
-      <OrbitControls />
+      <OrbitControls enabled={!openChamberObjectId} />
     </group>
   );
 };

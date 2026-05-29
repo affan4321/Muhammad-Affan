@@ -113,11 +113,7 @@ export const ChamberPanel = () => {
     if (!content) return null;
 
     if (content.pdfUrl) {
-      return (
-        <TiltCard title={content.title} subtitle="Open the document inside the card" accent="#00ffd5">
-          <PDFViewer pdfUrl={content.pdfUrl} />
-        </TiltCard>
-      );
+      return <PDFViewer pdfUrl={content.pdfUrl} />;
     }
 
     if (content.type === "who-am-i") {
@@ -157,6 +153,14 @@ export const ChamberPanel = () => {
             </TiltCard>
           ))}
         </div>
+      );
+    }
+
+    if (content.type === "about-me") {
+      return (
+        <TiltCard title={content.title} subtitle="About Me" accent="#ff9d4a">
+          <p style={{ margin: 0, color: "#f2f2f2", lineHeight: 1.7, fontSize: "15px", whiteSpace: "pre-wrap", maxHeight: "400px", overflowY: "auto" }}>{content.summary}</p>
+        </TiltCard>
       );
     }
 
