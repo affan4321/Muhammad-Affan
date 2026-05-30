@@ -27,6 +27,7 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       const savedSettings = loadUserSettings();
+      const hasSessionStarted = localStorage.getItem("hasStartedSession") === "true";
 
       if (savedSettings) {
         setInitialName(savedSettings.playerName);
@@ -37,6 +38,10 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
         if (typeof savedSettings.musicVolume === "number") setMusicVolume(savedSettings.musicVolume);
         if (typeof savedSettings.sfxVolume === "number") setSfxVolume(savedSettings.sfxVolume);
         if (typeof savedSettings.isMuted === "boolean") setMuted(savedSettings.isMuted);
+      }
+
+      if (hasSessionStarted) {
+        setHasStartedSession(true);
       }
 
       setIsReady(true);
@@ -50,6 +55,7 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
     setGraphicsQuality(nextGraphicsQuality);
     setIsReady(true);
     setHasStartedSession(true);
+    localStorage.setItem("hasStartedSession", "true");
     saveUserSettings({
       playerName: nextPlayerName,
       graphicsQuality: nextGraphicsQuality,
