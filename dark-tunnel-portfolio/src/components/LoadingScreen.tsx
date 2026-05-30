@@ -78,7 +78,7 @@ export const LoadingScreen = () => {
       <directionalLight position={[-7, 2.5, 7]} intensity={3.6} color="#ffd2b8" />
       <directionalLight position={[6, 0, -4]} intensity={0.35} color="#5a1820" />
 
-      <group ref={modelGroup} position={[-1.05, -0.3, 0]} scale={4}>
+      <group ref={modelGroup} position={[-1.05, -0.3, 0]} scale={window.innerWidth <= 768 ? 3 : 4}>
         <React.Suspense fallback={null}>
           <LoadingModel />
         </React.Suspense>
@@ -94,7 +94,7 @@ export const LoadingScreen = () => {
             width: "100%",
             height: "100%",
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns: window.innerWidth <= 768 ? "1fr" : "1fr 1fr",
             color: "#ffd9d9",
             fontFamily:
               'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
@@ -123,12 +123,12 @@ export const LoadingScreen = () => {
               gap: 10,
             }}
           >
-            <div style={{ fontSize: 18, fontWeight: 600, letterSpacing: "0.18em" }}>
+            <div style={{ fontSize: "clamp(14px, 3vw, 18px)", fontWeight: 600, letterSpacing: "0.18em" }}>
               Loading...
             </div>
             <div
               ref={progressTextRef}
-              style={{ fontSize: 82, fontWeight: 600, lineHeight: 0.92, color: "#ff6e6e" }}
+              style={{ fontSize: "clamp(48px, 8vw, 82px)", fontWeight: 600, lineHeight: 0.92, color: "#ff6e6e" }}
             >
               0.0
             </div>
