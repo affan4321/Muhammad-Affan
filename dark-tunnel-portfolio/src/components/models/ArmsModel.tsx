@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { R2_BASE_URL } from "@/lib/sceneProps";
@@ -17,7 +18,9 @@ export const ArmsModel = ({
   rotation = [0, 0, 0],
   visible = true,
 }: ArmsModelProps) => {
-  useGLTF.preload(`${R2_BASE_URL}/models/arms.glb`);
+  useEffect(() => {
+    useGLTF.preload(`${R2_BASE_URL}/models/arms.glb`);
+  }, []);
   const gltf = useGLTF(`${R2_BASE_URL}/models/arms.glb`);
 
   return (
