@@ -34,12 +34,20 @@ export const LoadingScreen = () => {
       loop: true,
       volume: 0.85,
       html5: true,
+      onload: () => {
+        try {
+          music.play();
+        } catch {}
+      },
+      onloaderror: (id, error) => {
+        console.error("Audio load error:", error);
+      },
+      onplayerror: (id, error) => {
+        console.error("Audio play error:", error);
+      },
     });
 
     loaderMusicRef.current = music;
-    try {
-      music.play();
-    } catch {}
 
     return () => {
       try {
