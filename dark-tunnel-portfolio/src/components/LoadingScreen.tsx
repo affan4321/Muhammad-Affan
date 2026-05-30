@@ -1,14 +1,12 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { Html, Center, PerspectiveCamera, useProgress, useGLTF } from "@react-three/drei";
+import { Html, Center, PerspectiveCamera, useGLTF, useProgress } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { Howl } from "howler";
 import * as THREE from "three";
 import { useGameStore } from "@/store/gameStore";
 import { R2_BASE_URL } from "@/lib/sceneProps";
-
-useGLTF.preload(`${R2_BASE_URL}/models/muhammad-affan-model-compressed.glb`);
 
 const LoadingModel = () => {
   const { scene } = useGLTF(`${R2_BASE_URL}/models/muhammad-affan-model-compressed.glb`);
@@ -29,15 +27,32 @@ export const LoadingScreen = () => {
   const loaderMusicRef = useRef<Howl | null>(null);
 
   useEffect(() => {
+    // Stop any existing audio before creating new instance
+    if (loaderMusicRef.current) {
+      try {
+        loaderMusicRef.current.stop();
+        loaderMusicRef.current.unload();
+      } catch {}
+      loaderMusicRef.current = null;
+    }
+
     const music = new Howl({
       src: [`${R2_BASE_URL}/audio/GTA%20San%20Andreas%20Theme.mp3`],
       loop: true,
       volume: 0.85,
       html5: true,
+      preload: true,
       onload: () => {
-        try {
-          music.play();
-        } catch {}
+        console.log("LoadingScreen: Audio loaded successfully");
+        // Only play if not already playing
+        if (!music.playing()) {
+          try {
+            music.play();
+            console.log("LoadingScreen: Audio started playing on load");
+          } catch (e) {
+            console.error("Failed to play audio on load:", e);
+          }
+        }
       },
       onloaderror: (id, error) => {
         console.error("Audio load error:", error);
@@ -49,12 +64,44 @@ export const LoadingScreen = () => {
 
     loaderMusicRef.current = music;
 
+    // Try to play immediately
+    if (!music.playing()) {
+      try {
+        music.play();
+        console.log("LoadingScreen: Attempted to play audio immediately");
+      } catch (e) {
+        console.error("Failed to play audio immediately:", e);
+      }
+    }
+
+    const playWhenReady = () => {
+      if (loaderMusicRef.current === music && !music.playing()) {
+        try {
+          music.play();
+          console.log("LoadingScreen: Audio started playing on interaction");
+        } catch (e) {
+          console.error("Failed to play audio on interaction:", e);
+        }
+      }
+    };
+
+    const handleUserInteraction = () => {
+      playWhenReady();
+    };
+
+    window.addEventListener("click", handleUserInteraction);
+    window.addEventListener("touchstart", handleUserInteraction);
+    window.addEventListener("keydown", handleUserInteraction);
+
     return () => {
       try {
         music.stop();
         music.unload();
       } catch {}
       loaderMusicRef.current = null;
+      window.removeEventListener("click", handleUserInteraction);
+      window.removeEventListener("touchstart", handleUserInteraction);
+      window.removeEventListener("keydown", handleUserInteraction);
     };
   }, []);
 

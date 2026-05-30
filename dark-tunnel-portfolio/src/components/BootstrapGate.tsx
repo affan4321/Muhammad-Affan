@@ -20,14 +20,13 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
   const setSfxVolume = useGameStore((s) => s.setSfxVolume);
   const setMuted = useGameStore((s) => s.setMuted);
   const [isReady, setIsReady] = useState(false);
-  const [hasStartedSession, setHasStartedSession] = useState(false);
+  const [hasCompletedSetup, setHasCompletedSetup] = useState(false);
   const [initialName, setInitialName] = useState(DEFAULT_USER_SETTINGS.playerName);
   const [initialQuality, setInitialQuality] = useState(DEFAULT_USER_SETTINGS.graphicsQuality);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       const savedSettings = loadUserSettings();
-      const hasSessionStarted = localStorage.getItem("hasStartedSession") === "true";
 
       if (savedSettings) {
         setInitialName(savedSettings.playerName);
@@ -40,10 +39,6 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
         if (typeof savedSettings.isMuted === "boolean") setMuted(savedSettings.isMuted);
       }
 
-      if (hasSessionStarted) {
-        setHasStartedSession(true);
-      }
-
       setIsReady(true);
     }, 0);
 
@@ -54,8 +49,7 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
     setPlayerName(nextPlayerName);
     setGraphicsQuality(nextGraphicsQuality);
     setIsReady(true);
-    setHasStartedSession(true);
-    localStorage.setItem("hasStartedSession", "true");
+    setHasCompletedSetup(true);
     saveUserSettings({
       playerName: nextPlayerName,
       graphicsQuality: nextGraphicsQuality,
@@ -70,7 +64,7 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
     return null;
   }
 
-  if (!hasStartedSession) {
+  if (!hasCompletedSetup) {
     return (
       <SetupScreen
         initialName={initialName}
