@@ -7,6 +7,7 @@ import { PathSelector } from "@/components/PathSelector";
 import { ChamberPanel } from "@/components/ChamberPanel";
 import { SettingsGear } from "@/components/SettingsGear";
 import { SmartMapPanel } from "@/components/SmartMapPanel";
+import { MobileControls } from "@/components/MobileControls";
 import { useGameStore } from "@/store/gameStore";
 
 export default function Home() {
@@ -23,6 +24,7 @@ export default function Home() {
             <PathSelector />
             <ChamberPanel />
             <SmartMapPanel />
+            <MobileControls />
           </>
         )}
       </BootstrapGate>

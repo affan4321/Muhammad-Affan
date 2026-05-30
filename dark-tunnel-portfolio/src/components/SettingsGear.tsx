@@ -49,6 +49,58 @@ export const SettingsGear = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  useEffect(() => {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!isMobile) return;
+
+    const handleOrientationChange = () => {
+      const isLandscape = window.innerWidth > window.innerHeight;
+      if (isLandscape && !document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch((err) => {
+          console.error(`Error attempting to enable fullscreen on rotation: ${err.message}`);
+        });
+      }
+    };
+
+    // Suggest landscape mode on mobile
+    const suggestLandscape = () => {
+      const isPortrait = window.innerHeight > window.innerWidth;
+      if (isPortrait) {
+        // Show a message suggesting landscape mode
+        const message = document.createElement("div");
+        message.style.cssText = `
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: rgba(0, 0, 0, 0.9);
+          color: white;
+          padding: 20px;
+          border-radius: 10px;
+          text-align: center;
+          z-index: 10000;
+          font-family: sans-serif;
+        `;
+        message.innerHTML = "Please rotate your device to landscape mode for the best experience";
+        document.body.appendChild(message);
+        
+        setTimeout(() => {
+          message.remove();
+        }, 3000);
+      }
+    };
+
+    window.addEventListener("orientationchange", handleOrientationChange);
+    window.addEventListener("resize", handleOrientationChange);
+    window.addEventListener("load", suggestLandscape);
+
+    return () => {
+      window.removeEventListener("orientationchange", handleOrientationChange);
+      window.removeEventListener("resize", handleOrientationChange);
+      window.removeEventListener("load", suggestLandscape);
+    };
+  }, []);
+
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch((err) => {
@@ -58,6 +110,8 @@ export const SettingsGear = () => {
       document.exitFullscreen();
     }
   };
+
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   return (
     <>
@@ -103,6 +157,36 @@ export const SettingsGear = () => {
       >
         Press H for help
       </div>
+
+      {isMobile && (
+        <button
+          type="button"
+          onClick={toggleFullscreen}
+          aria-label="Toggle fullscreen"
+          style={{
+            position: "fixed",
+            top: 10,
+            left: 10,
+            zIndex: 124,
+            width: 46,
+            height: 46,
+            borderRadius: 14,
+            border: "1px solid rgba(160, 255, 183, 0.22)",
+            background: "rgba(0, 0, 0, 0.58)",
+            color: "#e7ffe9",
+            cursor: "pointer",
+            backdropFilter: "blur(10px)",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.35)",
+            fontSize: 20,
+            fontWeight: 800,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          ⛶
+        </button>
+      )}
       <div
         style={{
           position: "fixed",
