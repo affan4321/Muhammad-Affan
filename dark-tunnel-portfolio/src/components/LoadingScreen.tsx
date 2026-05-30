@@ -21,7 +21,7 @@ const LoadingModel = () => {
 };
 
 export const LoadingScreen = () => {
-  const { progress } = useProgress();
+  const progress = useProgress((state) => state.progress);
   const isSceneLoading = useGameStore((state) => state.isSceneLoading);
   const modelGroup = useRef<THREE.Group | null>(null);
   const progressTextRef = useRef<HTMLDivElement | null>(null);
@@ -34,7 +34,11 @@ export const LoadingScreen = () => {
       loop: true,
       volume: 0.85,
       html5: true,
-      autoplay: false,
+      onload: () => {
+        try {
+          music.play();
+        } catch {}
+      },
       onloaderror: (id, error) => {
         console.error("Audio load error:", error);
       },
@@ -45,28 +49,12 @@ export const LoadingScreen = () => {
 
     loaderMusicRef.current = music;
 
-    // Try to play on first user interaction
-    const handleUserInteraction = () => {
-      if (loaderMusicRef.current && !loaderMusicRef.current.playing()) {
-        try {
-          loaderMusicRef.current.play();
-        } catch {}
-      }
-    };
-
-    window.addEventListener("click", handleUserInteraction);
-    window.addEventListener("touchstart", handleUserInteraction);
-    window.addEventListener("keydown", handleUserInteraction);
-
     return () => {
       try {
         music.stop();
         music.unload();
       } catch {}
       loaderMusicRef.current = null;
-      window.removeEventListener("click", handleUserInteraction);
-      window.removeEventListener("touchstart", handleUserInteraction);
-      window.removeEventListener("keydown", handleUserInteraction);
     };
   }, []);
 
