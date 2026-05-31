@@ -86,8 +86,12 @@ const Scene = ({
   const preset = GRAPHICS_QUALITY_PRESETS[graphicsQuality];
 
   useEffect(() => {
+    console.log("Canvas: Scene mounted, setting isSceneLoading to false");
     setSceneLoading(false);
-    return () => setSceneLoading(true);
+    return () => {
+      console.log("Canvas: Scene unmounted, setting isSceneLoading to true");
+      setSceneLoading(true);
+    };
   }, [setSceneLoading]);
 
   const isInsideChamber = gameState === "INSIDE_CHAMBER";
@@ -117,8 +121,14 @@ const Scene = ({
 
 const GameInitializer = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
-    const graph = buildJourney();
-    useGameStore.getState().setJourneyGraph(graph);
+    console.log("Canvas: GameInitializer - building journey");
+    try {
+      const graph = buildJourney();
+      useGameStore.getState().setJourneyGraph(graph);
+      console.log("Canvas: GameInitializer - journey graph set successfully");
+    } catch (e) {
+      console.error("Canvas: GameInitializer - failed to build journey", e);
+    }
   }, []);
 
   return <>{children}</>;
@@ -128,6 +138,11 @@ export const GameCanvas = () => {
   // Force remount on hot reload to prevent Three.js state issues
   const [key, setKey] = useState(0);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+
+  useEffect(() => {
+    console.log("Canvas: GameCanvas mounted");
+  }, []);
+
   if (import.meta.turbopackHot) {
     import.meta.turbopackHot.accept(() => {
       setKey((prev) => prev + 1);
@@ -142,6 +157,7 @@ export const GameCanvas = () => {
           alpha: true,
         }}
         onCreated={({ gl }) => {
+          console.log("Canvas: WebGL renderer created");
           rendererRef.current = gl;
           gl.toneMapping = THREE.ACESFilmicToneMapping;
           gl.toneMappingExposure = 1.45;

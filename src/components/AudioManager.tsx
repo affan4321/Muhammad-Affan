@@ -13,13 +13,14 @@ const SFX_CACHE = new Map<string, Howl>();
 // while still respecting the global music slider.
 const BACKGROUND_VOLUME_MULTIPLIERS: Record<string, number> = {
   main: 0.8,
-  "resume-cv": 0.5,
+  "resume-cv": 0.3,
   "who-am-i": 0.15,
-  "social-handles": 0.42,
-  "jewelry-cad": 0.66,
-  "video-editing": 0.36,
-  "game-dev": 0.7,
-  "about-me": 0.6,
+  "social-handles": 0.22,
+  "jewelry-cad": 0.26,
+  "video-editing": 0.26,
+  "game-dev": 0.3,
+  "about-me": 0.3,
+  "ai-journey": 0.3,
 };
 
 const getBackgroundVolumeMultiplier = (bgKey: string) => BACKGROUND_VOLUME_MULTIPLIERS[bgKey] ?? 0.75;
@@ -113,6 +114,7 @@ export default function AudioManager() {
       "video-editing": `${R2_BASE_URL}/audio/bg6.mp3`,
       "game-dev": `${R2_BASE_URL}/audio/bg7.mp3`,
       "about-me": `${R2_BASE_URL}/audio/bg8.mp3`,
+      "ai-journey": `${R2_BASE_URL}/audio/bg9.mp3`,
     };
 
     const bgKey = trackContext === "branch" && activeBranch?.id ? activeBranch.id : "main";

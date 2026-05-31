@@ -26,9 +26,11 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
+      console.log("BootstrapGate: Loading user settings");
       const savedSettings = loadUserSettings();
 
       if (savedSettings) {
+        console.log("BootstrapGate: Found saved settings", savedSettings);
         setInitialName(savedSettings.playerName);
         setInitialQuality(savedSettings.graphicsQuality);
         setPlayerName(savedSettings.playerName);
@@ -37,27 +39,37 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
         if (typeof savedSettings.musicVolume === "number") setMusicVolume(savedSettings.musicVolume);
         if (typeof savedSettings.sfxVolume === "number") setSfxVolume(savedSettings.sfxVolume);
         if (typeof savedSettings.isMuted === "boolean") setMuted(savedSettings.isMuted);
+        setHasCompletedSetup(true);
+        console.log("BootstrapGate: Setup already completed, skipping to game");
+      } else {
+        console.log("BootstrapGate: No saved settings found, showing setup screen");
       }
 
       setIsReady(true);
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
-  }, [setGraphicsQuality, setPlayerName]);
+  }, [setGraphicsQuality, setPlayerName, setMasterVolume, setMusicVolume, setSfxVolume, setMuted]);
 
   const handleStart = (nextPlayerName: string, nextGraphicsQuality: typeof graphicsQuality) => {
+    console.log("BootstrapGate: handleStart called", { nextPlayerName, nextGraphicsQuality });
     setPlayerName(nextPlayerName);
     setGraphicsQuality(nextGraphicsQuality);
     setIsReady(true);
     setHasCompletedSetup(true);
-    saveUserSettings({
-      playerName: nextPlayerName,
-      graphicsQuality: nextGraphicsQuality,
-      masterVolume: 1,
-      musicVolume: 0.8,
-      sfxVolume: 0.9,
-      isMuted: false,
-    });
+    try {
+      saveUserSettings({
+        playerName: nextPlayerName,
+        graphicsQuality: nextGraphicsQuality,
+        masterVolume: 1,
+        musicVolume: 0.8,
+        sfxVolume: 0.9,
+        isMuted: false,
+      });
+      console.log("BootstrapGate: Settings saved successfully");
+    } catch (e) {
+      console.error("BootstrapGate: Failed to save settings", e);
+    }
   };
 
   if (!isReady) {

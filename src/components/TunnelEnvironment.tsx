@@ -15,8 +15,9 @@ import {
   getRailSegmentCount,
 } from "@/lib/pathGeometry";
 import { SMART_MAP_MARKERS, type SmartMapMarker } from "@/lib/smartMap";
+import { R2_BASE_URL } from "@/lib/sceneProps";
 
-useGLTF.preload("/models/railway track.glb");
+useGLTF.preload(`${R2_BASE_URL}/models/railway%20track.glb`);
 
 const getFlatYaw = (direction: THREE.Vector3) => {
   const flatDirection = direction.clone();
@@ -167,7 +168,7 @@ const RailwayTracksForCurve = ({
   skipStartFraction?: number;
   tieSpacing?: number;
 }) => {
-  const gltf = useGLTF("/models/railway track.glb");
+  const gltf = useGLTF(`${R2_BASE_URL}/models/railway%20track.glb`);
 
   const { segmentCount, yawOffset } = useMemo(() => {
     if (!gltf?.scene) {

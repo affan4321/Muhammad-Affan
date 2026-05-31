@@ -55,6 +55,7 @@ export const SetupScreen = ({ initialName, initialQuality, onStart }: SetupScree
         <form
           onSubmit={(event) => {
             event.preventDefault();
+            console.log("SetupScreen: Form submitted", { playerName, graphicsQuality });
             onStart(playerName.trim() || "Traveler", graphicsQuality);
           }}
           style={{ marginTop: 28, display: "grid", gap: 20 }}

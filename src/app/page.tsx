@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { GameCanvas } from "@/components";
 import { BootstrapGate } from "@/components/BootstrapGate";
 import { DebugUI } from "@/components/DebugUI";
@@ -12,6 +13,10 @@ import { useGameStore } from "@/store/gameStore";
 
 export default function Home() {
   const isSceneLoading = useGameStore((state) => state.isSceneLoading);
+
+  useEffect(() => {
+    console.log("Home: Component mounted, isSceneLoading =", isSceneLoading);
+  }, [isSceneLoading]);
 
   return (
     <div style={{ width: "100%", height: "100vh", overflow: "hidden" }} suppressHydrationWarning>
