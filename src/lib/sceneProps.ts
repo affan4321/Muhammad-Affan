@@ -59,7 +59,7 @@ export const SCENE_PROPS: ScenePropPlacement[] = [
     offset: [0, 0, 0],
     rotation: [0, 2 * Math.PI, 0],
     minMainSegment: 1,
-    patrol: { startT: 0.9, endT: 0.4, speed: 0.2 },
+    patrol: { startT: 0.8, endT: 0.6, speed: 0.2 },
   },
   {
     trackId: "resume-cv",
@@ -104,7 +104,7 @@ export const SCENE_PROPS: ScenePropPlacement[] = [
     offset: [3, 0, 0],
     rotation: [0, 2 * Math.PI, 0],
     minMainSegment: 3,
-    patrol: { startT: 0.9, endT: 0.4, speed: 0.2 },
+    patrol: { startT: 0.8, endT: 0.6, speed: 0.2 },
   },
   {
     trackId: "main",
@@ -147,15 +147,18 @@ export const SCENE_PROPS: ScenePropPlacement[] = [
   },
 ];
 
+/** R2 base URL for assets */
+export const R2_BASE_URL = "https://pub-2dc0246a33d14fbba39a4b4de04f1c46.r2.dev";
+
 /** GLB paths — keep in sync with public/models */
 export const SCENE_PROP_URLS: Record<ScenePropModel, string> = {
-  horror1: "/models/horror 1.glb",
-  horror11: "/models/horror 1.1.glb",
-  horror3: "/models/horror 3.glb",
-  horror6: "/models/horror 6.glb",
-  horror7: "/models/horror 7.glb",
-  horror8: "/models/horror 8.glb",
-  horror9: "/models/horror 9.glb",
-  horrorLight: "/models/horror light.glb",
-  dog: "/models/dog.glb",
+  horror1: `${R2_BASE_URL}/models/horror%201.glb`,
+  horror11: `${R2_BASE_URL}/models/horror%201.1.glb`,
+  horror3: `${R2_BASE_URL}/models/horror%203.glb`,
+  horror6: `${R2_BASE_URL}/models/horror%206.glb`,
+  horror7: `${R2_BASE_URL}/models/horror%207.glb`,
+  horror8: `${R2_BASE_URL}/models/horror%208.glb`,
+  horror9: `${R2_BASE_URL}/models/horror%209.glb`,
+  horrorLight: `${R2_BASE_URL}/models/horror%20light.glb`,
+  dog: `${R2_BASE_URL}/models/dog.glb`,
 };

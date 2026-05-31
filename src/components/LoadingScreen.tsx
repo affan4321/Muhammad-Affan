@@ -1,15 +1,15 @@
 "use client";
 
-import { Suspense, useRef, useState } from "react";
-import { Html, Center, PerspectiveCamera, useProgress, useGLTF } from "@react-three/drei";
+import React, { useEffect, useRef } from "react";
+import { Html, Center, PerspectiveCamera, useGLTF, useProgress } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
+import { Howl } from "howler";
 import * as THREE from "three";
 import { useGameStore } from "@/store/gameStore";
-
-useGLTF.preload("/models/muhammad-affan-model-compressed.glb");
+import { R2_BASE_URL } from "@/lib/sceneProps";
 
 const LoadingModel = () => {
-  const { scene } = useGLTF("/models/muhammad-affan-model-compressed.glb");
+  const { scene } = useGLTF(`${R2_BASE_URL}/models/muhammad-affan-model-compressed.glb`);
 
   return (
     <Center>
@@ -22,13 +22,93 @@ export const LoadingScreen = () => {
   const progress = useProgress((state) => state.progress);
   const isSceneLoading = useGameStore((state) => state.isSceneLoading);
   const modelGroup = useRef<THREE.Group | null>(null);
-  const [displayProgress, setDisplayProgress] = useState(0);
+  const progressTextRef = useRef<HTMLDivElement | null>(null);
   const maxProgress = useRef(0);
+  const loaderMusicRef = useRef<Howl | null>(null);
+
+  useEffect(() => {
+    // Stop any existing audio before creating new instance
+    if (loaderMusicRef.current) {
+      try {
+        loaderMusicRef.current.stop();
+        loaderMusicRef.current.unload();
+      } catch {}
+      loaderMusicRef.current = null;
+    }
+
+    const music = new Howl({
+      src: [`${R2_BASE_URL}/audio/GTA%20San%20Andreas%20Theme.mp3`],
+      loop: true,
+      volume: 0.85,
+      html5: true,
+      preload: true,
+      onload: () => {
+        console.log("LoadingScreen: Audio loaded successfully");
+        // Only play if not already playing
+        if (!music.playing()) {
+          try {
+            music.play();
+            console.log("LoadingScreen: Audio started playing on load");
+          } catch (e) {
+            console.error("Failed to play audio on load:", e);
+          }
+        }
+      },
+      onloaderror: (id, error) => {
+        console.error("Audio load error:", error);
+      },
+      onplayerror: (id, error) => {
+        console.error("Audio play error:", error);
+      },
+    });
+
+    loaderMusicRef.current = music;
+
+    // Try to play immediately
+    if (!music.playing()) {
+      try {
+        music.play();
+        console.log("LoadingScreen: Attempted to play audio immediately");
+      } catch (e) {
+        console.error("Failed to play audio immediately:", e);
+      }
+    }
+
+    const playWhenReady = () => {
+      if (loaderMusicRef.current === music && !music.playing()) {
+        try {
+          music.play();
+          console.log("LoadingScreen: Audio started playing on interaction");
+        } catch (e) {
+          console.error("Failed to play audio on interaction:", e);
+        }
+      }
+    };
+
+    const handleUserInteraction = () => {
+      playWhenReady();
+    };
+
+    window.addEventListener("click", handleUserInteraction);
+    window.addEventListener("touchstart", handleUserInteraction);
+    window.addEventListener("keydown", handleUserInteraction);
+
+    return () => {
+      try {
+        music.stop();
+        music.unload();
+      } catch {}
+      loaderMusicRef.current = null;
+      window.removeEventListener("click", handleUserInteraction);
+      window.removeEventListener("touchstart", handleUserInteraction);
+      window.removeEventListener("keydown", handleUserInteraction);
+    };
+  }, []);
 
   useFrame((_, delta) => {
     // Stop useFrame when not loading to prevent performance drain
     if (!isSceneLoading) return;
-    
+
     if (modelGroup.current) {
       modelGroup.current.rotation.y += delta * 0.6;
     }
@@ -36,7 +116,9 @@ export const LoadingScreen = () => {
     const nextProgress = Math.min(100, progress);
     if (nextProgress > maxProgress.current) {
       maxProgress.current = nextProgress;
-      setDisplayProgress(nextProgress);
+      if (progressTextRef.current) {
+        progressTextRef.current.textContent = nextProgress.toFixed(1);
+      }
     }
   });
 
@@ -51,10 +133,10 @@ export const LoadingScreen = () => {
       <directionalLight position={[-7, 2.5, 7]} intensity={3.6} color="#ffd2b8" />
       <directionalLight position={[6, 0, -4]} intensity={0.35} color="#5a1820" />
 
-      <group ref={modelGroup} position={[-1.05, -0.3, 0]} scale={4}>
-        <Suspense fallback={null}>
+      <group ref={modelGroup} position={[-1.05, -0.3, 0]} scale={window.innerWidth <= 768 ? 3 : 4}>
+        <React.Suspense fallback={null}>
           <LoadingModel />
-        </Suspense>
+        </React.Suspense>
       </group>
 
       <Html
@@ -67,7 +149,7 @@ export const LoadingScreen = () => {
             width: "100%",
             height: "100%",
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns: window.innerWidth <= 768 ? "1fr" : "1fr 1fr",
             color: "#ffd9d9",
             fontFamily:
               'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
@@ -96,11 +178,14 @@ export const LoadingScreen = () => {
               gap: 10,
             }}
           >
-            <div style={{ fontSize: 18, fontWeight: 600, letterSpacing: "0.18em" }}>
+            <div style={{ fontSize: "clamp(14px, 3vw, 18px)", fontWeight: 600, letterSpacing: "0.18em" }}>
               Loading...
             </div>
-            <div style={{ fontSize: 82, fontWeight: 600, lineHeight: 0.92, color: "#ff6e6e" }}>
-              {displayProgress.toFixed(1)}
+            <div
+              ref={progressTextRef}
+              style={{ fontSize: "clamp(48px, 8vw, 82px)", fontWeight: 600, lineHeight: 0.92, color: "#ff6e6e" }}
+            >
+              0.0
             </div>
           </div>
         </div>

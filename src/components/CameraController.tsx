@@ -49,14 +49,10 @@ export const CameraController = () => {
     const handleMouseMove = (event: MouseEvent) => {
       if (useGameStore.getState().isDebugCameraLocked) return;
 
-      const sensitivity = 0.0025;
+      const sensitivity = 0.0035;
 
       targetYaw.current -= event.movementX * sensitivity;
-      targetPitch.current = MathUtils.clamp(
-        targetPitch.current - event.movementY * sensitivity,
-        -0.5,
-        0.5
-      );
+      targetPitch.current -= event.movementY * sensitivity;
     };
 
     window.addEventListener("mousemove", handleMouseMove);

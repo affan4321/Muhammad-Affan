@@ -4,7 +4,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Dark Tunnel - Portfolio Experience",
   description:
-    "An immersive 3D portfolio journey through a dark tunnel on a cart",
+    "An immersive 3D portfolio journey through a dark train track on a cart",
+  icons: {
+    icon: "/LatestFace.svg",
+  },
 };
 
 export default function RootLayout({

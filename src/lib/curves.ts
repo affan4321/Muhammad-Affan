@@ -128,6 +128,7 @@ export const generateDemoTracks = () => {
     ])
   );
 
+  
   return {
     mainTrack,
     firstPaths: [

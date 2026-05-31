@@ -61,7 +61,9 @@ export const Cart = () => {
   const trackContext = useGameStore((state) => state.trackContext);
   const mainSegmentIndex = useGameStore((state) => state.mainSegmentIndex);
   const isDebugCameraLocked = useGameStore((state) => state.isDebugCameraLocked);
+  const isUiPaused = useGameStore((state) => state.isUiPaused);
   const setDebugCameraLocked = useGameStore((state) => state.setDebugCameraLocked);
+  const setCartMoving = useGameStore((state) => state.setCartMoving);
   const { camera } = useThree();
   const scene = useThree((state) => state.scene);
   const { getSmoothedLook } = useCartMouseLook();
@@ -111,11 +113,29 @@ export const Cart = () => {
   useFrame(() => {
     if (!groupRef.current || !camera) return;
 
-    if (isDebugCameraLocked) {
+    let didMoveThisFrame = false;
+
+    // Stop cart from controlling camera when inside chamber
+    if (gameState === "INSIDE_CHAMBER") {
+      setCartMoving(false);
       if (rigAttachedRef.current && camera.parent === groupRef.current) {
         scene.attach(camera);
         rigAttachedRef.current = false;
       }
+      return;
+    }
+
+    if (isDebugCameraLocked) {
+      setCartMoving(false);
+      if (rigAttachedRef.current && camera.parent === groupRef.current) {
+        scene.attach(camera);
+        rigAttachedRef.current = false;
+      }
+      return;
+    }
+
+    if (isUiPaused) {
+      setCartMoving(false);
       return;
     }
 
@@ -131,8 +151,9 @@ export const Cart = () => {
 
     if (!currentTrack || gameState === "IDLE") return;
 
-    if (gameState === "CHOOSING_PATH" || gameState === "INSIDE_CAVE") {
+    if (gameState === "CHOOSING_PATH") {
       placeCart(segmentProgress);
+      setCartMoving(false);
       return;
     }
 
@@ -142,16 +163,20 @@ export const Cart = () => {
 
     if (isMovingBackward && newProgress < 0) {
       if (trackContext === "branch") {
+        setCartMoving(false);
         returnFromBranchToFork();
         return;
       }
       if (trackContext === "main" && mainSegmentIndex > 0) {
+        setCartMoving(false);
         stepToPreviousMainSegment();
         return;
       }
     }
 
     newProgress = Math.max(0, Math.min(1, newProgress));
+    didMoveThisFrame = Math.abs(newProgress - segmentProgress) > 0.00001;
+    setCartMoving(didMoveThisFrame);
     setSegmentProgress(newProgress);
     placeCart(newProgress);
   });

@@ -2,16 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useGameStore } from "@/store/gameStore";
+import { GRAPHICS_QUALITY_PRESETS } from "@/lib/graphicsQuality";
 
 export const DebugUI = () => {
   const segmentProgress = useGameStore((state) => state.segmentProgress);
   const overallProgress = useGameStore((state) => state.overallProgress);
-  const gameState = useGameStore((state) => state.gameState);
   const trackContext = useGameStore((state) => state.trackContext);
   const mainSegmentIndex = useGameStore((state) => state.mainSegmentIndex);
-  const totalCaves = useGameStore((state) => state.totalCaves);
   const activeBranch = useGameStore((state) => state.activeBranch);
+  const playerName = useGameStore((state) => state.playerName);
+  const graphicsQuality = useGameStore((state) => state.graphicsQuality);
   const [fps, setFps] = useState(0);
+  const qualityLabel = GRAPHICS_QUALITY_PRESETS[graphicsQuality].label;
 
   useEffect(() => {
     let frameId = 0;
@@ -66,11 +68,13 @@ export const DebugUI = () => {
       }}
     >
       <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+        <div style={{ fontWeight: 700, fontSize: "13px", color: "#9dffb9" }}>{playerName}</div>
         <div style={{ fontWeight: 600, fontSize: "14px" }}>{segmentLabel}</div>
         <div style={{ display: "flex", gap: "16px", fontSize: "12px", color: "rgba(255, 255, 255, 0.8)" }}>
           <span>Progress: {(segmentProgress * 100).toFixed(0)}%</span>
           <span>Overall: {(overallProgress * 100).toFixed(0)}%</span>
           <span>FPS: {fps.toFixed(0)}</span>
+          <span>Quality: {qualityLabel}</span>
         </div>
       </div>
     </div>

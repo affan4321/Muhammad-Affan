@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { GameStoreState, JourneyGraph, TrackContext } from "./types";
 import { Vector3 } from "three";
-import { buildJourney, collectAllPathCurves, getForkChoices, getSegmentCurve, syncOverallProgress } from "@/lib/journey";
+import { buildJourney, collectAllPathCurves, getSegmentCurve, syncOverallProgress } from "@/lib/journey";
 import type { GraphicsQuality } from "@/lib/graphicsQuality";
 
 export const useGameStore = create<GameStoreState>((set, get) => ({
@@ -200,22 +200,45 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       ? state.completedChambers
       : Math.min(state.completedChambers + 1, state.totalChambers);
 
-    const currentSegment = graph.segments[state.mainSegmentIndex];
-    const atFork = getSegmentCurve(graph, state.mainSegmentIndex);
+    const nextIndex = state.mainSegmentIndex + 1;
+    const nextCurve = getSegmentCurve(graph, nextIndex);
+
+    if (!nextCurve) {
+      const atFork = getSegmentCurve(graph, state.mainSegmentIndex);
+      set({
+        completedChamberIds,
+        completedChambers,
+        activeBranch: null,
+        trackContext: "main" as TrackContext,
+        currentTrack: atFork,
+        segmentProgress: 0.99,
+        gameState: "RIDING",
+        availablePaths: [],
+        overallProgress: syncOverallProgress(
+          "main",
+          state.mainSegmentIndex,
+          0.99,
+          completedChambers,
+          state.totalChambers
+        ),
+      });
+      return;
+    }
 
     set({
       completedChamberIds,
       completedChambers,
       activeBranch: null,
       trackContext: "main" as TrackContext,
-      currentTrack: atFork,
-      segmentProgress: 0.99,
+      currentTrack: nextCurve,
+      mainSegmentIndex: nextIndex,
+      segmentProgress: 0,
+      availablePaths: [],
       gameState: "RIDING",
-      availablePaths: getForkChoices(currentSegment),
       overallProgress: syncOverallProgress(
         "main",
-        state.mainSegmentIndex,
-        0.99,
+        nextIndex,
+        0,
         completedChambers,
         state.totalChambers
       ),

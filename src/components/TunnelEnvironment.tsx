@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import * as THREE from "three";
 import { useGameStore } from "@/store/gameStore";
 import HorrorModel2 from "./models/HorrorModel2";
@@ -8,12 +8,13 @@ import HorrorModel4 from "./models/HorrorModel4";
 import HorrorModel5 from "./models/HorrorModel5";
 import HorrorModel9 from "./models/HorrorModel9";
 import StreetLampModel from "./models/StreetLampModel";
-import { useGLTF } from "@react-three/drei";
+import { Html, RoundedBox, Text, useGLTF } from "@react-three/drei";
 import {
   BRANCH_RAIL_SKIP,
   TERMINAL_BRANCH_RAIL_SKIP,
   getRailSegmentCount,
 } from "@/lib/pathGeometry";
+import { SMART_MAP_MARKERS, type SmartMapMarker } from "@/lib/smartMap";
 
 useGLTF.preload("/models/railway track.glb");
 
@@ -23,6 +24,132 @@ const getFlatYaw = (direction: THREE.Vector3) => {
   if (flatDirection.lengthSq() === 0) flatDirection.set(0, 0, 1);
   flatDirection.normalize();
   return Math.atan2(flatDirection.x, flatDirection.z);
+};
+
+const SmartMapBoard = ({
+  curve,
+  marker,
+}: {
+  curve: THREE.Curve<THREE.Vector3>;
+  marker: SmartMapMarker;
+}) => {
+  const currentPosition = useGameStore((state) => state.currentPosition);
+  const overallProgress = useGameStore((state) => state.overallProgress);
+  const openMapBoardId = useGameStore((state) => state.openMapBoardId);
+  const setFocusedMapBoardId = useGameStore((state) => state.setFocusedMapBoardId);
+  const setOpenMapBoardId = useGameStore((state) => state.setOpenMapBoardId);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const { point, yaw } = useMemo(() => {
+    const sample = curve.getPointAt(marker.t);
+    const tangent = curve.getTangentAt(marker.t).normalize();
+    return { point: sample, yaw: getFlatYaw(tangent) };
+  }, [curve, marker.t]);
+
+  const boardPosition = useMemo(
+    () => new THREE.Vector3(point.x, point.y + 1.1, point.z),
+    [point]
+  );
+
+  const distance = boardPosition.distanceTo(currentPosition);
+  const isNear = distance <= 7;
+  const isOpen = openMapBoardId === marker.id;
+
+  return (
+    <group position={[point.x, point.y, point.z]} rotation={[0, yaw, 0]}>
+      <mesh position={[2.6, 0.55, 0]} castShadow receiveShadow>
+        <boxGeometry args={[0.12, 1.2, 0.12]} />
+        <meshStandardMaterial color="#24a624" metalness={0.08} roughness={0.88} />
+      </mesh>
+
+      <RoundedBox
+        position={[2.5, 1.3, 0]}
+        castShadow 
+          scale={isHovered ? 1.1 : 1}
+        onPointerOver={(event) => {
+          event.stopPropagation();
+          setIsHovered(true);
+          setFocusedMapBoardId(marker.id);
+          
+        }}
+        onPointerOut={(event) => {
+          event.stopPropagation();
+          setIsHovered(false);
+          setFocusedMapBoardId(null);
+        }}
+        onClick={(event) => {
+          event.stopPropagation();
+          setOpenMapBoardId(marker.id);
+          if (typeof window !== "undefined") {
+            try {
+              (window as any).__DT_PLAY_SFX?.("458585__inspectorj__ui-mechanical-select-01-fx.mp3");
+            } catch {}
+          }
+        }}
+        args={[0.2, 0.95, 0.75]}
+        radius={0.09}
+        smoothness={8}
+        
+      >
+        <meshStandardMaterial
+          emissive={isHovered ? "#0caf42" : "#17520c"}
+          emissiveIntensity={isHovered ? 0.22 : 0.08}
+          metalness={0.12}
+          roughness={0.5}
+          
+        />
+      </RoundedBox>
+
+      <Text
+        position={[2.38, 1.55, 0.02]}
+        rotation={[0, 3 * Math.PI / 2 , 0]}
+        fontSize={0.1}
+        maxWidth={0.68}
+        lineHeight={1.15}
+        anchorX="center"
+        anchorY="middle"
+        color="#9dffb9"
+      >
+        MAP BOX
+      </Text>
+      <Text
+        position={[2.38, 1.15, 0.02]}
+        rotation={[0, 3 * Math.PI / 2, 0]}
+        fontSize={0.075}
+        maxWidth={0.68}
+        lineHeight={1.2}
+        anchorX="center"
+        anchorY="middle"
+        color="#8fd1a2"
+      >
+        {`${Math.round(overallProgress * 100)}% PATH`}
+      </Text>
+
+      {isNear && !isOpen && (
+        <Html 
+        position={[2.5, 2, 0]}
+        transform distanceFactor={7.5}
+        rotation={[0, 3 * Math.PI / 2, 0]}
+        >
+          <div
+            style={{
+              background: "rgba(0, 0, 0, 0.86)",
+              border: "1px solid rgba(24, 255, 95, 0.45)",
+              color: "#9dffb9",
+              fontSize: "3px",
+              letterSpacing: "0.05em",
+              borderRadius: "8px",
+              padding: "3px 6px",
+              whiteSpace: "nowrap",
+              pointerEvents: "none",
+            }}
+          >
+            Click to open map
+          </div>
+        </Html>
+      )}
+    </group>
+  );
 };
 
 const RailwayTracksForCurve = ({
@@ -98,6 +225,18 @@ export const TunnelEnvironment = () => {
   const journey = useGameStore((state) => state.journey);
   const trackContext = useGameStore((state) => state.trackContext);
   const mainSegmentIndex = useGameStore((state) => state.mainSegmentIndex);
+  const gameState = useGameStore((state) => state.gameState);
+  const isMapBoardOpen = useGameStore((state) => Boolean(state.openMapBoardId));
+
+  const visibleSmartMapMarkers = useMemo(
+    () =>
+      SMART_MAP_MARKERS.filter((marker, index) => {
+        if (gameState === "INSIDE_CHAMBER" || isMapBoardOpen) return false;
+        if (mainSegmentIndex <= 0) return index === 0;
+        return index <= Math.min(mainSegmentIndex + 1, SMART_MAP_MARKERS.length - 1);
+      }),
+    [gameState, isMapBoardOpen, mainSegmentIndex]
+  );
 
   const branchPaths = useMemo(() => {
     const list: {
@@ -197,6 +336,9 @@ export const TunnelEnvironment = () => {
               </group>
             );
           })()}
+          {visibleSmartMapMarkers.map((marker) => (
+            <SmartMapBoard key={marker.id} curve={mainSpine} marker={marker} />
+          ))}
         </>
       )}
 

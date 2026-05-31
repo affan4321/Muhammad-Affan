@@ -36,9 +36,15 @@ yarn-error.log*
 # vercel
 .vercel
 
+# cloudflare
+.wrangler
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
 # huge asset files
 /public/models/*
+
+# audio files
+/public/audio/*

@@ -7,7 +7,7 @@ import { getForkChoices } from "@/lib/journey";
 const END_THRESHOLD = 1;
 const BACKTRACK_CLEAR = 0.82;
 
-export const CaveTrigger = () => {
+export const ChamberTrigger = () => {
   const currentTrack = useGameStore((s) => s.currentTrack);
   const segmentProgress = useGameStore((s) => s.segmentProgress);
   const gameState = useGameStore((s) => s.gameState);
@@ -33,7 +33,7 @@ export const CaveTrigger = () => {
     forkTriggeredRef.current = true;
 
     if (trackContext === "branch") {
-      setGameState("INSIDE_CAVE");
+      setGameState("INSIDE_CHAMBER");
       return;
     }
 
@@ -65,7 +65,7 @@ export const CaveTrigger = () => {
   }, [gameState, segmentProgress, setGameState, setAvailablePaths]);
 
   useEffect(() => {
-    if (gameState === "INSIDE_CAVE" && segmentProgress < BACKTRACK_CLEAR) {
+    if (gameState === "INSIDE_CHAMBER" && segmentProgress < BACKTRACK_CLEAR) {
       setGameState("RIDING");
       forkTriggeredRef.current = false;
     }
@@ -74,4 +74,4 @@ export const CaveTrigger = () => {
   return null;
 };
 
-export default CaveTrigger;
+export default ChamberTrigger;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useGameStore } from "@/store/gameStore";
 import { PathOption } from "@/store/types";
 
@@ -32,14 +32,16 @@ const PathButton = ({
       cursor: "pointer",
       fontWeight: "bold",
       transition: "all 0.2s",
-      minWidth: "110px",
+      flex: 1,
+      minWidth: "140px",
+      maxWidth: "200px",
       textAlign: "center",
     }}
   >
     {path.label}
     {path.kind === "branch" && (
       <div style={{ fontSize: "10px", marginTop: "4px", opacity: 0.8 }}>
-        → Information Igloo
+        → Information Chamber
       </div>
     )}
   </div>
@@ -52,35 +54,32 @@ export const PathSelector = () => {
   const gameState = useGameStore((state) => state.gameState);
   const availablePaths = useGameStore((state) => state.availablePaths);
   const selectPathAtFork = useGameStore((state) => state.selectPathAtFork);
+  const returnToBeginning = useGameStore((state) => state.returnToBeginning);
   const mainSegmentIndex = useGameStore((state) => state.mainSegmentIndex);
   const journey = useGameStore((state) => state.journey);
 
-  const { leftPaths, centerPath, rightPaths, flatList } = useMemo(() => {
+  const { flatList } = useMemo(() => {
     const branches = availablePaths.filter((p) => p.kind === "branch");
     const cont = availablePaths.find((p) => p.kind === "continue") ?? null;
     const left = branches.filter((p) => p.side !== "right");
     const right = branches.filter((p) => p.side === "right");
     const flat: PathOption[] = [...left, ...(cont ? [cont] : []), ...right];
     return {
-      leftPaths: left,
-      centerPath: cont,
-      rightPaths: right,
       flatList: flat,
     };
   }, [availablePaths]);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  useEffect(() => {
-    setSelectedIndex(0);
-  }, [availablePaths]);
-
-  const confirmSelection = (index: number) => {
+  const confirmSelection = useCallback((index: number) => {
     const path = flatList[index];
     if (!path) return;
     selectPathAtFork(path);
     setSelectedIndex(0);
-  };
+  }, [flatList, selectPathAtFork]);
+
+  const safeSelectedIndex =
+    flatList.length === 0 ? 0 : Math.min(selectedIndex, flatList.length - 1);
 
   useEffect(() => {
     if (gameState !== "CHOOSING_PATH" || flatList.length === 0) return;
@@ -95,7 +94,7 @@ export const PathSelector = () => {
           break;
         case "Enter":
           e.preventDefault();
-          confirmSelection(selectedIndex);
+          confirmSelection(safeSelectedIndex);
           break;
         default:
           break;
@@ -104,7 +103,7 @@ export const PathSelector = () => {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [gameState, flatList, selectedIndex, selectPathAtFork]);
+  }, [gameState, flatList, safeSelectedIndex, confirmSelection]);
 
   if (gameState !== "CHOOSING_PATH" || flatList.length === 0) {
     return null;
@@ -113,15 +112,15 @@ export const PathSelector = () => {
   const forkLabel = journey[mainSegmentIndex]?.forkLabel ?? "Choose Your Path";
   const isTerminalFork = journey[mainSegmentIndex]?.isTerminalFork;
 
-  const selectedId = flatList[selectedIndex]?.id;
+  const selectedId = flatList[safeSelectedIndex]?.id;
 
   return (
     <div
       style={{
         position: "fixed",
-        bottom: 40,
+        top: "50%",
         left: "50%",
-        transform: "translateX(-50%)",
+        transform: "translate(-50%, -50%)",
         backgroundColor: "rgba(0, 0, 0, 0.92)",
         border: "2px solid #0f0",
         borderRadius: "8px",
@@ -140,73 +139,45 @@ export const PathSelector = () => {
 
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "1fr auto 1fr",
+          display: "flex",
+          justifyContent: "center",
           alignItems: "center",
           gap: "16px",
+          flexWrap: "wrap",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "12px",
-            justifyContent: "flex-end",
-          }}
-        >
-          {leftPaths.map((path) => (
-            <PathButton
-              key={path.id}
-              path={path}
-              selected={selectedId === path.id}
-              onSelect={() => setSelectedIndex(flatList.findIndex((p) => p.id === path.id))}
-              onConfirm={() =>
-                confirmSelection(flatList.findIndex((p) => p.id === path.id))
-              }
-            />
-          ))}
-        </div>
-
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          {centerPath ? (
-            <PathButton
-              path={centerPath}
-              selected={selectedId === centerPath.id}
-              onSelect={() =>
-                setSelectedIndex(flatList.findIndex((p) => p.id === centerPath.id))
-              }
-              onConfirm={() =>
-                confirmSelection(flatList.findIndex((p) => p.id === centerPath.id))
-              }
-            />
-          ) : null}
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "12px",
-            justifyContent: "flex-start",
-          }}
-        >
-          {rightPaths.map((path) => (
-            <PathButton
-              key={path.id}
-              path={path}
-              selected={selectedId === path.id}
-              onSelect={() => setSelectedIndex(flatList.findIndex((p) => p.id === path.id))}
-              onConfirm={() =>
-                confirmSelection(flatList.findIndex((p) => p.id === path.id))
-              }
-            />
-          ))}
-        </div>
+        {flatList.map((path, index) => (
+          <PathButton
+            key={path.id}
+            path={path}
+            selected={selectedId === path.id}
+            onSelect={() => setSelectedIndex(index)}
+            onConfirm={() => confirmSelection(index)}
+          />
+        ))}
       </div>
 
       <p style={{ color: "#888", marginTop: "15px", fontSize: "12px" }}>
-        ← → Select (left · center main · right) | Enter Confirm
+        ← → Select | Enter Confirm
       </p>
+
+      <button
+        type="button"
+        onClick={() => returnToBeginning()}
+        style={{
+          marginTop: "10px",
+          padding: "8px 16px",
+          backgroundColor: "transparent",
+          color: "#0f0",
+          border: "1px solid #0f0",
+          borderRadius: "4px",
+          fontWeight: "bold",
+          cursor: "pointer",
+          fontSize: "12px",
+        }}
+      >
+        Beginning
+      </button>
     </div>
   );
 };
