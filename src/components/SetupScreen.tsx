@@ -32,6 +32,8 @@ export const SetupScreen = ({ initialName, initialQuality, onStart }: SetupScree
       <div
         style={{
           width: "min(920px, 94vw)",
+          maxHeight: "90vh",
+          overflowY: "auto",
           borderRadius: "clamp(16px, 3vw, 24px)",
           border: "1px solid rgba(160, 255, 183, 0.2)",
           background: "rgba(7, 9, 8, 0.92)",
@@ -82,7 +84,7 @@ export const SetupScreen = ({ initialName, initialQuality, onStart }: SetupScree
 
           <div style={{ display: "grid", gap: 12 }}>
             <span style={{ fontSize: "clamp(12px, 2.5vw, 13px)", letterSpacing: "0.08em", color: "#9dffb9" }}>Graphics Quality</span>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12 }}>
               {GRAPHICS_QUALITY_ORDER.map((quality) => {
                 const preset = GRAPHICS_QUALITY_PRESETS[quality];
                 const isSelected = graphicsQuality === quality;
@@ -104,8 +106,8 @@ export const SetupScreen = ({ initialName, initialQuality, onStart }: SetupScree
                       transform: isSelected ? "translateY(-1px)" : "translateY(0)",
                     }}
                   >
-                    <div style={{ fontSize: "clamp(16px, 3vw, 18px)", fontWeight: 700, marginBottom: 6 }}>{preset.label}</div>
-                    <div style={{ fontSize: "clamp(11px, 2vw, 12px)", color: "rgba(231, 255, 233, 0.7)", lineHeight: 1.5 }}>
+                    <div style={{ fontSize: "clamp(14px, 3vw, 18px)", fontWeight: 700, marginBottom: 6 }}>{preset.label}</div>
+                    <div style={{ fontSize: "clamp(10px, 2vw, 12px)", color: "rgba(231, 255, 233, 0.7)", lineHeight: 1.5 }}>
                       {preset.description}
                     </div>
                   </button>
@@ -114,8 +116,8 @@ export const SetupScreen = ({ initialName, initialQuality, onStart }: SetupScree
             </div>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap", flexDirection: window.innerWidth <= 768 ? "column" : "row" }}>
-            <div style={{ fontSize: "clamp(11px, 2vw, 12px)", color: "rgba(231, 255, 233, 0.7)", textAlign: window.innerWidth <= 768 ? "center" : "left" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap", flexDirection: "column" }}>
+            <div style={{ fontSize: "clamp(11px, 2vw, 12px)", color: "rgba(231, 255, 233, 0.7)", textAlign: "center" }}>
               You can change graphics mode later from the gear menu.
             </div>
             <button
@@ -135,7 +137,7 @@ export const SetupScreen = ({ initialName, initialQuality, onStart }: SetupScree
                 transform: isButtonHovered ? " scale(1.05) " : "translateY(0)",
                 transition: "transform 0.2s ease",
                 fontSize: "clamp(14px, 2.5vw, 16px)",
-                width: window.innerWidth <= 768 ? "100%" : "auto",
+                width: "100%",
               }}
             >
               Begin Journey
