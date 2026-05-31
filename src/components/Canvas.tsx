@@ -67,9 +67,21 @@ const RendererQualityController = ({
     if (!renderer) return;
 
     console.log("Canvas: Setting renderer quality", { graphicsQuality, preset });
+
+    // Aggressive pixel ratio capping for mobile to prevent memory issues
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const maxPixelRatio = isMobile ? 1.5 : preset.pixelRatio;
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, maxPixelRatio);
+
+    console.log("Canvas: Setting pixel ratio", {
+      devicePixelRatio: window.devicePixelRatio,
+      presetPixelRatio: preset.pixelRatio,
+      isMobile,
+      maxPixelRatio,
+      targetPixelRatio: pixelRatio,
+    });
+
     renderer.toneMappingExposure = preset.exposure;
-    const pixelRatio = Math.min(window.devicePixelRatio || 1, preset.pixelRatio);
-    console.log("Canvas: Setting pixel ratio", { devicePixelRatio: window.devicePixelRatio, targetPixelRatio: pixelRatio });
     renderer.setPixelRatio(pixelRatio);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = preset.shadowMapType;
@@ -91,6 +103,17 @@ const Scene = ({
   useEffect(() => {
     console.log("Canvas: Scene mounted, setting isSceneLoading to false");
     setSceneLoading(false);
+
+    // Log memory usage if available
+    if ((performance as any).memory) {
+      const memory = (performance as any).memory;
+      console.log("Canvas: Memory usage", {
+        usedJSHeapSize: (memory.usedJSHeapSize / 1048576).toFixed(2) + " MB",
+        totalJSHeapSize: (memory.totalJSHeapSize / 1048576).toFixed(2) + " MB",
+        jsHeapSizeLimit: (memory.jsHeapSizeLimit / 1048576).toFixed(2) + " MB",
+      });
+    }
+
     return () => {
       console.log("Canvas: Scene unmounted, setting isSceneLoading to true");
       setSceneLoading(true);
