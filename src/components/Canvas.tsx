@@ -24,8 +24,14 @@ import { SCENE_PROP_URLS, R2_BASE_URL } from "@/lib/sceneProps";
 import { LoadingScreen } from "./LoadingScreen";
 import { GRAPHICS_QUALITY_PRESETS } from "@/lib/graphicsQuality";
 
-Object.values(SCENE_PROP_URLS).forEach((url) => useGLTF.preload(url));
-useGLTF.preload(`${R2_BASE_URL}/models/dog.glb`);
+// Disable aggressive preloading on mobile to prevent memory issues
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+if (!isMobile) {
+  Object.values(SCENE_PROP_URLS).forEach((url) => useGLTF.preload(url));
+  useGLTF.preload(`${R2_BASE_URL}/models/dog.glb`);
+} else {
+  console.log("Canvas: Skipping model preloading on mobile to save memory");
+}
 
 if (import.meta.turbopackHot) {
   import.meta.turbopackHot.dispose(() => {
@@ -83,8 +89,15 @@ const RendererQualityController = ({
 
     renderer.toneMappingExposure = preset.exposure;
     renderer.setPixelRatio(pixelRatio);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = preset.shadowMapType;
+
+    // Disable shadows on mobile to save memory
+    if (isMobile) {
+      console.log("Canvas: Disabling shadows on mobile for memory savings");
+      renderer.shadowMap.enabled = false;
+    } else {
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = preset.shadowMapType;
+    }
   }, [preset, rendererRef]);
 
   return null;
