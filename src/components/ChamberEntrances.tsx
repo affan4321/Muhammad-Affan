@@ -7,9 +7,10 @@ import RustyLampModel from "./models/RustyLampModel";
 import { useGameStore } from "@/store/gameStore";
 import { getChamberDoorTransform } from "@/lib/chamberDoor";
 import { CHAMBER_DOOR_RIG } from "@/lib/chamberDoorRig";
+import { R2_BASE_URL } from "@/lib/sceneProps";
 
-useGLTF.preload("/models/door.glb");
-useGLTF.preload("/models/rusty lamp.glb");
+useGLTF.preload(`${R2_BASE_URL}/models/door.glb`);
+useGLTF.preload(`${R2_BASE_URL}/models/rusty%20lamp.glb`);
 
 /**
  * One door at the end of every branch path (each information chamber entrance).
