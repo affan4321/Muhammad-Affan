@@ -66,8 +66,11 @@ const RendererQualityController = ({
     const renderer = rendererRef.current;
     if (!renderer) return;
 
+    console.log("Canvas: Setting renderer quality", { graphicsQuality, preset });
     renderer.toneMappingExposure = preset.exposure;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, preset.pixelRatio));
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, preset.pixelRatio);
+    console.log("Canvas: Setting pixel ratio", { devicePixelRatio: window.devicePixelRatio, targetPixelRatio: pixelRatio });
+    renderer.setPixelRatio(pixelRatio);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = preset.shadowMapType;
   }, [preset, rendererRef]);
@@ -140,7 +143,18 @@ export const GameCanvas = () => {
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
 
   useEffect(() => {
-    console.log("Canvas: GameCanvas mounted");
+    console.log("Canvas: GameCanvas mounted, checking WebGL support");
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (!gl) {
+        console.error("Canvas: WebGL not supported");
+      } else {
+        console.log("Canvas: WebGL is supported");
+      }
+    } catch (e) {
+      console.error("Canvas: WebGL check failed", e);
+    }
   }, []);
 
   if (import.meta.turbopackHot) {
@@ -157,11 +171,14 @@ export const GameCanvas = () => {
           alpha: true,
         }}
         onCreated={({ gl }) => {
-          console.log("Canvas: WebGL renderer created");
+          console.log("Canvas: WebGL renderer created successfully");
           rendererRef.current = gl;
           gl.toneMapping = THREE.ACESFilmicToneMapping;
           gl.toneMappingExposure = 1.45;
           gl.outputColorSpace = THREE.SRGBColorSpace;
+        }}
+        onError={(error) => {
+          console.error("Canvas: R3F Canvas error:", error);
         }}
         style={{
           width: "100%",
