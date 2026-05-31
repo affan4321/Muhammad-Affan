@@ -165,8 +165,8 @@ export const SettingsGear = () => {
           aria-label="Toggle fullscreen"
           style={{
             position: "fixed",
-            top: 10,
-            left: 10,
+            top: 64,
+            right: 10,
             zIndex: 124,
             width: 46,
             height: 46,

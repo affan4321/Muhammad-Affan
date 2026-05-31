@@ -55,10 +55,39 @@ export const CameraController = () => {
       targetPitch.current -= event.movementY * sensitivity;
     };
 
+    // Touch-based swipe controls for mobile
+    let lastTouchX = 0;
+    let lastTouchY = 0;
+
+    const handleTouchStart = (event: TouchEvent) => {
+      if (useGameStore.getState().isDebugCameraLocked) return;
+      lastTouchX = event.touches[0].clientX;
+      lastTouchY = event.touches[0].clientY;
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      if (useGameStore.getState().isDebugCameraLocked) return;
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - lastTouchX;
+      const deltaY = touch.clientY - lastTouchY;
+
+      const sensitivity = 0.0035;
+
+      targetYaw.current -= deltaX * sensitivity;
+      targetPitch.current -= deltaY * sensitivity;
+
+      lastTouchX = touch.clientX;
+      lastTouchY = touch.clientY;
+    };
+
     window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
     };
   }, []);
 
