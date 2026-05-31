@@ -128,7 +128,7 @@ export const generateDemoTracks = () => {
     ])
   );
 
-  
+
   return {
     mainTrack,
     firstPaths: [
@@ -170,3 +170,4 @@ export const generateDemoTracks = () => {
     ],
   };
 };
+
