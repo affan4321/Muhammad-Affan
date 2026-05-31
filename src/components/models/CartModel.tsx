@@ -14,9 +14,16 @@ export const CartModel = ({
   visible?: boolean;
 }) => {
   useGLTF.preload(`${R2_BASE_URL}/models/cart.glb`);
-  useGLTF.preload(`${R2_BASE_URL}/models/cart-lamp.glb`);
   const gltf = useGLTF(`${R2_BASE_URL}/models/cart.glb`);
-  const lampGltf = useGLTF(`${R2_BASE_URL}/models/cart-lamp.glb`);
+
+  // Try to load cart-lamp, but don't crash if it fails
+  let lampGltf = null;
+  try {
+    useGLTF.preload(`${R2_BASE_URL}/models/cart-lamp.glb`);
+    lampGltf = useGLTF(`${R2_BASE_URL}/models/cart-lamp.glb`);
+  } catch (e) {
+    console.warn("CartModel: Failed to load cart-lamp.glb, continuing without it", e);
+  }
 
   return (
     <>
@@ -25,10 +32,14 @@ export const CartModel = ({
           <primitive object={gltf.scene} dispose={null} visible={visible} />
         </Center>
       </group>
-      <primitive object={lampGltf.scene.clone(true)} dispose={null} visible={visible} position={[position[0] + 0.9, position[1] + 0.8, position[2]]} rotation={[0, Math.PI, 0]} scale={scale * 0.4} />
-      <pointLight position={[position[0] + 0.6, position[1] + 0.6, position[2]+0.8]} intensity={7} distance={1} color="#ffaa00" />
-      <primitive object={lampGltf.scene.clone(true)} dispose={null} visible={visible} position={[position[0] - 0.5, position[1] + 0.8, position[2]]} rotation={[0, Math.PI, 0]} scale={scale * 0.4} />
-      <pointLight position={[position[0] - 0.5, position[1] + 0.6, position[2]+0.8]} intensity={7} distance={1} color="#ffaa00" />
+      {lampGltf && (
+        <>
+          <primitive object={lampGltf.scene.clone(true)} dispose={null} visible={visible} position={[position[0] + 0.9, position[1] + 0.8, position[2]]} rotation={[0, Math.PI, 0]} scale={scale * 0.4} />
+          <pointLight position={[position[0] + 0.6, position[1] + 0.6, position[2]+0.8]} intensity={7} distance={1} color="#ffaa00" />
+          <primitive object={lampGltf.scene.clone(true)} dispose={null} visible={visible} position={[position[0] - 0.5, position[1] + 0.8, position[2]]} rotation={[0, Math.PI, 0]} scale={scale * 0.4} />
+          <pointLight position={[position[0] - 0.5, position[1] + 0.6, position[2]+0.8]} intensity={7} distance={1} color="#ffaa00" />
+        </>
+      )}
     </>
   );
 };
