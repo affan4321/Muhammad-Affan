@@ -56,7 +56,6 @@ export default function Home() {
         width: "100%",
         height: "100vh",
         overflow: "hidden",
-        touchAction: "none",
         WebkitTouchCallout: "none",
         WebkitUserSelect: "none",
         userSelect: "none",

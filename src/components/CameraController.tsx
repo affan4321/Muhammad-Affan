@@ -65,6 +65,7 @@ export const CameraController = () => {
       isTouching = true;
       lastTouchX = event.touches[0].clientX;
       lastTouchY = event.touches[0].clientY;
+      console.log("CameraController: Touch start", { x: lastTouchX, y: lastTouchY });
     };
 
     const handleTouchMove = (event: TouchEvent) => {
@@ -73,17 +74,21 @@ export const CameraController = () => {
       const deltaX = touch.clientX - lastTouchX;
       const deltaY = touch.clientY - lastTouchY;
 
-      const sensitivity = 0.005;
+      // Higher sensitivity for mobile swipe
+      const sensitivity = 0.008;
 
       targetYaw.current -= deltaX * sensitivity;
       targetPitch.current -= deltaY * sensitivity;
 
       lastTouchX = touch.clientX;
       lastTouchY = touch.clientY;
+
+      console.log("CameraController: Touch move", { deltaX, deltaY, yaw: targetYaw.current, pitch: targetPitch.current });
     };
 
     const handleTouchEnd = () => {
       isTouching = false;
+      console.log("CameraController: Touch end");
     };
 
     window.addEventListener("mousemove", handleMouseMove);
