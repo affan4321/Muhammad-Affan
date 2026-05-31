@@ -51,7 +51,19 @@ export default function Home() {
   }, []);
 
   return (
-    <div style={{ width: "100%", height: "100vh", overflow: "hidden" }} suppressHydrationWarning>
+    <div
+      style={{
+        width: "100%",
+        height: "100vh",
+        overflow: "hidden",
+        touchAction: "none",
+        WebkitTouchCallout: "none",
+        WebkitUserSelect: "none",
+        userSelect: "none",
+        WebkitTapHighlightColor: "transparent",
+      }}
+      suppressHydrationWarning
+    >
       <BootstrapGate>
         <GameCanvas />
         {!isSceneLoading && (

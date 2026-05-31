@@ -55,23 +55,25 @@ export const CameraController = () => {
       targetPitch.current -= event.movementY * sensitivity;
     };
 
-    // Touch-based swipe controls for mobile
+    // Touch-based camera rotation for mobile (swipe to rotate)
     let lastTouchX = 0;
     let lastTouchY = 0;
+    let isTouching = false;
 
     const handleTouchStart = (event: TouchEvent) => {
       if (useGameStore.getState().isDebugCameraLocked) return;
+      isTouching = true;
       lastTouchX = event.touches[0].clientX;
       lastTouchY = event.touches[0].clientY;
     };
 
     const handleTouchMove = (event: TouchEvent) => {
-      if (useGameStore.getState().isDebugCameraLocked) return;
+      if (useGameStore.getState().isDebugCameraLocked || !isTouching) return;
       const touch = event.touches[0];
       const deltaX = touch.clientX - lastTouchX;
       const deltaY = touch.clientY - lastTouchY;
 
-      const sensitivity = 0.0035;
+      const sensitivity = 0.005;
 
       targetYaw.current -= deltaX * sensitivity;
       targetPitch.current -= deltaY * sensitivity;
@@ -80,14 +82,20 @@ export const CameraController = () => {
       lastTouchY = touch.clientY;
     };
 
+    const handleTouchEnd = () => {
+      isTouching = false;
+    };
+
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("touchstart", handleTouchStart, { passive: true });
     window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    window.addEventListener("touchend", handleTouchEnd);
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("touchstart", handleTouchStart);
       window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
     };
   }, []);
 
