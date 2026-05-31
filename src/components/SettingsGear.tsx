@@ -106,8 +106,18 @@ export const SettingsGear = () => {
       document.documentElement.requestFullscreen().catch((err) => {
         console.error(`Error attempting to enable fullscreen: ${err.message}`);
       });
+      // Lock to landscape when entering fullscreen
+      if ((screen.orientation as any)?.lock) {
+        (screen.orientation as any).lock('landscape').catch((err: any) => {
+          console.error(`Error attempting to lock orientation: ${err.message}`);
+        });
+      }
     } else {
       document.exitFullscreen();
+      // Unlock orientation when exiting fullscreen
+      if ((screen.orientation as any)?.unlock) {
+        (screen.orientation as any).unlock();
+      }
     }
   };
 

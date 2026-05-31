@@ -71,6 +71,23 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
     } catch (e) {
       console.error("BootstrapGate: Failed to save settings", e);
     }
+
+    // Auto-toggle fullscreen and landscape on mobile
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+      console.log("BootstrapGate: Auto-enabling fullscreen and landscape mode");
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch((err) => {
+          console.error(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      }
+      // Try to lock orientation to landscape
+      if ((screen.orientation as any)?.lock) {
+        (screen.orientation as any).lock('landscape').catch((err: any) => {
+          console.error(`Error attempting to lock orientation: ${err.message}`);
+        });
+      }
+    }
   };
 
   if (!isReady) {

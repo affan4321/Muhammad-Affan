@@ -13,6 +13,7 @@ import { useGameStore } from "@/store/gameStore";
 
 export default function Home() {
   const isSceneLoading = useGameStore((state) => state.isSceneLoading);
+  const gameState = useGameStore((state) => state.gameState);
 
   useEffect(() => {
     console.log("Home: Component mounted, isSceneLoading =", isSceneLoading);
@@ -47,6 +48,32 @@ export default function Home() {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
+
+  // Enforce landscape mode after setup is complete on mobile
+  useEffect(() => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const hasStartedGame = gameState !== "IDLE";
+    if (!isMobile || !hasStartedGame) return;
+
+    const enforceLandscape = () => {
+      const isPortrait = window.innerHeight > window.innerWidth;
+      if (isPortrait && (screen.orientation as any)?.lock) {
+        console.log("Home: Enforcing landscape mode");
+        (screen.orientation as any).lock('landscape').catch((err: any) => {
+          console.error(`Error attempting to lock orientation: ${err.message}`);
+        });
+      }
+    };
+
+    enforceLandscape();
+    window.addEventListener("orientationchange", enforceLandscape);
+    window.addEventListener("resize", enforceLandscape);
+
+    return () => {
+      window.removeEventListener("orientationchange", enforceLandscape);
+      window.removeEventListener("resize", enforceLandscape);
+    };
+  }, [gameState]);
 
   return (
     <div style={{ width: "100%", height: "100vh", overflow: "hidden" }} suppressHydrationWarning>
