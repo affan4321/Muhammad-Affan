@@ -103,6 +103,7 @@ export const SettingsGear = () => {
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
+      console.log("SettingsGear: Entering fullscreen");
       document.documentElement.requestFullscreen().catch((err) => {
         console.error(`Error attempting to enable fullscreen: ${err.message}`);
       });
@@ -113,8 +114,11 @@ export const SettingsGear = () => {
         });
       }
     } else {
-      document.exitFullscreen();
-      // Unlock orientation when exiting fullscreen
+      console.log("SettingsGear: Exiting fullscreen");
+      document.exitFullscreen().catch((err) => {
+        console.error(`Error attempting to exit fullscreen: ${err.message}`);
+      });
+      // Unlock orientation when exiting fullscreen (iOS doesn't support this)
       if ((screen.orientation as any)?.unlock) {
         (screen.orientation as any).unlock();
       }

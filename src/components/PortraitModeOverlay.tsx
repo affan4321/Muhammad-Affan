@@ -34,16 +34,25 @@ export const PortraitModeOverlay = () => {
   if (!isMobile || !hasStartedGame || !isPortrait) return null;
 
   const toggleFullscreen = () => {
+    console.log("PortraitModeOverlay: Toggle fullscreen clicked, current fullscreen state:", !!document.fullscreenElement);
     if (!document.fullscreenElement) {
+      console.log("PortraitModeOverlay: Requesting fullscreen");
       document.documentElement.requestFullscreen().catch((err) => {
         console.error(`Error attempting to enable fullscreen: ${err.message}`);
       });
       // Try to lock orientation to landscape
       if ((screen.orientation as any)?.lock) {
+        console.log("PortraitModeOverlay: Locking orientation to landscape");
         (screen.orientation as any).lock('landscape').catch((err: any) => {
           console.error(`Error attempting to lock orientation: ${err.message}`);
         });
       }
+    } else {
+      // If already in fullscreen, exit it first
+      console.log("PortraitModeOverlay: Exiting fullscreen");
+      document.exitFullscreen().catch((err) => {
+        console.error(`Error attempting to exit fullscreen: ${err.message}`);
+      });
     }
   };
 
