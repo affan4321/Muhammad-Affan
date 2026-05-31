@@ -53,51 +53,11 @@ export const SettingsGear = () => {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     if (!isMobile) return;
 
-    const handleOrientationChange = () => {
-      const isLandscape = window.innerWidth > window.innerHeight;
-      if (isLandscape && !document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch((err) => {
-          console.error(`Error attempting to enable fullscreen on rotation: ${err.message}`);
-        });
-      }
-    };
-
-    // Suggest landscape mode on mobile
-    const suggestLandscape = () => {
-      const isPortrait = window.innerHeight > window.innerWidth;
-      if (isPortrait) {
-        // Show a message suggesting landscape mode
-        const message = document.createElement("div");
-        message.style.cssText = `
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          background: rgba(0, 0, 0, 0.9);
-          color: white;
-          padding: 20px;
-          border-radius: 10px;
-          text-align: center;
-          z-index: 10000;
-          font-family: sans-serif;
-        `;
-        message.innerHTML = "Please rotate your device to landscape mode for the best experience";
-        document.body.appendChild(message);
-        
-        setTimeout(() => {
-          message.remove();
-        }, 3000);
-      }
-    };
-
-    window.addEventListener("orientationchange", handleOrientationChange);
-    window.addEventListener("resize", handleOrientationChange);
-    window.addEventListener("load", suggestLandscape);
+    // Removed auto-fullscreen on orientation change to allow user to toggle freely
+    // PortraitModeOverlay now handles suggesting landscape mode during gameplay
 
     return () => {
-      window.removeEventListener("orientationchange", handleOrientationChange);
-      window.removeEventListener("resize", handleOrientationChange);
-      window.removeEventListener("load", suggestLandscape);
+      // Cleanup if needed
     };
   }, []);
 
@@ -118,7 +78,7 @@ export const SettingsGear = () => {
       document.exitFullscreen().catch((err) => {
         console.error(`Error attempting to exit fullscreen: ${err.message}`);
       });
-      // Unlock orientation when exiting fullscreen (iOS doesn't support this)
+      // Try to unlock orientation (iOS doesn't support this, but Android does)
       if ((screen.orientation as any)?.unlock) {
         (screen.orientation as any).unlock();
       }
