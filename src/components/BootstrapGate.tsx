@@ -39,7 +39,8 @@ export const BootstrapGate = ({ children }: BootstrapGateProps) => {
         if (typeof savedSettings.musicVolume === "number") setMusicVolume(savedSettings.musicVolume);
         if (typeof savedSettings.sfxVolume === "number") setSfxVolume(savedSettings.sfxVolume);
         if (typeof savedSettings.isMuted === "boolean") setMuted(savedSettings.isMuted);
-        setHasCompletedSetup(true);
+        // Commented out to always show setup screen on reload
+        // setHasCompletedSetup(true);
         console.log("BootstrapGate: Setup already completed, skipping to game");
       } else {
         console.log("BootstrapGate: No saved settings found, showing setup screen");
