@@ -14,6 +14,7 @@ import { useGameStore } from "@/store/gameStore";
  */
 export const CameraController = () => {
   const camera = useThree((state) => state.camera);
+  const canvasElement = useThree((state) => state.gl.domElement);
   const currentTrack = useGameStore((state) => state.currentTrack);
   const segmentProgress = useGameStore((state) => state.segmentProgress);
   const isDebugCameraLocked = useGameStore((state) => state.isDebugCameraLocked);
@@ -132,8 +133,8 @@ export const CameraController = () => {
       isTouchingRef.current = true;
       lastTouchX.current = event.clientX;
       lastTouchY.current = event.clientY;
-      if (event.target instanceof HTMLElement && event.target.setPointerCapture) {
-        event.target.setPointerCapture(event.pointerId);
+      if (canvasElement && canvasElement.setPointerCapture) {
+        canvasElement.setPointerCapture(event.pointerId);
       }
       event.preventDefault();
     };
@@ -168,20 +169,27 @@ export const CameraController = () => {
       isTouchingRef.current = false;
     };
 
+    if (canvasElement) {
+      canvasElement.style.touchAction = "none";
+      canvasElement.style.webkitUserSelect = "none";
+      canvasElement.style.userSelect = "none";
+      canvasElement.addEventListener("pointerdown", handlePointerDown, { passive: false });
+      canvasElement.addEventListener("pointermove", handlePointerMove, { passive: false });
+      canvasElement.addEventListener("pointerup", handlePointerUp);
+      canvasElement.addEventListener("pointercancel", handlePointerCancel);
+    }
     window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("pointerdown", handlePointerDown, { passive: false });
-    window.addEventListener("pointermove", handlePointerMove, { passive: false });
-    window.addEventListener("pointerup", handlePointerUp);
-    window.addEventListener("pointercancel", handlePointerCancel);
 
     return () => {
+      if (canvasElement) {
+        canvasElement.removeEventListener("pointerdown", handlePointerDown);
+        canvasElement.removeEventListener("pointermove", handlePointerMove);
+        canvasElement.removeEventListener("pointerup", handlePointerUp);
+        canvasElement.removeEventListener("pointercancel", handlePointerCancel);
+      }
       window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("pointerdown", handlePointerDown);
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerup", handlePointerUp);
-      window.removeEventListener("pointercancel", handlePointerCancel);
     };
-  }, []);
+  }, [canvasElement]);
 
   useFrame(() => {
     if (!currentTrack) return;

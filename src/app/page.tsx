@@ -60,6 +60,7 @@ export default function Home() {
         WebkitUserSelect: "none",
         userSelect: "none",
         WebkitTapHighlightColor: "transparent",
+        touchAction: "none",
       }}
       suppressHydrationWarning
     >
