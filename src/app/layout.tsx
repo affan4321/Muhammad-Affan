@@ -8,6 +8,17 @@ export const metadata: Metadata = {
   icons: {
     icon: "/LatestFace.svg",
   },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: "cover",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export default function RootLayout({
@@ -17,6 +28,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* iOS fullscreen support */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      </head>
       <body suppressHydrationWarning style={{ margin: 0, padding: 0, overflow: "hidden" }}>
         {children}
       </body>
