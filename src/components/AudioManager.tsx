@@ -94,16 +94,23 @@ export default function AudioManager() {
 
   // Background music (Howler) - only handles source changes
   useEffect(() => {
+    // Debounce scene loading to prevent audio glitches during brief transitions
+    let loadingTimeout: NodeJS.Timeout | null = null;
+
     if (isSceneLoading) {
-      if (bgRef.current) {
-        try {
-          bgRef.current.stop();
-          bgRef.current.unload();
-        } catch {}
-        bgRef.current = null;
-        currentBgSrcRef.current = null;
-      }
-      return;
+      loadingTimeout = setTimeout(() => {
+        if (bgRef.current) {
+          try {
+            bgRef.current.stop();
+            bgRef.current.unload();
+          } catch {}
+          bgRef.current = null;
+          currentBgSrcRef.current = null;
+        }
+      }, 500); // Only stop music if loading persists for 500ms
+      return () => {
+        if (loadingTimeout) clearTimeout(loadingTimeout);
+      };
     }
 
     const BG_MAP: Record<string, string> = {
