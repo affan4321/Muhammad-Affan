@@ -169,14 +169,69 @@ export const CameraController = () => {
       isTouchingRef.current = false;
     };
 
+    const handleContextMenu = (event: Event) => {
+      event.preventDefault();
+    };
+
+    const hasPointerEvents = typeof window !== "undefined" && "PointerEvent" in window;
+
+    const handleTouchStart = (event: TouchEvent) => {
+      if (useGameStore.getState().isDebugCameraLocked) return;
+      if (!isMobileRef.current) return;
+      if (event.target instanceof HTMLElement && isUiTarget(event.target)) return;
+
+      const touch = event.touches[0];
+      if (!touch) return;
+
+      // Exclude the bottom-right area where mobile controls are
+      if (touch.clientX > window.innerWidth - 140 && touch.clientY > window.innerHeight - 180) {
+        return;
+      }
+
+      isTouchingRef.current = true;
+      lastTouchX.current = touch.clientX;
+      lastTouchY.current = touch.clientY;
+      event.preventDefault();
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      if (useGameStore.getState().isDebugCameraLocked || !isTouchingRef.current) return;
+      const touch = event.touches[0];
+      if (!touch) return;
+
+      const deltaX = touch.clientX - lastTouchX.current;
+      const deltaY = touch.clientY - lastTouchY.current;
+
+      const sensitivity = 0.012;
+      targetYaw.current -= deltaX * sensitivity;
+      targetPitch.current -= deltaY * sensitivity;
+
+      lastTouchX.current = touch.clientX;
+      lastTouchY.current = touch.clientY;
+      event.preventDefault();
+    };
+
+    const handleTouchEnd = () => {
+      isTouchingRef.current = false;
+    };
+
     if (canvasElement) {
       canvasElement.style.touchAction = "none";
       canvasElement.style.webkitUserSelect = "none";
       canvasElement.style.userSelect = "none";
+      (canvasElement.style as CSSStyleDeclaration & { webkitTouchCallout?: string }).webkitTouchCallout = "none";
       canvasElement.addEventListener("pointerdown", handlePointerDown, { passive: false });
       canvasElement.addEventListener("pointermove", handlePointerMove, { passive: false });
       canvasElement.addEventListener("pointerup", handlePointerUp);
       canvasElement.addEventListener("pointercancel", handlePointerCancel);
+      canvasElement.addEventListener("contextmenu", handleContextMenu);
+
+      if (!hasPointerEvents) {
+        canvasElement.addEventListener("touchstart", handleTouchStart, { passive: false });
+        canvasElement.addEventListener("touchmove", handleTouchMove, { passive: false });
+        canvasElement.addEventListener("touchend", handleTouchEnd);
+        canvasElement.addEventListener("touchcancel", handleTouchEnd);
+      }
     }
     window.addEventListener("mousemove", handleMouseMove);
 
@@ -186,6 +241,14 @@ export const CameraController = () => {
         canvasElement.removeEventListener("pointermove", handlePointerMove);
         canvasElement.removeEventListener("pointerup", handlePointerUp);
         canvasElement.removeEventListener("pointercancel", handlePointerCancel);
+        canvasElement.removeEventListener("contextmenu", handleContextMenu);
+
+        if (!hasPointerEvents) {
+          canvasElement.removeEventListener("touchstart", handleTouchStart);
+          canvasElement.removeEventListener("touchmove", handleTouchMove);
+          canvasElement.removeEventListener("touchend", handleTouchEnd);
+          canvasElement.removeEventListener("touchcancel", handleTouchEnd);
+        }
       }
       window.removeEventListener("mousemove", handleMouseMove);
     };

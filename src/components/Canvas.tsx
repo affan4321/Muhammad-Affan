@@ -220,6 +220,10 @@ export const GameCanvas = () => {
           width: "100%",
           height: "100dvh",
           display: "block",
+          touchAction: "none",
+          WebkitTouchCallout: "none",
+          WebkitUserSelect: "none",
+          userSelect: "none",
         }}
       >
         <AudioManager />
