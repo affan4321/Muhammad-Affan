@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Html, Center, PerspectiveCamera, useGLTF, useProgress } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { Howl } from "howler";
@@ -8,8 +8,12 @@ import * as THREE from "three";
 import { useGameStore } from "@/store/gameStore";
 import { R2_BASE_URL } from "@/lib/sceneProps";
 
-const LoadingModel = () => {
+const LoadingModel = ({ onModelLoaded }: { onModelLoaded: () => void }) => {
   const { scene } = useGLTF(`${R2_BASE_URL}/models/muhammad-affan-model-compressed.glb`);
+
+  useEffect(() => {
+    onModelLoaded();
+  }, [onModelLoaded]);
 
   return (
     <Center>
@@ -21,10 +25,14 @@ const LoadingModel = () => {
 export const LoadingScreen = () => {
   const progress = useProgress((state) => state.progress);
   const isSceneLoading = useGameStore((state) => state.isSceneLoading);
+  const setSceneLoading = useGameStore((state) => state.setSceneLoading);
   const modelGroup = useRef<THREE.Group | null>(null);
   const progressTextRef = useRef<HTMLDivElement | null>(null);
   const maxProgress = useRef(0);
   const loaderMusicRef = useRef<Howl | null>(null);
+  const [modelLoaded, setModelLoaded] = useState(false);
+  const [audioLoaded, setAudioLoaded] = useState(false);
+  const delayTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Stop any existing audio before creating new instance
@@ -44,6 +52,7 @@ export const LoadingScreen = () => {
       preload: true,
       onload: () => {
         console.log("LoadingScreen: Audio loaded successfully");
+        setAudioLoaded(true);
         // Only play if not already playing
         if (!music.playing()) {
           try {
@@ -105,6 +114,23 @@ export const LoadingScreen = () => {
     };
   }, []);
 
+  // Start 5-second delay when both model and audio are loaded
+  useEffect(() => {
+    if (modelLoaded && audioLoaded) {
+      console.log("LoadingScreen: Model and audio loaded, starting 5-second delay");
+      delayTimeoutRef.current = setTimeout(() => {
+        console.log("LoadingScreen: 5-second delay complete, hiding loading screen");
+        setSceneLoading(false);
+      }, 5000);
+    }
+
+    return () => {
+      if (delayTimeoutRef.current) {
+        clearTimeout(delayTimeoutRef.current);
+      }
+    };
+  }, [modelLoaded, audioLoaded, setSceneLoading]);
+
   useFrame((_, delta) => {
     // Stop useFrame when not loading to prevent performance drain
     if (!isSceneLoading) return;
@@ -135,7 +161,7 @@ export const LoadingScreen = () => {
 
       <group ref={modelGroup} position={[-1.05, -0.3, 0]} scale={window.innerWidth <= 768 ? 3 : 4}>
         <React.Suspense fallback={null}>
-          <LoadingModel />
+          <LoadingModel onModelLoaded={() => setModelLoaded(true)} />
         </React.Suspense>
       </group>
 

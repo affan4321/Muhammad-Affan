@@ -108,30 +108,12 @@ const Scene = ({
 }: {
   rendererRef: MutableRefObject<THREE.WebGLRenderer | null>;
 }) => {
-  const setSceneLoading = useGameStore((state) => state.setSceneLoading);
   const gameState = useGameStore((state) => state.gameState);
   const graphicsQuality = useGameStore((state) => state.graphicsQuality);
   const preset = GRAPHICS_QUALITY_PRESETS[graphicsQuality];
 
-  useEffect(() => {
-    console.log("Canvas: Scene mounted, setting isSceneLoading to false");
-    setSceneLoading(false);
-
-    // Log memory usage if available
-    if ((performance as any).memory) {
-      const memory = (performance as any).memory;
-      console.log("Canvas: Memory usage", {
-        usedJSHeapSize: (memory.usedJSHeapSize / 1048576).toFixed(2) + " MB",
-        totalJSHeapSize: (memory.totalJSHeapSize / 1048576).toFixed(2) + " MB",
-        jsHeapSizeLimit: (memory.jsHeapSizeLimit / 1048576).toFixed(2) + " MB",
-      });
-    }
-
-    return () => {
-      console.log("Canvas: Scene unmounted, setting isSceneLoading to true");
-      setSceneLoading(true);
-    };
-  }, [setSceneLoading]);
+  // Note: isSceneLoading is now controlled by LoadingScreen component
+  // to ensure a 5-second delay after model and audio load
 
   const isInsideChamber = gameState === "INSIDE_CHAMBER";
 
