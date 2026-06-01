@@ -85,67 +85,78 @@ export const CameraController = () => {
       targetPitch.current -= event.movementY * sensitivity;
     };
 
-    // Touch-based camera rotation for mobile (swipe to rotate)
-    const handleTouchStart = (event: TouchEvent) => {
-      if (useGameStore.getState().isDebugCameraLocked) return;
-      if (!isMobileRef.current) return;
-      if (event.target instanceof HTMLElement && 
-          event.target.closest("button, a, input, textarea, select, [role='button']")) {
-        return;
-      }
-      
+    // Pointer-based camera rotation for mobile (drag to rotate)
+    let activePointerId: number | null = null;
+
+    const shouldIgnorePointer = (event: PointerEvent) => {
+      if (!isMobileRef.current) return true;
+      if (event.pointerType !== "touch") return true;
+      if (isUiTarget(event.target)) return true;
+
       // Exclude the bottom-right area where mobile controls are
-      if (event.touches[0].clientX > window.innerWidth - 150 && 
-          event.touches[0].clientY > window.innerHeight - 200) {
-        return;
+      if (event.clientX > window.innerWidth - 140 && event.clientY > window.innerHeight - 180) {
+        return true;
       }
 
-      isTouchingRef.current = true;
-      lastTouchX.current = event.touches[0].clientX;
-      lastTouchY.current = event.touches[0].clientY;
+      return false;
     };
 
-    const handleTouchMove = (event: TouchEvent) => {
-      if (useGameStore.getState().isDebugCameraLocked || !isTouchingRef.current) return;
-      
-      const touch = event.touches[0];
-      const deltaX = touch.clientX - lastTouchX.current;
-      const deltaY = touch.clientY - lastTouchY.current;
+    const handlePointerDown = (event: PointerEvent) => {
+      if (useGameStore.getState().isDebugCameraLocked) return;
+      if (shouldIgnorePointer(event)) return;
 
-      // Mobile-optimized sensitivity for smooth camera movement
-      const sensitivity = 0.005;
+      activePointerId = event.pointerId;
+      isTouchingRef.current = true;
+      lastTouchX.current = event.clientX;
+      lastTouchY.current = event.clientY;
+      if (event.target instanceof HTMLElement && event.target.setPointerCapture) {
+        event.target.setPointerCapture(event.pointerId);
+      }
+      event.preventDefault();
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (useGameStore.getState().isDebugCameraLocked || !isTouchingRef.current) return;
+      if (activePointerId !== event.pointerId) return;
+
+      const deltaX = event.clientX - lastTouchX.current;
+      const deltaY = event.clientY - lastTouchY.current;
+
+      // Higher sensitivity for continuous swipe rotation on mobile
+      const sensitivity = 0.01;
 
       targetYaw.current -= deltaX * sensitivity;
       targetPitch.current -= deltaY * sensitivity;
 
-      lastTouchX.current = touch.clientX;
-      lastTouchY.current = touch.clientY;
-
-      // Prevent default scrolling/pinch behavior
-      event.preventDefault?.();
+      lastTouchX.current = event.clientX;
+      lastTouchY.current = event.clientY;
+      event.preventDefault();
     };
 
-    const handleTouchEnd = (event: TouchEvent) => {
-      // Maintain momentum-like effect by NOT resetting immediately
+    const handlePointerUp = (event: PointerEvent) => {
+      if (activePointerId !== event.pointerId) return;
+      activePointerId = null;
       isTouchingRef.current = false;
     };
 
-    const handleTouchCancel = () => {
+    const handlePointerCancel = (event: PointerEvent) => {
+      if (activePointerId !== event.pointerId) return;
+      activePointerId = null;
       isTouchingRef.current = false;
     };
 
     window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("touchstart", handleTouchStart, { passive: true });
-    window.addEventListener("touchmove", handleTouchMove, { passive: false });
-    window.addEventListener("touchend", handleTouchEnd, { passive: true });
-    window.addEventListener("touchcancel", handleTouchCancel, { passive: true });
+    window.addEventListener("pointerdown", handlePointerDown, { passive: false });
+    window.addEventListener("pointermove", handlePointerMove, { passive: false });
+    window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointercancel", handlePointerCancel);
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("touchstart", handleTouchStart);
-      window.removeEventListener("touchmove", handleTouchMove);
-      window.removeEventListener("touchend", handleTouchEnd);
-      window.removeEventListener("touchcancel", handleTouchCancel);
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerCancel);
     };
   }, []);
 
@@ -183,7 +194,9 @@ export const CameraController = () => {
     camera.position.lerp(seatPosition, 0.12);
 
     // Faster response for touch input on mobile
-    const lerpSmooth = isMobileRef.current && isTouchingRef.current ? 0.15 : 0.08;
+    const lerpSmooth = isMobileRef.current
+      ? (isTouchingRef.current ? 0.25 : 0.18)
+      : 0.08;
     currentYaw.current = MathUtils.lerp(currentYaw.current, targetYaw.current, lerpSmooth);
     currentPitch.current = MathUtils.lerp(currentPitch.current, targetPitch.current, lerpSmooth);
     
