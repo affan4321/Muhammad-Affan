@@ -4,6 +4,9 @@
  * - Eye height = camera.position[1]  (NOT cart.position[1])
  * - cart.position moves the cart MESH only
  * - Saves apply on every frame (hot reload friendly)
+ * 
+ * Mobile-optimized: Touch camera movement is handled in CameraController.tsx
+ * with mobile-specific sensitivity tuning for smooth freehand control
  */
 export const CART_RIG = {
   cart: {

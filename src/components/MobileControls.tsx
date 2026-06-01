@@ -8,6 +8,7 @@ export const MobileControls = () => {
   const setMovingBackward = useGameStore((state) => state.setMovingBackward);
   const isUiPaused = useGameStore((state) => state.isUiPaused);
   const [isMobile, setIsMobile] = useState(false);
+  const [activeButton, setActiveButton] = useState<string | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -23,6 +24,7 @@ export const MobileControls = () => {
 
   const handleForwardStart = () => {
     if (isUiPaused) return;
+    setActiveButton("forward");
     const backward = useGameStore.getState().isMovingBackward;
     setMovingForward(true);
     setMovingBackward(backward);
@@ -30,6 +32,7 @@ export const MobileControls = () => {
 
   const handleForwardEnd = () => {
     if (isUiPaused) return;
+    setActiveButton(null);
     const backward = useGameStore.getState().isMovingBackward;
     setMovingForward(false);
     setMovingBackward(backward);
@@ -37,6 +40,7 @@ export const MobileControls = () => {
 
   const handleBackwardStart = () => {
     if (isUiPaused) return;
+    setActiveButton("backward");
     const forward = useGameStore.getState().isMovingForward;
     setMovingForward(forward);
     setMovingBackward(true);
@@ -44,10 +48,31 @@ export const MobileControls = () => {
 
   const handleBackwardEnd = () => {
     if (isUiPaused) return;
+    setActiveButton(null);
     const forward = useGameStore.getState().isMovingForward;
     setMovingForward(forward);
     setMovingBackward(false);
   };
+
+  const buttonStyle = (isActive: boolean) => ({
+    width: 70,
+    height: 70,
+    borderRadius: "50%",
+    backgroundColor: isActive ? "rgba(255, 255, 255, 0.35)" : "rgba(255, 255, 255, 0.15)",
+    border: `2px solid ${isActive ? "rgba(255, 255, 255, 0.6)" : "rgba(255, 255, 255, 0.3)"}`,
+    color: "white",
+    fontSize: 32,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    userSelect: "none" as const,
+    WebkitUserSelect: "none" as const,
+    touchAction: "manipulation" as const,
+    transition: "all 0.1s ease-out",
+    transform: isActive ? "scale(0.95)" : "scale(1)",
+    boxShadow: isActive ? "0 0 15px rgba(255, 255, 255, 0.3)" : "none",
+  });
 
   return (
     <div
@@ -60,53 +85,28 @@ export const MobileControls = () => {
         gap: 20,
         zIndex: 1000,
         pointerEvents: "auto",
+        touchAction: "none",
       }}
     >
       <button
         onTouchStart={handleForwardStart}
         onTouchEnd={handleForwardEnd}
+        onTouchCancel={handleForwardEnd}
         onMouseDown={handleForwardStart}
         onMouseUp={handleForwardEnd}
-        style={{
-          width: 70,
-          height: 70,
-          borderRadius: "50%",
-          backgroundColor: "rgba(255, 255, 255, 0.2)",
-          border: "2px solid rgba(255, 255, 255, 0.4)",
-          color: "white",
-          fontSize: 32,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          userSelect: "none",
-          WebkitUserSelect: "none",
-          touchAction: "manipulation",
-        }}
+        onMouseLeave={handleForwardEnd}
+        style={buttonStyle(activeButton === "forward")}
       >
         ↑
       </button>
       <button
         onTouchStart={handleBackwardStart}
         onTouchEnd={handleBackwardEnd}
+        onTouchCancel={handleBackwardEnd}
         onMouseDown={handleBackwardStart}
         onMouseUp={handleBackwardEnd}
-        style={{
-          width: 70,
-          height: 70,
-          borderRadius: "50%",
-          backgroundColor: "rgba(255, 255, 255, 0.2)",
-          border: "2px solid rgba(255, 255, 255, 0.4)",
-          color: "white",
-          fontSize: 32,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          userSelect: "none",
-          WebkitUserSelect: "none",
-          touchAction: "manipulation",
-        }}
+        onMouseLeave={handleBackwardEnd}
+        style={buttonStyle(activeButton === "backward")}
       >
         ↓
       </button>
