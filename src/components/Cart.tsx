@@ -66,7 +66,8 @@ export const Cart = () => {
   const setCartMoving = useGameStore((state) => state.setCartMoving);
   const { camera } = useThree();
   const scene = useThree((state) => state.scene);
-  const { getSmoothedLook } = useCartMouseLook();
+  const domElement = useThree((state) => state.gl.domElement);
+  const { getSmoothedLook } = useCartMouseLook(domElement);
   const currentTrackId = useGameStore((state) => state.currentTrack);
 
   useEffect(() => {

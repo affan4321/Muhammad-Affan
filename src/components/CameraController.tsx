@@ -92,25 +92,23 @@ export const CameraController = () => {
       targetPitch.current -= event.movementY * sensitivity;
     };
 
-    // Pointer-based camera rotation for mobile (drag to rotate)
-    let activePointerId: number | null = null;
-
-    const shouldIgnorePointer = (event: PointerEvent) => {
-      if (!isMobileRef.current) return true;
-      if (event.pointerType !== "touch") return true;
-      if (isUiTarget(event.target)) return true;
-
-      // Exclude the bottom-right area where mobile controls are
-      if (event.clientX > window.innerWidth - 140 && event.clientY > window.innerHeight - 180) {
-        return true;
-      }
-
-      return false;
+    const handleContextMenu = (event: Event) => {
+      event.preventDefault();
     };
 
-    const handlePointerDown = (event: PointerEvent) => {
+    const handleTouchStart = (event: TouchEvent) => {
       if (useGameStore.getState().isDebugCameraLocked) return;
-      if (shouldIgnorePointer(event)) return;
+      if (!isMobileRef.current) return;
+      if (event.target instanceof HTMLElement && isUiTarget(event.target)) return;
+
+      const touch = event.touches[0];
+      if (!touch) return;
+      if (event.touches.length > 1) return;
+
+      // Exclude the bottom-right area where mobile controls are
+      if (touch.clientX > window.innerWidth - 140 && touch.clientY > window.innerHeight - 180) {
+        return;
+      }
 
       if (isIOSRef.current && !hasTriggeredUiHideRef.current) {
         hasTriggeredUiHideRef.current = true;
@@ -127,65 +125,6 @@ export const CameraController = () => {
           document.documentElement.style.overflow = prevHtmlOverflow;
           document.body.style.height = prevBodyHeight;
         }, 250);
-      }
-
-      activePointerId = event.pointerId;
-      isTouchingRef.current = true;
-      lastTouchX.current = event.clientX;
-      lastTouchY.current = event.clientY;
-      if (canvasElement && canvasElement.setPointerCapture) {
-        canvasElement.setPointerCapture(event.pointerId);
-      }
-      event.preventDefault();
-    };
-
-    const handlePointerMove = (event: PointerEvent) => {
-      if (useGameStore.getState().isDebugCameraLocked || !isTouchingRef.current) return;
-      if (activePointerId !== event.pointerId) return;
-
-      const deltaX = event.clientX - lastTouchX.current;
-      const deltaY = event.clientY - lastTouchY.current;
-
-      // Higher sensitivity for continuous swipe rotation on mobile
-      const sensitivity = 0.01;
-
-      targetYaw.current -= deltaX * sensitivity;
-      targetPitch.current -= deltaY * sensitivity;
-
-      lastTouchX.current = event.clientX;
-      lastTouchY.current = event.clientY;
-      event.preventDefault();
-    };
-
-    const handlePointerUp = (event: PointerEvent) => {
-      if (activePointerId !== event.pointerId) return;
-      activePointerId = null;
-      isTouchingRef.current = false;
-    };
-
-    const handlePointerCancel = (event: PointerEvent) => {
-      if (activePointerId !== event.pointerId) return;
-      activePointerId = null;
-      isTouchingRef.current = false;
-    };
-
-    const handleContextMenu = (event: Event) => {
-      event.preventDefault();
-    };
-
-    const hasPointerEvents = typeof window !== "undefined" && "PointerEvent" in window;
-
-    const handleTouchStart = (event: TouchEvent) => {
-      if (useGameStore.getState().isDebugCameraLocked) return;
-      if (!isMobileRef.current) return;
-      if (event.target instanceof HTMLElement && isUiTarget(event.target)) return;
-
-      const touch = event.touches[0];
-      if (!touch) return;
-
-      // Exclude the bottom-right area where mobile controls are
-      if (touch.clientX > window.innerWidth - 140 && touch.clientY > window.innerHeight - 180) {
-        return;
       }
 
       isTouchingRef.current = true;
@@ -220,35 +159,21 @@ export const CameraController = () => {
       canvasElement.style.webkitUserSelect = "none";
       canvasElement.style.userSelect = "none";
       (canvasElement.style as CSSStyleDeclaration & { webkitTouchCallout?: string }).webkitTouchCallout = "none";
-      canvasElement.addEventListener("pointerdown", handlePointerDown, { passive: false });
-      canvasElement.addEventListener("pointermove", handlePointerMove, { passive: false });
-      canvasElement.addEventListener("pointerup", handlePointerUp);
-      canvasElement.addEventListener("pointercancel", handlePointerCancel);
       canvasElement.addEventListener("contextmenu", handleContextMenu);
-
-      if (!hasPointerEvents) {
-        canvasElement.addEventListener("touchstart", handleTouchStart, { passive: false });
-        canvasElement.addEventListener("touchmove", handleTouchMove, { passive: false });
-        canvasElement.addEventListener("touchend", handleTouchEnd);
-        canvasElement.addEventListener("touchcancel", handleTouchEnd);
-      }
+      canvasElement.addEventListener("touchstart", handleTouchStart, { passive: false });
+      canvasElement.addEventListener("touchmove", handleTouchMove, { passive: false });
+      canvasElement.addEventListener("touchend", handleTouchEnd);
+      canvasElement.addEventListener("touchcancel", handleTouchEnd);
     }
     window.addEventListener("mousemove", handleMouseMove);
 
     return () => {
       if (canvasElement) {
-        canvasElement.removeEventListener("pointerdown", handlePointerDown);
-        canvasElement.removeEventListener("pointermove", handlePointerMove);
-        canvasElement.removeEventListener("pointerup", handlePointerUp);
-        canvasElement.removeEventListener("pointercancel", handlePointerCancel);
         canvasElement.removeEventListener("contextmenu", handleContextMenu);
-
-        if (!hasPointerEvents) {
-          canvasElement.removeEventListener("touchstart", handleTouchStart);
-          canvasElement.removeEventListener("touchmove", handleTouchMove);
-          canvasElement.removeEventListener("touchend", handleTouchEnd);
-          canvasElement.removeEventListener("touchcancel", handleTouchEnd);
-        }
+        canvasElement.removeEventListener("touchstart", handleTouchStart);
+        canvasElement.removeEventListener("touchmove", handleTouchMove);
+        canvasElement.removeEventListener("touchend", handleTouchEnd);
+        canvasElement.removeEventListener("touchcancel", handleTouchEnd);
       }
       window.removeEventListener("mousemove", handleMouseMove);
     };

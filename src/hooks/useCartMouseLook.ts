@@ -20,7 +20,8 @@ export const useCartMouseLook = () => {
   const targetPitch = useRef(0);
   const currentYaw = useRef(0);
   const currentPitch = useRef(0);
-  const lastPointer = useRef<{ x: number; y: number } | null>(null);
+  const lastMousePointer = useRef<{ x: number; y: number } | null>(null);
+  const lastTouchPointer = useRef<{ x: number; y: number } | null>(null);
   const lastMoveAt = useRef(0);
 
   const resetLook = useCallback(() => {
@@ -28,7 +29,8 @@ export const useCartMouseLook = () => {
     targetPitch.current = 0;
     currentYaw.current = 0;
     currentPitch.current = 0;
-    lastPointer.current = null;
+    lastMousePointer.current = null;
+    lastTouchPointer.current = null;
     lastMoveAt.current = performance.now();
   }, []);
 
@@ -54,10 +56,31 @@ export const useCartMouseLook = () => {
       );
     };
 
+    const isMobile =
+      window.innerWidth <= 768 ||
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+
+    let activeTouchId: number | null = null;
+
+    const getActiveTouch = (touches: TouchList) => {
+      if (touches.length === 0) return null;
+      if (activeTouchId === null) return touches[0];
+      for (let i = 0; i < touches.length; i += 1) {
+        if (touches[i]?.identifier === activeTouchId) return touches[i];
+      }
+      return null;
+    };
+
     const handleMouseMove = (event: MouseEvent) => {
       if (useGameStore.getState().gameState === "IDLE") return;
       if (isLookLocked(useGameStore.getState().gameState, Boolean(useGameStore.getState().openMapBoardId))) return;
       if (isUiTarget(event.target)) return;
+
+      // Ignore synthetic mouse events generated from touch input.
+      const sourceCapabilities = (event as any).sourceCapabilities;
+      if (sourceCapabilities?.firesTouchEvents) return;
 
       const { sensitivity, pitchMin, pitchMax } = CART_RIG.mouseLook;
 
@@ -67,12 +90,12 @@ export const useCartMouseLook = () => {
       if (event.movementX !== 0 || event.movementY !== 0) {
         dx = event.movementX;
         dy = event.movementY;
-      } else if (lastPointer.current) {
-        dx = event.clientX - lastPointer.current.x;
-        dy = event.clientY - lastPointer.current.y;
+      } else if (lastMousePointer.current) {
+        dx = event.clientX - lastMousePointer.current.x;
+        dy = event.clientY - lastMousePointer.current.y;
       }
 
-      lastPointer.current = { x: event.clientX, y: event.clientY };
+      lastMousePointer.current = { x: event.clientX, y: event.clientY };
 
       if (dx === 0 && dy === 0) return;
 
@@ -85,16 +108,89 @@ export const useCartMouseLook = () => {
       );
     };
 
+    const handleTouchStart = (event: TouchEvent) => {
+      if (!isMobile) return;
+      if (useGameStore.getState().gameState === "IDLE") return;
+      if (isLookLocked(useGameStore.getState().gameState, Boolean(useGameStore.getState().openMapBoardId))) return;
+      if (isUiTarget(event.target)) return;
+      if (event.touches.length !== 1) return;
+
+      const touch = event.touches[0];
+      if (!touch) return;
+
+      activeTouchId = touch.identifier;
+      lastTouchPointer.current = { x: touch.clientX, y: touch.clientY };
+      lastMoveAt.current = performance.now();
+      event.preventDefault();
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      if (!isMobile) return;
+      if (activeTouchId === null) return;
+      if (useGameStore.getState().gameState === "IDLE") return;
+      if (isLookLocked(useGameStore.getState().gameState, Boolean(useGameStore.getState().openMapBoardId))) return;
+
+      const touch = getActiveTouch(event.touches);
+      const last = lastTouchPointer.current;
+      if (!touch || !last) return;
+
+      const dx = touch.clientX - last.x;
+      const dy = touch.clientY - last.y;
+      if (dx === 0 && dy === 0) return;
+
+      const { sensitivity, pitchMin, pitchMax } = CART_RIG.mouseLook;
+      const touchSensitivity = sensitivity * 3.6;
+
+      lastTouchPointer.current = { x: touch.clientX, y: touch.clientY };
+      lastMoveAt.current = performance.now();
+      targetYaw.current -= dx * touchSensitivity;
+      targetPitch.current = MathUtils.clamp(
+        targetPitch.current - dy * touchSensitivity,
+        pitchMin,
+        pitchMax
+      );
+
+      event.preventDefault();
+    };
+
+    const handleTouchEnd = (event: TouchEvent) => {
+      if (!isMobile) return;
+      if (activeTouchId === null) return;
+
+      for (let i = 0; i < event.changedTouches.length; i += 1) {
+        const touch = event.changedTouches[i];
+        if (touch?.identifier === activeTouchId) {
+          activeTouchId = null;
+          lastTouchPointer.current = null;
+          return;
+        }
+      }
+    };
+
+    const handleTouchCancel = () => {
+      if (!isMobile) return;
+      activeTouchId = null;
+      lastTouchPointer.current = null;
+    };
+
     const clearPointer = () => {
-      lastPointer.current = null;
+      lastMousePointer.current = null;
     };
 
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseleave", clearPointer);
+    window.addEventListener("touchstart", handleTouchStart, { passive: false });
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("touchend", handleTouchEnd);
+    window.addEventListener("touchcancel", handleTouchCancel);
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseleave", clearPointer);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("touchcancel", handleTouchCancel);
     };
   }, []);
 
