@@ -63,12 +63,12 @@ const TiltCard = ({ title, subtitle, accent = "#00ffd5", children }: TiltCardPro
           opacity: 0.8,
         }}
       />
-      <div style={{ position: "relative", padding: "18px", transform: "translateZ(30px)" }}>
-        <div style={{ color: accent, fontSize: "13px", fontWeight: 700, letterSpacing: "0.08em", marginBottom: subtitle ? "6px" : "10px" }}>
+      <div style={{ position: "relative", padding: "clamp(12px, 3vw, 18px)", transform: "translateZ(30px)" }}>
+        <div style={{ color: accent, fontSize: "clamp(11px, 2.5vw, 13px)", fontWeight: 700, letterSpacing: "0.08em", marginBottom: subtitle ? "clamp(4px, 1vw, 6px)" : "clamp(6px, 1.5vw, 10px)" }}>
           {title}
         </div>
         {subtitle && (
-          <div style={{ color: "#8a8a8a", fontSize: "12px", marginBottom: "14px", lineHeight: 1.4 }}>
+          <div style={{ color: "#8a8a8a", fontSize: "clamp(10px, 2vw, 12px)", marginBottom: "clamp(10px, 2.5vw, 14px)", lineHeight: 1.4 }}>
             {subtitle}
           </div>
         )}
@@ -118,12 +118,12 @@ export const ChamberPanel = () => {
 
     if (content.type === "who-am-i") {
       return (
-        <div style={{ display: "grid", gap: "16px", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
+        <div style={{ display: "grid", gap: "clamp(12px, 3vw, 16px)", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
           <TiltCard title="Summary" subtitle={content.title} accent="#39c9ff">
-            <p style={{ margin: 0, color: "#f2f2f2", lineHeight: 1.7, fontSize: "15px" }}>{content.summary}</p>
+            <p style={{ margin: 0, color: "#f2f2f2", lineHeight: 1.7, fontSize: "clamp(13px, 3vw, 15px)" }}>{content.summary}</p>
           </TiltCard>
           <TiltCard title="Ambitions" subtitle={content.title} accent="#ff7df1">
-            <p style={{ margin: 0, color: "#f2f2f2", lineHeight: 1.7, fontSize: "15px" }}>{content.ambitions}</p>
+            <p style={{ margin: 0, color: "#f2f2f2", lineHeight: 1.7, fontSize: "clamp(13px, 3vw, 15px)" }}>{content.ambitions}</p>
           </TiltCard>
         </div>
       );
@@ -131,7 +131,7 @@ export const ChamberPanel = () => {
 
     if (content.type === "social") {
       return (
-        <div style={{ display: "grid", gap: "14px", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+        <div style={{ display: "grid", gap: "clamp(10px, 2.5vw, 14px)", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
           {content.socialLinks?.map((link, index) => (
             <TiltCard key={link.platform} title={link.platform} subtitle={`Link ${index + 1}`} accent="#00ffd5">
               <a
@@ -142,10 +142,11 @@ export const ChamberPanel = () => {
                   display: "inline-block",
                   color: "#fff2d6",
                   textDecoration: "none",
-                  padding: "10px 12px",
+                  padding: "clamp(8px, 2vw, 10px) clamp(10px, 2.5vw, 12px)",
                   borderRadius: "10px",
                   border: "1px solid rgba(0,255,213,0.28)",
                   background: "rgba(255,255,255,0.03)",
+                  fontSize: "clamp(12px, 2.5vw, 14px)",
                 }}
               >
                 Open profile →
@@ -159,23 +160,23 @@ export const ChamberPanel = () => {
     if (content.type === "about-me") {
       return (
         <TiltCard title={content.title} subtitle="About Me" accent="#ff9d4a">
-          <p style={{ margin: 0, color: "#f2f2f2", lineHeight: 1.7, fontSize: "15px", whiteSpace: "pre-wrap", maxHeight: "400px", overflowY: "auto" }}>{content.summary}</p>
+          <p style={{ margin: 0, color: "#f2f2f2", lineHeight: 1.7, fontSize: "clamp(13px, 3vw, 15px)", whiteSpace: "pre-wrap", maxHeight: "clamp(300px, 70vh, 400px)", overflowY: "auto" }}>{content.summary}</p>
         </TiltCard>
       );
     }
 
     return (
-      <div style={{ display: "grid", gap: "14px", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
+      <div style={{ display: "grid", gap: "clamp(10px, 2.5vw, 14px)", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
         {content.projects?.map((project, index) => (
           <TiltCard key={project.id} title={project.title} subtitle={`Project ${index + 1}`} accent="#00ffd5">
-            <p style={{ margin: "0 0 12px 0", color: "#d8d8d8", lineHeight: 1.6, fontSize: "14px" }}>{project.description}</p>
+            <p style={{ margin: "0 0 clamp(8px, 2vw, 12px) 0", color: "#d8d8d8", lineHeight: 1.6, fontSize: "clamp(12px, 2.5vw, 14px)" }}>{project.description}</p>
             <a
               href={project.link}
               target="_blank"
               rel="noopener noreferrer"
               style={{
                 color: "#fff2d6",
-                fontSize: "12px",
+                fontSize: "clamp(10px, 2vw, 12px)",
                 textDecoration: "none",
                 display: "inline-block",
               }}
@@ -196,32 +197,33 @@ export const ChamberPanel = () => {
     <div
       style={{
         position: "fixed",
-        bottom: 20,
-        left: 20,
+        bottom: "clamp(10px, 2.5vw, 20px)",
+        left: "clamp(10px, 2.5vw, 20px)",
         backgroundColor: "rgba(0, 0, 0, 0.8)",
         border: "1px solid #00ffd5",
         borderRadius: "8px",
-        padding: "16px 20px",
+        padding: "clamp(12px, 3vw, 16px) clamp(14px, 3.5vw, 20px)",
         zIndex: 60,
         pointerEvents: "auto",
+        maxWidth: "calc(100vw - clamp(20px, 5vw, 40px))",
       }}
     >
-      <p style={{ color: "#00ffd5", margin: "0 0 8px 0", fontSize: "11px", letterSpacing: "0.1em" }}>{title}</p>
-      <p style={{ color: "#666", margin: "0 0 12px 0", fontSize: "12px" }}>
+      <p style={{ color: "#00ffd5", margin: "0 0 clamp(6px, 1.5vw, 8px) 0", fontSize: "clamp(10px, 2vw, 11px)", letterSpacing: "0.1em" }}>{title}</p>
+      <p style={{ color: "#666", margin: "0 0 clamp(8px, 2vw, 12px) 0", fontSize: "clamp(10px, 2vw, 12px)" }}>
         WASD/Arrows to move · Mouse to look
       </p>
       <button
         type="button"
         onClick={() => completeChamber()}
         style={{
-          padding: "8px 16px",
+          padding: "clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)",
           backgroundColor: "#00ffd5",
           color: "#000",
           border: "none",
           borderRadius: "4px",
           fontWeight: "bold",
           cursor: "pointer",
-          fontSize: "12px",
+          fontSize: "clamp(10px, 2vw, 12px)",
         }}
       >
         Exit Chamber (Esc)
@@ -237,7 +239,7 @@ export const ChamberPanel = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: "24px",
+            padding: "clamp(16px, 4vw, 24px)",
           }}
         >
           <div
@@ -249,14 +251,14 @@ export const ChamberPanel = () => {
               border: "1px solid rgba(0, 255, 213, 0.32)",
               borderRadius: "18px",
               boxShadow: "0 40px 120px rgba(0, 0, 0, 0.72)",
-              padding: "20px",
+              padding: "clamp(16px, 4vw, 20px)",
               color: "#f3f3f3",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", marginBottom: "18px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "clamp(10px, 2.5vw, 16px)", marginBottom: "clamp(12px, 3vw, 18px)", flexWrap: "wrap" }}>
               <div>
-                <div style={{ color: "#00ffd5", fontSize: "14px", fontWeight: 700, letterSpacing: "0.08em" }}>{content.title}</div>
-                <div style={{ color: "#8a8a8a", fontSize: "12px", marginTop: "4px" }}>
+                <div style={{ color: "#00ffd5", fontSize: "clamp(12px, 3vw, 14px)", fontWeight: 700, letterSpacing: "0.08em" }}>{content.title}</div>
+                <div style={{ color: "#8a8a8a", fontSize: "clamp(10px, 2vw, 12px)", marginTop: "clamp(3px, 0.8vw, 4px)" }}>
                   Hover each card to tilt · Press Esc to close
                 </div>
               </div>
@@ -264,13 +266,14 @@ export const ChamberPanel = () => {
                 type="button"
                 onClick={() => setOpenChamberObjectId(null)}
                 style={{
-                  padding: "8px 12px",
+                  padding: "clamp(6px, 1.5vw, 8px) clamp(10px, 2.5vw, 12px)",
                   background: "transparent",
                   border: "1px solid #00ffd5",
                   color: "#00ffd5",
                   borderRadius: "8px",
                   cursor: "pointer",
                   fontWeight: 600,
+                  fontSize: "clamp(10px, 2vw, 12px)",
                 }}
               >
                 Close

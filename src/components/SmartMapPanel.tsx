@@ -65,7 +65,7 @@ export const SmartMapPanel = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "20px",
+        padding: "clamp(16px, 4vw, 20px)",
       }}
       onClick={() => setOpenMapBoardId(null)}
     >
@@ -73,43 +73,46 @@ export const SmartMapPanel = () => {
         onClick={(event) => event.stopPropagation()}
         style={{
           width: "min(760px, 94vw)",
+          maxHeight: "90vh",
+          overflowY: "auto",
           borderRadius: "16px",
           border: "1px solid rgba(24, 255, 95, 0.45)",
           background:
             "linear-gradient(140deg, rgba(8,18,10,0.98), rgba(8,12,10,0.96) 45%, rgba(4,8,5,0.95))",
           color: "#d8ffe3",
-          padding: "20px",
+          padding: "clamp(16px, 4vw, 20px)",
           boxShadow: "0 28px 80px rgba(0, 0, 0, 0.72)",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "clamp(10px, 2.5vw, 12px)", flexWrap: "wrap" }}>
           <div>
-            <div style={{ fontSize: "12px", letterSpacing: "0.11em", color: "#8df5ad" }}>{currentBoard.label}</div>
-            <div style={{ marginTop: "6px", fontSize: "24px", fontWeight: 700 }}>Smart Path Map</div>
+            <div style={{ fontSize: "clamp(10px, 2vw, 12px)", letterSpacing: "0.11em", color: "#8df5ad" }}>{currentBoard.label}</div>
+            <div style={{ marginTop: "clamp(4px, 1vw, 6px)", fontSize: "clamp(18px, 4vw, 24px)", fontWeight: 700 }}>Smart Path Map</div>
           </div>
           <button
             type="button"
             onClick={() => setOpenMapBoardId(null)}
             style={{
-              padding: "7px 12px",
+              padding: "clamp(6px, 1.5vw, 7px) clamp(10px, 2.5vw, 12px)",
               background: "transparent",
               border: "1px solid rgba(24, 255, 95, 0.5)",
               color: "#9dffb9",
               borderRadius: "8px",
               cursor: "pointer",
               fontWeight: 600,
+              fontSize: "clamp(10px, 2vw, 12px)",
             }}
           >
             Close (Esc)
           </button>
         </div>
 
-        <div style={{ marginTop: "16px", marginBottom: "16px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#9ce9b1", marginBottom: "7px" }}>
+        <div style={{ marginTop: "clamp(12px, 3vw, 16px)", marginBottom: "clamp(12px, 3vw, 16px)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "clamp(10px, 2vw, 12px)", color: "#9ce9b1", marginBottom: "clamp(5px, 1.2vw, 7px)" }}>
             <span>Journey Completion</span>
             <span>{Math.round(overallProgress * 100)}%</span>
           </div>
-          <div style={{ width: "100%", height: "10px", borderRadius: "999px", background: "rgba(255, 255, 255, 0.12)", overflow: "hidden" }}>
+          <div style={{ width: "100%", height: "clamp(8px, 2vw, 10px)", borderRadius: "999px", background: "rgba(255, 255, 255, 0.12)", overflow: "hidden" }}>
             <div
               style={{
                 width: `${Math.max(4, Math.round(overallProgress * 100))}%`,
@@ -121,25 +124,25 @@ export const SmartMapPanel = () => {
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: "12px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "clamp(10px, 2.5vw, 12px)" }}>
           {nextForks.map((fork) => (
             <div
               key={fork.id}
               style={{
                 border: "1px solid rgba(24, 255, 95, 0.24)",
                 borderRadius: "12px",
-                padding: "12px",
+                padding: "clamp(10px, 2.5vw, 12px)",
                 background: fork.status === "YOU ARE HERE" ? "rgba(24, 255, 95, 0.14)" : "rgba(255, 255, 255, 0.04)",
               }}
             >
-              <div style={{ fontSize: "11px", color: "#8df5ad", letterSpacing: "0.07em", marginBottom: "7px" }}>{fork.status}</div>
-              <div style={{ fontWeight: 700, marginBottom: "6px", color: "#d7ffe2" }}>{fork.label}</div>
-              <div style={{ fontSize: "12px", lineHeight: 1.5, color: "#9fbcaa" }}>{fork.branchNames || "Continue Forward"}</div>
+              <div style={{ fontSize: "clamp(9px, 2vw, 11px)", color: "#8df5ad", letterSpacing: "0.07em", marginBottom: "clamp(5px, 1.2vw, 7px)" }}>{fork.status}</div>
+              <div style={{ fontWeight: 700, marginBottom: "clamp(4px, 1vw, 6px)", color: "#d7ffe2", fontSize: "clamp(12px, 2.5vw, 14px)" }}>{fork.label}</div>
+              <div style={{ fontSize: "clamp(10px, 2vw, 12px)", lineHeight: 1.5, color: "#9fbcaa" }}>{fork.branchNames || "Continue Forward"}</div>
             </div>
           ))}
         </div>
 
-        <div style={{ marginTop: "14px", fontSize: "12px", color: "#8fb59a" }}>
+        <div style={{ marginTop: "clamp(10px, 2.5vw, 14px)", fontSize: "clamp(10px, 2vw, 12px)", color: "#8fb59a" }}>
           Chambers completed: {completedChambers} / {totalChambers}
         </div>
       </div>
