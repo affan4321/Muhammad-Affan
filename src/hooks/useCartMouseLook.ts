@@ -112,16 +112,18 @@ export const useCartMouseLook = () => {
       if (!isMobile) return;
       if (useGameStore.getState().gameState === "IDLE") return;
       if (isLookLocked(useGameStore.getState().gameState, Boolean(useGameStore.getState().openMapBoardId))) return;
-      if (isUiTarget(event.target)) return;
-      if (event.touches.length !== 1) return;
 
-      const touch = event.touches[0];
-      if (!touch) return;
-
-      activeTouchId = touch.identifier;
-      lastTouchPointer.current = { x: touch.clientX, y: touch.clientY };
-      lastMoveAt.current = performance.now();
-      event.preventDefault();
+      // Find a touch that's not on a UI element
+      for (let i = 0; i < event.touches.length; i++) {
+        const touch = event.touches[i];
+        if (!touch) continue;
+        if (!isUiTarget(touch.target as EventTarget)) {
+          activeTouchId = touch.identifier;
+          lastTouchPointer.current = { x: touch.clientX, y: touch.clientY };
+          lastMoveAt.current = performance.now();
+          return;
+        }
+      }
     };
 
     const handleTouchMove = (event: TouchEvent) => {
