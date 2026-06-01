@@ -24,7 +24,7 @@ const PathButton = ({
     }}
     onKeyDown={(e) => e.key === "Enter" && onConfirm()}
     style={{
-      padding: "clamp(10px, 2.5vw, 15px) clamp(16px, 3vw, 26px)",
+      padding: "clamp(8px, 2vw, 12px) clamp(12px, 2.5vw, 18px)",
       backgroundColor: selected ? "#0f0" : "#1a1a1a",
       color: selected ? "#000" : "#0f0",
       border: path.kind === "continue" ? "2px dashed #0f0" : "2px solid #0f0",
@@ -33,16 +33,16 @@ const PathButton = ({
       fontWeight: "bold",
       transition: "all 0.2s",
       flex: 1,
-      minWidth: "clamp(100px, 25vw, 140px)",
-      maxWidth: "clamp(140px, 35vw, 200px)",
+      minWidth: "clamp(80px, 20vw, 120px)",
+      maxWidth: "clamp(120px, 30vw, 160px)",
       textAlign: "center",
-      fontSize: "clamp(12px, 2.5vw, 14px)",
+      fontSize: "clamp(11px, 2.2vw, 13px)",
     }}
   >
     {path.label}
     {path.kind === "branch" && (
-      <div style={{ fontSize: "clamp(9px, 2vw, 10px)", marginTop: "4px", opacity: 0.8 }}>
-        → Information Chamber
+      <div style={{ fontSize: "clamp(8px, 1.8vw, 9px)", marginTop: "3px", opacity: 0.8 }}>
+        → Chamber
       </div>
     )}
   </div>
@@ -125,16 +125,16 @@ export const PathSelector = () => {
         backgroundColor: "rgba(0, 0, 0, 0.92)",
         border: "2px solid #0f0",
         borderRadius: "8px",
-        padding: "clamp(16px, 4vw, 28px) clamp(20px, 5vw, 32px)",
+        padding: "clamp(12px, 3vw, 20px) clamp(16px, 4vw, 24px)",
         zIndex: 50,
-        width: "min(92vw, 820px)",
-        maxHeight: "90vh",
+        width: "min(85vw, 700px)",
+        maxHeight: "80vh",
         overflowY: "auto",
         textAlign: "center",
       }}
     >
-      <h3 style={{ color: "#0f0", margin: "0 0 clamp(6px, 1.5vw, 8px) 0", fontSize: "clamp(16px, 4vw, 20px)" }}>{forkLabel}</h3>
-      <p style={{ color: "#888", margin: "0 0 clamp(12px, 3vw, 20px) 0", fontSize: "clamp(11px, 2.5vw, 13px)" }}>
+      <h3 style={{ color: "#0f0", margin: "0 0 clamp(4px, 1vw, 6px) 0", fontSize: "clamp(14px, 3.5vw, 18px)" }}>{forkLabel}</h3>
+      <p style={{ color: "#888", margin: "0 0 clamp(8px, 2vw, 14px) 0", fontSize: "clamp(10px, 2.2vw, 12px)" }}>
         {isTerminalFork
           ? "Choose one of four paths ahead — all connect from where you arrived"
           : `Main track · segment ${mainSegmentIndex + 1} of ${journey.length}`}
@@ -145,7 +145,7 @@ export const PathSelector = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          gap: "clamp(8px, 2vw, 16px)",
+          gap: "clamp(6px, 1.5vw, 12px)",
           flexWrap: "wrap",
         }}
       >
@@ -160,7 +160,7 @@ export const PathSelector = () => {
         ))}
       </div>
 
-      <p style={{ color: "#888", marginTop: "clamp(10px, 2.5vw, 15px)", fontSize: "clamp(10px, 2vw, 12px)" }}>
+      <p style={{ color: "#888", marginTop: "clamp(8px, 2vw, 12px)", fontSize: "clamp(9px, 2vw, 11px)" }}>
         ← → Select | Enter Confirm
       </p>
 
@@ -168,15 +168,15 @@ export const PathSelector = () => {
         type="button"
         onClick={() => returnToBeginning()}
         style={{
-          marginTop: "clamp(8px, 2vw, 10px)",
-          padding: "clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)",
+          marginTop: "clamp(6px, 1.5vw, 8px)",
+          padding: "clamp(5px, 1.2vw, 7px) clamp(10px, 2.5vw, 14px)",
           backgroundColor: "transparent",
           color: "#0f0",
           border: "1px solid #0f0",
           borderRadius: "4px",
           fontWeight: "bold",
           cursor: "pointer",
-          fontSize: "clamp(10px, 2vw, 12px)",
+          fontSize: "clamp(9px, 2vw, 11px)",
         }}
       >
         Beginning
