@@ -28,9 +28,11 @@ export const CameraController = () => {
   
   // Mobile-specific refs
   const isMobileRef = useRef(false);
+  const isIOSRef = useRef(false);
   const lastTouchX = useRef(0);
   const lastTouchY = useRef(0);
   const isTouchingRef = useRef(false);
+  const hasTriggeredUiHideRef = useRef(false);
 
   useEffect(() => {
     hasTrackPosition.current = false;
@@ -43,7 +45,11 @@ export const CameraController = () => {
         window.innerWidth <= 768 || 
         /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     };
+    const checkIOS = () => {
+      isIOSRef.current = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    };
     checkMobile();
+    checkIOS();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
@@ -104,6 +110,23 @@ export const CameraController = () => {
     const handlePointerDown = (event: PointerEvent) => {
       if (useGameStore.getState().isDebugCameraLocked) return;
       if (shouldIgnorePointer(event)) return;
+
+      if (isIOSRef.current && !hasTriggeredUiHideRef.current) {
+        hasTriggeredUiHideRef.current = true;
+        // Temporarily allow a tiny scroll to encourage Safari UI collapse.
+        const prevBodyOverflow = document.body.style.overflow;
+        const prevHtmlOverflow = document.documentElement.style.overflow;
+        const prevBodyHeight = document.body.style.height;
+        document.body.style.overflow = "auto";
+        document.documentElement.style.overflow = "auto";
+        document.body.style.height = "calc(100% + 1px)";
+        window.scrollTo(0, 1);
+        window.setTimeout(() => {
+          document.body.style.overflow = prevBodyOverflow;
+          document.documentElement.style.overflow = prevHtmlOverflow;
+          document.body.style.height = prevBodyHeight;
+        }, 250);
+      }
 
       activePointerId = event.pointerId;
       isTouchingRef.current = true;
