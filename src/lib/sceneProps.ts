@@ -148,7 +148,7 @@ export const SCENE_PROPS: ScenePropPlacement[] = [
 ];
 
 /** R2 base URL for assets */
-export const R2_BASE_URL = "https://smaffan.com";
+export const R2_BASE_URL = "https://assets.smaffan.com";
 
 /** GLB paths — keep in sync with public/models */
 export const SCENE_PROP_URLS: Record<ScenePropModel, string> = {
