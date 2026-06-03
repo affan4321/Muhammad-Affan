@@ -14,19 +14,7 @@ An immersive 3D portfolio experience built with Next.js, Three.js, and React Thr
 
 ## Getting Started
 
-First, install dependencies:
-
-```bash
-npm install
-```
-
-Then run the development server:
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [game.smaffan.com](https://www.game.smaffan.com) with your browser to see the result.
 
 ## Controls
 
@@ -35,31 +23,16 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - **Mouse**: Look around
 - **Enter / Click**: Select / Exit chamber
 - **H**: Open help menu
-- **\**: Toggle fullscreen
+- **\\**: Toggle fullscreen
 - **L**: Lock/unlock camera (debug)
 
-## Deployment
-
-### Important: Large Asset Files
+## Important: Large Asset Files
 
 This project contains large 3D model files and audio files that are excluded from git:
 - `/public/models/*` - 3D model files (gitignored)
 - `/public/audio/*` - Audio files (gitignored)
 
-These files must be hosted separately using Cloudflare R2. See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions on setting up R2 and uploading assets.
-
-### Deploy on Vercel
-
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Vercel will automatically deploy on push
-
-The project includes a `vercel.json` configuration for optimal deployment settings.
-
-### Deployment Configuration
-
-- `vercel.json` - Vercel deployment settings
-- `DEPLOYMENT.md` - Comprehensive deployment guide with R2 asset storage setup
+These files are hosted separately using Cloudflare R2. See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions on setting up R2 and uploading assets.
 
 ## Tech Stack
 
