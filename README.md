@@ -32,7 +32,7 @@ This project contains large 3D model files and audio files that are excluded fro
 - `/public/models/*` - 3D model files (gitignored)
 - `/public/audio/*` - Audio files (gitignored)
 
-These files are hosted separately using Cloudflare R2. See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions on setting up R2 and uploading assets.
+These files are hosted separately using Cloudflare R2.
 
 ## Tech Stack
 
