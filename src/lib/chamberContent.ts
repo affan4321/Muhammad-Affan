@@ -51,7 +51,7 @@ export const CHAMBER_CONTENT: Record<string, ChamberContent> = {
     title: "Social Handles",
     socialLinks: [
       { platform: "GitHub", url: "https://github.com/affan4321", icon:"github.png" },
-      { platform: "LinkedIn", url: "https://www.linkedin.com/in/sheikhmuhammadaffan", icon:"linkedin.png" },
+      { platform: "LinkedIn", url: "https://www.linkedin.com/in/sheikhmuhammadaffan", icon:"linkedIn.png" },
       { platform: "Instagram", url: "https://www.instagram.com/smaffan92", icon:"instagram.png" },
       { platform: "Facebook", url: "https://www.facebook.com/smaffan92", icon:"facebook.png" },
       { platform: "Portfolio", url: "https://smaffan.com", icon:"latestFace.svg" },
