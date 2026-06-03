@@ -13,7 +13,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   completedChambers: 0,
   totalChambers: 4,
   completedChamberIds: [],
-  speed: 0.0015,
+  speed: 0.0008,
   currentPosition: new Vector3(0, 0, 0),
   journey: [],
   mainSpine: null,

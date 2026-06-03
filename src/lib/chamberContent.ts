@@ -50,9 +50,11 @@ export const CHAMBER_CONTENT: Record<string, ChamberContent> = {
     type: "social",
     title: "Social Handles",
     socialLinks: [
-      { platform: "GitHub", url: "https://github.com/affan4321" },
-      { platform: "LinkedIn", url: "https://www.linkedin.com/in/sheikhmuhammadaffan/" },
-      { platform: "Portfolio", url: "https://muhammadaffan.com" },
+      { platform: "GitHub", url: "https://github.com/affan4321", icon:"github.png" },
+      { platform: "LinkedIn", url: "https://www.linkedin.com/in/sheikhmuhammadaffan", icon:"linkedin.png" },
+      { platform: "Instagram", url: "https://www.instagram.com/smaffan92", icon:"instagram.png" },
+      { platform: "Facebook", url: "https://www.facebook.com/smaffan92", icon:"facebook.png" },
+      { platform: "Portfolio", url: "https://smaffan.com", icon:"latestFace.svg" },
     ],
   },
   "jewelry-cad": {
@@ -60,17 +62,11 @@ export const CHAMBER_CONTENT: Record<string, ChamberContent> = {
     title: "Jewelry CAD World",
     projects: [
       {
-        id: "jewelry-1",
+        id: "COMING SOON",
         title: "3D Jewelry Designer",
-        description: "Web-based 3D jewelry design tool",
-        link: "https://example.com/jewelry-1",
-      },
-      {
-        id: "jewelry-2",
-        title: "CAD Renderer",
-        description: "Real-time rendering for jewelry models",
-        link: "https://example.com/jewelry-2",
-      },
+        description: "Coming soon...",
+        link: "#",
+      }
     ],
   },
   "video-editing": {
@@ -78,17 +74,11 @@ export const CHAMBER_CONTENT: Record<string, ChamberContent> = {
     title: "Video Editing World",
     projects: [
       {
-        id: "video-1",
-        title: "Video Editor Pro",
-        description: "Professional video editing suite",
-        link: "https://example.com/video-1",
-      },
-      {
-        id: "video-2",
-        title: "Motion Graphics",
-        description: "Animated motion graphics templates",
-        link: "https://example.com/video-2",
-      },
+        id: "COMING SOON",
+        title: "Video Editor",
+        description: "Coming soon...",
+        link: "#",
+      }
     ],
   },
   "game-dev": {
@@ -99,14 +89,8 @@ export const CHAMBER_CONTENT: Record<string, ChamberContent> = {
         id: "game-1",
         title: "Dark Tunnel",
         description: "Immersive 3D portfolio experience",
-        link: "https://example.com/game-1",
-      },
-      {
-        id: "game-2",
-        title: "RPG Engine",
-        description: "Custom game engine for RPGs",
-        link: "https://example.com/game-2",
-      },
+        link: "#",
+      }
     ],
   },
   "ai-journey": {
@@ -123,7 +107,7 @@ export const CHAMBER_CONTENT: Record<string, ChamberContent> = {
         id: "ai-2",
         title: "AI Automation & Video Generation Pipelines (n8n)",
         description: "Designed and implemented end-to-end AI automation workflows using n8n, integrating external AI services and custom backends. Built automated AI video generation pipelines using Kie.ai's models like Google Veo, OpenAI Sora, and many more via API-driven orchestration. ComfyUI-based video generation, including paid hosted models and experimental local pipelines. Explored local ComfyUI training and pipeline setup, gaining hands-on understanding of diffusion workflows, model constraints, and GPU limitations; strategically deprioritized local training to meet strict client deadlines.",
-        link: "-",
+        link: "#",
       },
       {
         id: "ai-3",
