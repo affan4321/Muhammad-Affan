@@ -383,6 +383,22 @@ export const SettingsGear = () => {
                           textAlign: "center",
                         }}
                       >
+                        \
+                      </kbd>
+                      <span style={{ color: "rgba(255, 255, 255, 0.8)" }}>Toggle Full screen Mode</span>
+                    </div>
+                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                      <kbd
+                        style={{
+                          backgroundColor: "rgba(255, 255, 255, 0.15)",
+                          padding: "4px 8px",
+                          borderRadius: 4,
+                          fontSize: 12,
+                          fontFamily: "monospace",
+                          minWidth: 80,
+                          textAlign: "center",
+                        }}
+                      >
                         W / ↑ / Click
                       </kbd>
                       <span style={{ color: "rgba(255, 255, 255, 0.8)" }}>Move Forward</span>
