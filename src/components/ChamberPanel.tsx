@@ -9,11 +9,12 @@ import PDFViewer from "./PDFViewer";
 type TiltCardProps = {
   title: string;
   subtitle?: string;
+  icon?: string;
   accent?: string;
   children: ReactNode;
 };
 
-const TiltCard = ({ title, subtitle, accent = "#00ffd5", children }: TiltCardProps) => {
+const TiltCard = ({ title, subtitle, icon, accent = "#00ffd5", children }: TiltCardProps) => {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [transform, setTransform] = useState("perspective(1200px) rotateX(0deg) rotateY(0deg)");
   const [glow, setGlow] = useState("50% 50%");
@@ -64,6 +65,19 @@ const TiltCard = ({ title, subtitle, accent = "#00ffd5", children }: TiltCardPro
         }}
       />
       <div style={{ position: "relative", padding: "clamp(12px, 3vw, 18px)", transform: "translateZ(30px)" }}>
+        {icon && (
+          <div style={{ marginBottom: "clamp(8px, 2vw, 12px)" }}>
+            <img
+              src={`/icons/${icon}`}
+              alt={title}
+              style={{
+                width: "clamp(32px, 6vw, 48px)",
+                height: "clamp(32px, 6vw, 48px)",
+                objectFit: "contain",
+              }}
+            />
+          </div>
+        )}
         <div style={{ color: accent, fontSize: "clamp(11px, 2.5vw, 13px)", fontWeight: 700, letterSpacing: "0.08em", marginBottom: subtitle ? "clamp(4px, 1vw, 6px)" : "clamp(6px, 1.5vw, 10px)" }}>
           {title}
         </div>
@@ -133,7 +147,7 @@ export const ChamberPanel = () => {
       return (
         <div style={{ display: "grid", gap: "clamp(10px, 2.5vw, 14px)", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
           {content.socialLinks?.map((link, index) => (
-            <TiltCard key={link.platform} title={link.platform} subtitle={`Link ${index + 1}`} accent="#00ffd5">
+            <TiltCard key={link.platform} title={link.platform} subtitle={`Link ${index + 1}`} accent="#00ffd5" icon={link.icon}>
               <a
                 href={link.url}
                 target="_blank"
