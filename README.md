@@ -35,7 +35,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - **Mouse**: Look around
 - **Enter / Click**: Select / Exit chamber
 - **H**: Open help menu
-- **\**: Toggle fullscreen
+- **\\**: Toggle fullscreen
 - **L**: Lock/unlock camera (debug)
 
 ## Deployment
