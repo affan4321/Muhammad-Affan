@@ -48,3 +48,6 @@ next-env.d.ts
 
 # audio files
 /public/audio/*
+
+# deployment guide
+DEPLOYMENT.md
